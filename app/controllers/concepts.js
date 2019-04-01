@@ -1,4 +1,5 @@
 const db = require('./../bootstrap');
+const httpResponse = require('../helpers/http');
 const Concept = db.Concept;
 
 /**
@@ -8,8 +9,13 @@ const Concept = db.Concept;
  * @param {*} next 
  */
 module.exports.index = function(req, res, next) {
-    // res.json({status: 'OK', statusCode: '200', data: []});
-    Concept.findAll().then(data => res.json(data));
+    Concept.findAll()
+    .then(data => res.status(httpResponse.success.c200.code).json({
+        responseType: "success",
+        ...httpResponse.success.c200,
+        data
+    }))
+    .catch(next);
 };
 
 /**
@@ -19,7 +25,13 @@ module.exports.index = function(req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function(req, res, next){
-
+    Concept.findByPk(req.params.conceptId)
+    .then(data => res.status(httpResponse.success.c200.code).json({
+        responseType: "success",
+        ...httpResponse.success.c200,
+        data
+    }))
+    .catch(next);
 }
 
 /**
