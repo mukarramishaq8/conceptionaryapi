@@ -34,7 +34,7 @@ app.use(function (err, req, res, next) {
   let errorCode = err.status || 500;
   res.status(errorCode);
   res.json({
-    responseType: 'error',
+    responseType: httpResponse.responseTypes.error,
     ... httpResponse.error.server_error['c'+errorCode] || httpResponse.error.client_error['c'+errorCode],
     message: err.message
   });

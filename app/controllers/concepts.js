@@ -1,6 +1,8 @@
 const db = require('./../bootstrap');
 const httpResponse = require('../helpers/http');
 const Concept = db.Concept;
+const Perspective = db.Perspective;
+const Author = db.Author;
 
 /**
  * send a list of records
@@ -11,7 +13,7 @@ const Concept = db.Concept;
 module.exports.index = function(req, res, next) {
     Concept.findAll()
     .then(data => res.status(httpResponse.success.c200.code).json({
-        responseType: "success",
+        responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data
     }))
@@ -25,9 +27,9 @@ module.exports.index = function(req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function(req, res, next){
-    Concept.findByPk(req.params.conceptId)
+    Concept.findByPk(req.params.conceptId, {include:{model:Perspective, include: {model: Author}}})
     .then(data => res.status(httpResponse.success.c200.code).json({
-        responseType: "success",
+        responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data
     }))
