@@ -7,9 +7,6 @@
 module.exports = {
     concepts: {
         get: '/concepts',
-        post: '/concepts',
-        put: '/concepts/:conceptId',
-        delete: '/concepts/:conceptId',
-        getOne: '/concepts/:conceptId',
+        put: '/concepts/:conceptId'
     },
 };

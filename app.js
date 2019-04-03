@@ -9,7 +9,7 @@ const httpResponse = require('./app/helpers/http');
 
 const app = express();
 const namespaces = {
-  api: '/rest/v1'
+  api: '/api/rest/v1'
 };
 
 app.use(logger('dev'));
