@@ -4,8 +4,8 @@
 
 const express = require('express');
 const conceptController = require('./../../app/controllers/concept');
-// const perspectiveController = require('./../../app/controllers/perspective');
-// const authorController = require('./../../app/controllers/author');
+const perspectiveController = require('./../../app/controllers/perspective');
+const authorController = require('./../../app/controllers/author');
 const router = express.Router();
 
 router.use((req, res, next) => {
@@ -25,24 +25,24 @@ router.route('/concepts/:conceptId')
 
 
 /*** Perspectives related routes. ***/
-// router.route('/perspectives')
-// .get(perspectiveController.index)
-// .post(perspectiveController.create);
+router.route('/perspectives')
+.get(perspectiveController.index)
+.post(perspectiveController.create);
 
-// router.route('/perspectives/:perspectiveId')
-// .get(perspectiveController.getOne)
-// .put(perspectiveController.update)
-// .delete(perspectiveController.delete);
+router.route('/perspectives/:perspectiveId')
+.get(perspectiveController.getOne)
+.put(perspectiveController.update)
+.delete(perspectiveController.delete);
 
 
-// /*** Authors related routes. ***/
-// router.route('/authors')
-// .get(authorController.index)
-// .post(authorController.create);
+/*** Authors related routes. ***/
+router.route('/authors')
+.get(authorController.index)
+.post(authorController.create);
 
-// router.route('/authors/:authorId')
-// .get(authorController.getOne)
-// .put(authorController.update)
-// .delete(authorController.delete);
+router.route('/authors/:authorId')
+.get(authorController.getOne)
+.put(authorController.update)
+.delete(authorController.delete);
 
 module.exports = router;
