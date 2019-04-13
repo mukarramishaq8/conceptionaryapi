@@ -1,13 +1,12 @@
 const Sequelize = require('sequelize');
-const dbConfigs = require('./../config/db');
-const sequelize = new Sequelize(dbConfigs.database, dbConfigs.username, dbConfigs.password, {
-    host: dbConfigs.hostname,
-    dialect: dbConfigs.dialect,
+const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOSTNAME,
+    dialect: process.env.DB_DIALECT || 'mysql',
     pool: {
-        max: dbConfigs.pool.max,
-        min: dbConfigs.pool.min,
-        acquire: dbConfigs.pool.acquire,
-        idle: dbConfigs.pool.idle,
+        max: parseInt(process.env.SEQ_POOL_MAX),
+        min: parseInt(process.env.SEQ_POOL_MIN),
+        acquire: parseInt(process.env.SEQ_POOL_ACQUIRE),
+        idle: parseInt(process.env.SEQ_POOL_IDLE),
     }
 });
 

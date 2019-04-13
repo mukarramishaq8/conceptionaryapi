@@ -1,12 +1,12 @@
+require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const apiRouter = require('./routes/api/router');
-const db = require('./app/bootstrap');
 const httpResponse = require('./app/helpers/http');
-
+const db = require('./app/bootstrap');
 const app = express();
 const namespaces = {
   api: '/api/rest/v1'
@@ -41,6 +41,6 @@ app.use(function (err, req, res, next) {
 });
 
 /***  Sync Models with Tables  ***/
-db.sequelize.sync().then(data => console.log('DB Sync Completed', data));
+db.sequelize.sync().then(data => console.log('DB Sync Completed'));
 
 module.exports = app;
