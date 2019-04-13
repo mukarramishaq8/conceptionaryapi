@@ -20,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /***  Register routers  ***/
 app.use(namespaces.api, apiRouter);
+app.get('/', (req, res, next) => res.json({ hello: 'hello world' }));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -35,12 +36,12 @@ app.use(function (err, req, res, next) {
   res.status(errorCode);
   res.json({
     responseType: httpResponse.responseTypes.error,
-    ... httpResponse.error.server_error['c'+errorCode] || httpResponse.error.client_error['c'+errorCode],
+    ...httpResponse.error.server_error['c' + errorCode] || httpResponse.error.client_error['c' + errorCode],
     message: err.message
   });
 });
 
 /***  Sync Models with Tables  ***/
-db.sequelize.sync().then(data => console.log('DB Sync Completed', data));
+db.sequelize.sync().then(data => console.log('DB Sync Completed'));
 
 module.exports = app;
