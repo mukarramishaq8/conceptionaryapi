@@ -14,7 +14,8 @@ const Author = db.Author;
 module.exports.index = function(req, res, next) {
     Perspective.findAll({
         ...serializers.getPaginators(req.query),
-        include:[
+        attributes: serializers.getQueryFields(req.query),
+        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {model: Concept},
             {model: Author}
         ]
@@ -33,10 +34,13 @@ module.exports.index = function(req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function(req, res, next){
-    Perspective.findByPk(req.params.perspectiveId, {include:[
-        {model: Concept},
-        {model: Author}
-    ]}).then(data => {
+    Perspective.findByPk(req.params.perspectiveId, {
+        attributes: serializers.getQueryFields(req.query),
+        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
+            {model: Concept},
+            {model: Author}
+        ]
+    }).then(data => {
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,

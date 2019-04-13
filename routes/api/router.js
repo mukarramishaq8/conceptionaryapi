@@ -9,7 +9,7 @@ const authorController = require('./../../app/controllers/author');
 const router = express.Router();
 
 router.use((req, res, next) => {
-    console.log('Request Encounter', req);
+    console.log('Request Encounter', req.query, req.query.fields);
     next();
 });
 

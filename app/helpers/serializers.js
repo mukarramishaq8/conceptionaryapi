@@ -20,3 +20,21 @@ module.exports.getIncludedModels = ({include}) => {
     }
     return includedModels;
 };
+/**
+ * getQueryFields return an array of fields splitted through the delimiter
+ * @param {Object} query
+ * @param {String} delimiter it is optional and its default value is ' '.
+ * @return {Array}
+ */
+module.exports.getQueryFields = ({fields}, delimiter = ' ') => {
+    return _.isEmpty(fields) ? undefined : fields.split(delimiter);
+}
+/**
+ * isRelationshipIncluded tells whether the given object has 
+ * relationships attribute and it has some value other than undefined or empty string
+ * @param {Object} query
+ * @return {Boolean}
+ */
+module.exports.isRelationshipIncluded = ({relationships}) => {
+    return _.isEmpty(relationships) || _.isEqual(relationships, 'false') ? false : true;
+}

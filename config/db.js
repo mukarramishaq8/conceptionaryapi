@@ -7,7 +7,7 @@ module.exports = {
     port: 3306,
     database: 'conceptionary',
     username: 'root',
-    password: 'toor',
+    password: 'root',
     pool: {
         max: 5,
         min: 0,

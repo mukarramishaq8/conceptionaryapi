@@ -1,6 +1,7 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const _ = require('underscore');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
@@ -14,7 +15,8 @@ const Author = db.Author;
 module.exports.index = function(req, res, next) {
     Author.findAll({
         ...serializers.getPaginators(req.query),
-        include:[
+        attributes: serializers.getQueryFields(req.query),
+        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {model: Perspective, include: [
                 {model: Concept}
             ]}
@@ -34,7 +36,17 @@ module.exports.index = function(req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function(req, res, next){
-    Author.findByPk(req.params.authorId, {include:{model:Perspective, include: {model: Concept}}})
+    Author.findByPk(req.params.authorId, {
+        attributes: serializers.getQueryFields(req.query),
+        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
+            {
+                model:Perspective,
+                include: {
+                    model: Concept
+                }
+            }
+        ]
+    })
     .then(data => {
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
