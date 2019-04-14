@@ -18,12 +18,18 @@ db.Sequelize = Sequelize;
 db.Concept = require('./models/Concept')(sequelize, Sequelize);
 db.Perspective = require('./models/Perspective')(sequelize, Sequelize);
 db.Author = require('./models/Author')(sequelize, Sequelize);
+db.Keyword = require('./models/Keyword')(sequelize, Sequelize);
+db.Tone = require('./models/Tone')(sequelize, Sequelize);
 
 /***  Set Relationships  ***/
 db.Concept.hasMany(db.Perspective );
 db.Perspective.belongsTo(db.Concept);
 db.Perspective.belongsTo(db.Author);
 db.Author.hasMany(db.Perspective);
+db.Perspective.belongsToMany(db.Keyword, {through: 'perspectives_keywords', timestamps:false, foreignKey: 'perspective_id', otherKey: 'keyword_id'});
+db.Keyword.belongsToMany(db.Perspective, {through: 'perspectives_keywords', timestamps:false, foreignKey: 'keyword_id', otherKey: 'perspective_id'});
+db.Perspective.belongsToMany(db.Tone, {through: 'perspectives_tones', timestamps:false, foreignKey: 'perspective_id', otherKey: 'tone_id'});
+db.Tone.belongsToMany(db.Perspective, {through: 'perspectives_tones', timestamps:false, foreignKey: 'tone_id', otherKey: 'perspective_id'});
 
 //export db object
 module.exports = db;

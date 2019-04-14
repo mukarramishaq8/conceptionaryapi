@@ -4,6 +4,8 @@ const serializers = require('../helpers/serializers');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
+const Keyword = db.Keyword;
+const Tone = db.Tone;
 
 /**
  * send a list of records
@@ -17,7 +19,9 @@ module.exports.index = function(req, res, next) {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {model: Perspective, include: [
-                {model: Author}
+                {model: Author},
+                {model: Keyword},
+                {model: Tone},
             ]}
         ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
@@ -39,7 +43,9 @@ module.exports.getOne = function(req, res, next){
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {model: Perspective, include: [
-                {model: Author}
+                {model: Author},
+                {model: Keyword},
+                {model: Tone},
             ]}
         ]
     })
