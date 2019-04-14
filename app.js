@@ -1,12 +1,13 @@
+require('dotenv').config();
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const apiRouter = require('./routes/api/router');
-const db = require('./app/bootstrap');
 const httpResponse = require('./app/helpers/http');
-
+const cors = require('cors')
+const db = require('./app/bootstrap');
 const app = express();
 const namespaces = {
   api: '/api/rest/v1'
@@ -14,6 +15,7 @@ const namespaces = {
 
 app.use(logger('dev'));
 app.use(express.json());
+app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
