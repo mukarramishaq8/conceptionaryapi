@@ -3,7 +3,7 @@
  */
 module.exports = {
     dialect: 'mysql',
-    hostname: 'localhost',
+    hostname: 'conceptionarydbnew.cgc0jcanhg8a.us-east-1.rds.amazonaws.com',
     port: 3306,
     database: 'conceptionary',
     username: 'root',
