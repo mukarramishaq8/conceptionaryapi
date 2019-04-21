@@ -4,6 +4,7 @@
 
 const express = require('express');
 const conceptController = require('./../../app/controllers/concept');
+const conceptClusterController = require('./../../app/controllers/conceptCluster');
 const perspectiveController = require('./../../app/controllers/perspective');
 const authorController = require('./../../app/controllers/author');
 const router = express.Router();
@@ -20,6 +21,16 @@ router.route('/concepts')
     .post(conceptController.create);
 
 router.route('/concepts/:conceptId')
+    .get(conceptController.getOne)
+    .put(conceptController.update)
+    .delete(conceptController.delete);
+
+/*** ConceptClusters related routes. ***/
+router.route('/conceptClusters')
+    .get(conceptClusterController.index)
+    .post(conceptClusterController.create);
+
+router.route('/conceptClusters/:conceptClusterId')
     .get(conceptController.getOne)
     .put(conceptController.update)
     .delete(conceptController.delete);
