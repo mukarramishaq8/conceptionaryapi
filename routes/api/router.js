@@ -31,9 +31,9 @@ router.route('/conceptClusters')
     .post(conceptClusterController.create);
 
 router.route('/conceptClusters/:conceptClusterId')
-    .get(conceptController.getOne)
-    .put(conceptController.update)
-    .delete(conceptController.delete);
+    .get(conceptClusterController.getOne)
+    .put(conceptClusterController.update)
+    .delete(conceptClusterController.delete);
 
 
 /*** Perspectives related routes. ***/

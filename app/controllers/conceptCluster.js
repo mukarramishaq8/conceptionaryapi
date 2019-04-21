@@ -38,7 +38,6 @@ module.exports.index = function (req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function (req, res, next) {
-    console.log('concept cluster data2', data);
     ConceptCluster.findByPk(req.params.conceptClusterId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
@@ -56,7 +55,6 @@ module.exports.getOne = function (req, res, next) {
         ]
     })
         .then(data => {
-            console.log('concept cluster data', data);
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
