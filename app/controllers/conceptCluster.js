@@ -42,7 +42,15 @@ module.exports.getOne = function (req, res, next) {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {
-                model: Concept,
+                model: Concept, include: [
+                    {
+                        model: Perspective, include: [
+                            { model: Author },
+                            { model: Keyword },
+                            { model: Tone },
+                        ]
+                    }
+                ]
             }
         ]
     })
