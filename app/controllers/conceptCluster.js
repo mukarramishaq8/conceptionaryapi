@@ -55,6 +55,7 @@ module.exports.getOne = function (req, res, next) {
         ]
     })
         .then(data => {
+            console.log('concept cluster data', data);
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
