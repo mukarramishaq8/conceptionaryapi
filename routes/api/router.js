@@ -90,4 +90,8 @@ router.route('/authorBioHeadings/:authorBioHeadingId')
     .put(authorBioHeadingController.update)
     .delete(authorBioHeadingController.delete);
 
+router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
+router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
+
+
 module.exports = router;
