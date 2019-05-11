@@ -5,6 +5,8 @@ const AuthorGroup = db.AuthorGroup;
 const AuthorCluster = db.AuthorCluster;
 const Author = db.Author;
 const AuthorBioHeading = db.AuthorBioHeading;
+const Perspective = db.Perspective;
+const Concept = db.Concept;
 
 /**
  * send a list of records
@@ -18,8 +20,12 @@ module.exports.index = function (req, res, next) {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {
-                model: AuthorGroup, include: [
-                    Author,
+                model: AuthorGroup, attributes: ['id'], include: [
+                    {
+                        model: Author, attributes: ['id', 'firstName', 'lastName'], include: [
+                            { model: Perspective, include: { model: Concept } }
+                        ]
+                    },
                     AuthorBioHeading,
                 ],
             }
@@ -43,8 +49,12 @@ module.exports.getOne = function (req, res, next) {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {
-                model: AuthorGroup, include: [
-                    Author,
+                model: AuthorGroup, attributes: ['id'], include: [
+                    {
+                        model: Author, attributes: ['id', 'firstName', 'lastName'], include: [
+                            { model: Perspective, include: { model: Concept } }
+                        ]
+                    },
                     AuthorBioHeading,
                 ],
             }

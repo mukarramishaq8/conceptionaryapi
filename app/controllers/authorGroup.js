@@ -5,6 +5,8 @@ const AuthorGroup = db.AuthorGroup;
 const AuthorCluster = db.AuthorCluster;
 const Author = db.Author;
 const AuthorBioHeading = db.AuthorBioHeading;
+const Perspective = db.Perspective;
+const Concept = db.Concept;
 
 /**
  * send a list of records
@@ -17,9 +19,12 @@ module.exports.index = function (req, res, next) {
         ...serializers.getPaginators(req.query),
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            { model: AuthorCluster },
-            { model: Author },
-            { model: AuthorBioHeading }
+            {
+                model: Author, attributes: ['id', 'firstName', 'lastName'], include: [
+                    { model: Perspective, include: { model: Concept } }
+                ]
+            },
+            { model: AuthorBioHeading },
         ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
@@ -39,9 +44,12 @@ module.exports.getOne = function (req, res, next) {
     AuthorGroup.findByPk(req.params.authorGroupId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            { model: AuthorCluster },
-            { model: Author },
-            { model: AuthorBioHeading }
+            {
+                model: Author, attributes: ['id', 'firstName', 'lastName'], include: [
+                    { model: Perspective, include: { model: Concept } }
+                ]
+            },
+            { model: AuthorBioHeading },
         ]
     })
         .then(data => {
