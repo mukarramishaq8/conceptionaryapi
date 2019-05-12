@@ -1,22 +1,22 @@
 const _ = require('underscore');
 module.exports.serializeURLQuery = query => {
-    let {offset, limit} = this.getPaginators(query);
+    let { offset, limit } = this.getPaginators(query);
     let include = this.getIncludedModels(query);
-    return {offset, limit, include};
+    return { offset, limit, include };
 };
 
-module.exports.getPaginators = ({offset, limit}) => {
-    offset =  parseInt(offset);
-    limit =  parseInt(limit);
-    return {offset: offset ? offset : undefined, limit: limit ? limit : undefined};
+module.exports.getPaginators = ({ offset, limit }) => {
+    offset = parseInt(offset);
+    limit = parseInt(limit);
+    return { offset: offset ? offset : undefined, limit: limit ? limit : undefined };
 };
 
-module.exports.getIncludedModels = ({include}) => {
+module.exports.getIncludedModels = ({ include }) => {
     let includedModels = [];
     if (_.isString(include) === true) { //when include is string
-        includedModels.push({model: include});
+        includedModels.push({ model: include });
     } else if (_.isArray(include) === true) { //when include is an array
-        include.forEach(model => includedModels.push({model}))
+        include.forEach(model => includedModels.push({ model }))
     }
     return includedModels;
 };
@@ -26,7 +26,7 @@ module.exports.getIncludedModels = ({include}) => {
  * @param {String} delimiter it is optional and its default value is ' '.
  * @return {Array}
  */
-module.exports.getQueryFields = ({fields}, delimiter = ' ') => {
+module.exports.getQueryFields = ({ fields }, delimiter = ' ') => {
     return _.isEmpty(fields) ? undefined : fields.split(delimiter);
 }
 /**
@@ -35,6 +35,15 @@ module.exports.getQueryFields = ({fields}, delimiter = ' ') => {
  * @param {Object} query
  * @return {Boolean}
  */
-module.exports.isRelationshipIncluded = ({relationships}) => {
+module.exports.isRelationshipIncluded = ({ relationships }) => {
     return _.isEmpty(relationships) || _.isEqual(relationships, 'false') ? false : true;
+}
+/**
+ * withSelfAssociationsOnly tells whether the given object has 
+ * withSelfAssociationsOnly attribute and it has some value other than undefined or empty string
+ * @param {Object} query
+ * @return {Boolean}
+ */
+module.exports.withSelfAssociationsOnly = ({ withSelfAssociationsOnly }) => {
+    return _.isEmpty(withSelfAssociationsOnly) || _.isEqual(withSelfAssociationsOnly, 'false') ? false : true;
 }
