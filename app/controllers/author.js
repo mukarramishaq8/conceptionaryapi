@@ -8,6 +8,7 @@ const Author = db.Author;
 const AuthorBioHeading = db.AuthorBioHeading;
 const AuthorGroup = db.AuthorGroup;
 const Book = db.Book;
+const BookDescription = db.BookDescription;
 
 /**
  * send a list of records
@@ -19,18 +20,23 @@ module.exports.index = function (req, res, next) {
     Author.findAll({
         ...serializers.getPaginators(req.query),
         attributes: serializers.getQueryFields(req.query),
-        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {
-                model: Perspective, include: [
-                    { model: Concept }
+        include: serializers.isRelationshipIncluded(req.query) !== true
+            ? undefined
+            : serializers.withSelfAssociationsOnly(req.query) !== true
+                ? [
+                    {
+                        model: Perspective, include: [
+                            { model: Concept }
+                        ]
+                    },
+                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                    { model: Book, include: { model: BookDescription } },
                 ]
-            },
-            { model: AuthorGroup },
-            { model: Book },
-            { association: 'AuthorConvoAuthors' },
-            { association: 'AuthorInfluenceAuthors' },
-            { association: 'AuthorOnAuthors' },
-        ]
+                : [
+                    { association: 'AuthorOnAuthors' },
+                    { association: 'AuthorConvoAuthors' },
+                    { association: 'AuthorInfluenceAuthors' },
+                ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
@@ -58,7 +64,7 @@ module.exports.getOne = function (req, res, next) {
                         ]
                     },
                     { model: AuthorGroup, include: { model: AuthorBioHeading } },
-                    { model: Book },
+                    { model: Book, include: { model: BookDescription } },
                 ]
                 : [
                     { association: 'AuthorOnAuthors' },

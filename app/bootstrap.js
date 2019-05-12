@@ -26,6 +26,7 @@ db.AuthorCluster = require('./models/AuthorCluster')(sequelize, Sequelize);
 db.AuthorGroup = require('./models/AuthorGroup')(sequelize, Sequelize);
 db.AuthorBioHeading = require('./models/AuthorBioHeading')(sequelize, Sequelize);
 db.Book = require('./models/Book')(sequelize, Sequelize);
+db.BookDescription = require('./models/BookDescription')(sequelize, Sequelize);
 db.AuthorOnAuthor = require('./models/AuthorOnAuthor')(sequelize, Sequelize);
 
 /***  Set Relationships  ***/
@@ -47,6 +48,8 @@ db.AuthorGroup.belongsTo(db.AuthorBioHeading);
 db.AuthorBioHeading.hasOne(db.AuthorGroup);
 db.Author.belongsToMany(db.Book, { through: 'authors_books', timestamps: false, foreignKey: 'author_id', otherKey: 'book_id' });
 db.Book.belongsToMany(db.Author, { through: 'authors_books', timestamps: false, foreignKey: 'book_id', otherKey: 'author_id' });
+db.Book.hasMany(db.BookDescription);
+db.BookDescription.belongsTo(db.Book);
 db.Author.belongsToMany(db.Author, { through: 'authors_influence_authors', as: 'AuthorInfluenceAuthors', timestamps: false, foreignKey: 'influencer_id', otherKey: 'influenced_id' });
 db.Author.belongsToMany(db.Author, { through: 'authors_convo_authors', as: 'AuthorConvoAuthors', timestamps: false, foreignKey: 'author_id', otherKey: 'with_author_id' });
 db.Author.belongsToMany(db.Author, { through: { model: db.AuthorOnAuthor }, as: 'AuthorOnAuthors', timestamps: false, foreignKey: 'author_id', otherKey: 'on_author_id' });
