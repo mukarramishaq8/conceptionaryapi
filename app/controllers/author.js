@@ -70,6 +70,7 @@ module.exports.getOne = function (req, res, next) {
                     { association: 'AuthorOnAuthors' },
                     { association: 'AuthorConvoAuthors' },
                     { association: 'AuthorInfluenceAuthors' },
+                    { association: 'AuthorInfluencedByAuthors' },
                 ]
     }).then(data => {
         res.status(httpResponse.success.c200.code).json({

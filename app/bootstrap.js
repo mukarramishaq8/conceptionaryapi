@@ -51,6 +51,7 @@ db.Book.belongsToMany(db.Author, { through: 'authors_books', timestamps: false, 
 db.Book.hasMany(db.BookDescription);
 db.BookDescription.belongsTo(db.Book);
 db.Author.belongsToMany(db.Author, { through: 'authors_influence_authors', as: 'AuthorInfluenceAuthors', timestamps: false, foreignKey: 'influencer_id', otherKey: 'influenced_id' });
+db.Author.belongsToMany(db.Author, { through: 'authors_influence_authors', as: 'AuthorInfluencedByAuthors', timestamps: false, foreignKey: 'influenced_id', otherKey: 'influencer_id' });
 db.Author.belongsToMany(db.Author, { through: 'authors_convo_authors', as: 'AuthorConvoAuthors', timestamps: false, foreignKey: 'author_id', otherKey: 'with_author_id' });
 db.Author.belongsToMany(db.Author, { through: { model: db.AuthorOnAuthor }, as: 'AuthorOnAuthors', timestamps: false, foreignKey: 'author_id', otherKey: 'on_author_id' });
 
