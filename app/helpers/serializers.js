@@ -47,3 +47,12 @@ module.exports.isRelationshipIncluded = ({ relationships }) => {
 module.exports.withSelfAssociationsOnly = ({ withSelfAssociationsOnly }) => {
     return _.isEmpty(withSelfAssociationsOnly) || _.isEqual(withSelfAssociationsOnly, 'false') ? false : true;
 }
+/**
+ * withListAndRelatedOnly tells whether the given object has 
+ * withListAndRelatedOnly attribute and it has some value other than undefined or empty string
+ * @param {Object} query
+ * @return {Boolean}
+ */
+module.exports.withListAndRelatedOnly = ({ withListAndRelatedOnly }) => {
+    return _.isEmpty(withListAndRelatedOnly) || _.isEqual(withListAndRelatedOnly, 'false') ? false : true;
+}
