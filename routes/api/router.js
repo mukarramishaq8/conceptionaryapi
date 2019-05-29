@@ -7,9 +7,9 @@ const conceptController = require('./../../app/controllers/concept');
 const conceptClusterController = require('./../../app/controllers/conceptCluster');
 const perspectiveController = require('./../../app/controllers/perspective');
 const authorController = require('./../../app/controllers/author');
-const authorClusterController = require('./../../app/controllers/authorCluster');
-const authorGroupController = require('./../../app/controllers/authorGroup');
-const authorBioHeadingController = require('./../../app/controllers/authorBioHeading');
+const authorClusterController = require('./../../app/controllers/authorClusters');
+const homeController = require('./../../app/controllers/home');
+const authorGroupsController = require('./../../app/controllers/authorGroups');
 const router = express.Router();
 
 router.use((req, res, next) => {
@@ -28,6 +28,9 @@ router.route('/concepts/:conceptId')
     .put(conceptController.update)
     .delete(conceptController.delete);
 
+router.route('/concepts/search/:label')
+    .get(conceptController.filter)
+
 /*** ConceptClusters related routes. ***/
 router.route('/conceptClusters')
     .get(conceptClusterController.index)
@@ -37,6 +40,10 @@ router.route('/conceptClusters/:conceptClusterId')
     .get(conceptClusterController.getOne)
     .put(conceptClusterController.update)
     .delete(conceptClusterController.delete);
+
+router.route('/conceptClusters/search/:label')
+    .get(conceptClusterController.filter);
+
 
 
 /*** Perspectives related routes. ***/
@@ -58,40 +65,29 @@ router.route('/authors')
 router.route('/authors/:authorId')
     .get(authorController.getOne)
     .put(authorController.update)
-    .delete(authorController.delete);
+    .delete(authorController.delete)
 
-/*** AuthorClusters related routes. ***/
-router.route('/authorClusters')
-    .get(authorClusterController.index)
-    .post(authorClusterController.create);
+router.route('/authors/search/:label')
+    .get(authorController.filter);
 
-router.route('/authorClusters/:authorClusterId')
-    .get(authorClusterController.getOne)
-    .put(authorClusterController.update)
-    .delete(authorClusterController.delete);
+router.route('/authors/search')
+    .post(authorController.secondFilter);
 
-/*** AuthorGroups related routes. ***/
-router.route('/authorGroups')
-    .get(authorGroupController.index)
-    .post(authorGroupController.create);
+router.route('/authorGroups/search')
+    .post(authorGroupsController.filter);
 
-router.route('/authorGroups/:authorGroupId')
-    .get(authorGroupController.getOne)
-    .put(authorGroupController.update)
-    .delete(authorGroupController.delete);
+/*** AuthorCluster related routes. ***/
+router.route('/authorClusters/search/:label')
+    .get(authorClusterController.filter);
 
-/*** AuthorBioHeadings related routes. ***/
-router.route('/authorBioHeadings')
-    .get(authorBioHeadingController.index)
-    .post(authorBioHeadingController.create);
+/*** Home related routes. ***/
+router.route('/home/all/:label')
+    .get(homeController.index);
 
-router.route('/authorBioHeadings/:authorBioHeadingId')
-    .get(authorBioHeadingController.getOne)
-    .put(authorBioHeadingController.update)
-    .delete(authorBioHeadingController.delete);
-
-router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
-router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
+// router.route('/authors/:authorId')
+//     .get(authorController.getOne)
+//     .put(authorController.update)
+//     .delete(authorController.delete)
 
 
 module.exports = router;
