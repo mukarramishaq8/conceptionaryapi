@@ -110,29 +110,6 @@ module.exports.filter = function(req, res, next) {
             });
         }
     }).then(x=>{
-        AuthorClusters.findAll({
-            where:{
-                name:{
-                    [Sequelize.Op.like]:'%'+req.body.tagsObject.labels+'%'
-                }
-            },
-            limit:5
-        }).then(data => {   
-            if (data.length > 0) {
-                
-                data.forEach(cluster => {
-                    objectMapping = {};
-                    objectMapping.label = cluster.name;
-                    objectMapping.value = cluster.name;
-                    objectMapping.id = cluster.id;
-                    objectMapping.category = "AuthorGroups";
-                    objectMapping.color = authorGroupColor;
-                    objectMapping.type = "cluster";
-    
-                    DataToQuery.push(objectMapping);
-                });
-            }
-        }).then(x=>{
             DataToQuery = [...new Set(DataToQuery)];
 
             res.status(httpResponse.success.c200.code).json({
@@ -141,11 +118,12 @@ module.exports.filter = function(req, res, next) {
                 data: _.sortBy(DataToQuery,'label')
             })
         });
-    })
     }
-    else if(req.body.tagsObject.type =="cluster"){
-        let mainQuery = `SELECT * from author_groups where id IN 
-        ( SELECT DISTINCT author_group_id from author_clusters_author_groups WHERE author_cluster_id = ${req.body.tagsObject.id})`
+    else if(req.body.tagsObject.type =="group"){
+        let mainQuery = ` SELECT * from author_groups WHERE id IN (
+        SELECT DISTINCT author_group_id from authors_author_groups WHERE author_id IN 
+        (SELECT author_id from authors_author_groups WHERE author_group_id IN (${req.body.tagsObject.id}))
+        )`
         db.sequelize.query(mainQuery).then(data=>{
             if (data.length > 0) {
 

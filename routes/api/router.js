@@ -10,7 +10,11 @@ const authorController = require('./../../app/controllers/author');
 const authorClusterController = require('./../../app/controllers/authorClusters');
 const homeController = require('./../../app/controllers/home');
 const authorGroupsController = require('./../../app/controllers/authorGroups');
+const userController = require('./../../app/controllers/users');
 const router = express.Router();
+
+var passport = require('passport');
+require('../../app/controllers/auth.js')(passport)
 
 router.use((req, res, next) => {
     console.log('Request Encounter', req.query, req.query.fields);
@@ -84,10 +88,22 @@ router.route('/authorClusters/search/:label')
 router.route('/home/all/:label')
     .get(homeController.index);
 
-// router.route('/authors/:authorId')
-//     .get(authorController.getOne)
-//     .put(authorController.update)
-//     .delete(authorController.delete)
+/*** Users related routes. ***/
+router.route('/users')
+    .get(userController.index)
+    .post(userController.register);
+
+router.get('/users/test',passport.authenticate('jwt', { session: false }), userController.test)
+
+router.route('/users/:userId')
+    .get(userController.getOne)
+    .put(userController.update)
+    .delete(userController.delete);
+
+
+router.route('/login')
+    .post(userController.login);
+
 
 
 module.exports = router;

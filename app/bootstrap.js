@@ -22,6 +22,7 @@ db.AuthorCluster = require('./models/AuthorCluster')(sequelize, Sequelize);
 db.AuthorGroups = require('./models/AuthorGroups')(sequelize, Sequelize);
 db.Keyword = require('./models/Keyword')(sequelize, Sequelize);
 db.Tone = require('./models/Tone')(sequelize, Sequelize);
+db.User = require('./models/User')(sequelize, Sequelize);
 db.ConceptCluster = require('./models/ConceptCluster')(sequelize, Sequelize);
 
 /***  Set Relationships  ***/

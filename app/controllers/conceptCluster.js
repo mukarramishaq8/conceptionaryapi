@@ -8,6 +8,7 @@ const Perspective = db.Perspective;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
+const _ = require('underscore');
 
 /**
  * send a list of records

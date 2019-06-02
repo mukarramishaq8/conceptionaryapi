@@ -169,21 +169,32 @@ module.exports.filter = function(req, res, next) {
         });
 };
 
- function getAuthorGroupIds  (query){
+//  function getAuthorGroupIds  (query){
+//     return new Promise(async (resolve, reject)=> {
+//         let authorgroupIdsfromClusters = [];
+//         let data = await db.sequelize.query(query);
+//             if (data.length > 0) {
+//                 data[0].forEach(x=> {
+//                     authorgroupIdsfromClusters.push(x.id)
+//                 })
+//             }
+//             resolve(authorgroupIdsfromClusters);
+//     });
+// }
+
+
+function getAuthorGroupIds  (authorgroupIds){
     return new Promise(async (resolve, reject)=> {
         let authorgroupIdsfromClusters = [];
-        console.log("1");
-        let data = await db.sequelize.query(query);
-        console.log("2");
+        let data = await db.sequelize.query(`SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
+        (SELECT author_id from authors_author_groups WHERE author_group_id IN (${authorgroupIds}))`);
             if (data.length > 0) {
                 data[0].forEach(x=> {
-                    authorgroupIdsfromClusters.push(x.id)
+                    authorgroupIdsfromClusters.push(x.gid)
                 })
             }
             resolve(authorgroupIdsfromClusters);
     });
-    
-   
 }
 
 module.exports.secondFilter = async function(req, res, next) {
@@ -197,71 +208,22 @@ module.exports.secondFilter = async function(req, res, next) {
     let outerQuery = "";
     let innerQuery = "";
 
-    if (req.body.labels.length ===1) {
-        let authorgroupIdsfromClusters = [];
-        if (req.body.labels[0].type == "cluster"){
-            let fetchAuthorGroupsIdsQuery = `SELECT DISTINCT author_group_id as id
-                FROM author_clusters_author_groups 
-                WHERE author_cluster_id = ${req.body.labels[0].id}`;
-                
-                authorgroupIdsfromClusters= await getAuthorGroupIds(fetchAuthorGroupsIdsQuery);
-                
-                outerQuery = `select DISTINCT author_id from authors_author_groups where author_group_id IN (${authorgroupIdsfromClusters})`;
-            
-        }
-        else{
-            outerQuery = `select DISTINCT author_id from authors_author_groups where author_group_id = ${req.body.labels[0].id}`;
-        }
+   
+    let authorgroupIds = [];
+    let groupIds = [];
+    if (req.body.labels.length ==1) {
+        groupIds = req.body.labels[0].id;
     }
     else{
-
-        let authorgroupIdsfromClusters = [];
-
-        await Promise.all(req.body.labels.map(async x =>{
-            if (x.type == "cluster") {
-                let fetchAuthorGroupsIdsQuery = `SELECT DISTINCT author_group_id as id
-                FROM author_clusters_author_groups 
-                WHERE author_cluster_id = ${x.id}`;
-                authorgroupIdsfromClusters = await getAuthorGroupIds(fetchAuthorGroupsIdsQuery);
-            }
-        }))
-        let clusterInnerQuery="";
-        let groupInnerQuery="";
-        req.body.labels.forEach(x=> {
-            if (x.type == "cluster") {
-                clusterInnerQuery  = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIdsfromClusters})) as clusterquery `
-            }
-            if (x.type == "group") {
-                groupInnerQuery  = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${x.id})) as groupquery `
-            }
-        })
-
-    //     if (authorgroupIdsfromClusters.length > 0) {
-    //         innerQuery  = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIdsfromClusters})) as innerquery `
-
-    //         // authorgroupIdsfromClusters.forEach((x,index)=>{
-            
-    //         //     innerQuery  += `(SELECT author_id FROM authors_author_groups WHERE author_group_id = ${x}) AS a`+index
-    //         //     if(index < (authorgroupIdsfromClusters.length -1 ) || authorgroupIdsfromClusters.length === 1){
-    //         //         innerQuery  += " INNER JOIN ";
-    //         //     }
-    //         // });
-    //     } else {
-    //         innerQuery  = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${req.body.labels})) as innerquery `
-            
-    //     // req.body.labels.forEach((x,index)=>{
-            
-    //     //     innerQuery  += `(SELECT author_id FROM authors_author_groups WHERE author_group_id = ${x.id}) AS a`+index
-    //     //     if(index < (req.body.labels.length -1 ) || req.body.labels.length === 1){
-    //     //         innerQuery  += " INNER JOIN ";
-    //     //     }
-    //     // });
-    // }
-
-        outerQuery = `SELECT DISTINCT author_id FROM ( ${clusterInnerQuery} INNER JOIN  ${groupInnerQuery} USING(author_id) )`;
+        groupIds = req.body.labels.map(x=>x.id);
     }
+    
+    authorgroupIds = await getAuthorGroupIds(groupIds)
 
-    let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND (first_name LIKE '%${req.body.label}%' OR last_name LIKE '%${req.body.label}%') LIMIT 4 `;
+
+    outerQuery  = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds}) AND author_group_id NOT IN (${groupIds})) `;
+
+    let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND (first_name LIKE '${req.body.label}%' OR last_name LIKE '${req.body.label}%' OR first_name LIKE '% ${req.body.label}%' OR last_name LIKE '% ${req.body.label}%')  LIMIT 10 `;
     db.sequelize.query(mainQuery).then(data => {  
 
         //data is ARRAY of ARRAYS, merging into single array containg author records
@@ -299,14 +261,6 @@ module.exports.secondFilter = async function(req, res, next) {
             //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
             
             authorsdata.forEach(author => {
-                // objectMapping = {};
-                // objectMapping.label = author.first_name + " " + author.last_name;
-                // objectMapping.value = author.first_name + " " + author.last_name;
-                // objectMapping.id = author.id;
-                // objectMapping.category = "Author";
-                // objectMapping.color = authorColor;
-
-                // DataToQuery.push(objectMapping);
                 AuthorIDs.push(author.id);
             });
         }
@@ -319,7 +273,7 @@ module.exports.secondFilter = async function(req, res, next) {
         else{
             innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs}))`
         }
-        mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND name LIKE '%${req.body.label}%' LIMIT 3 `;
+        mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
 
     
         db.sequelize.query(mainQuery).then(data => {  
@@ -349,7 +303,7 @@ module.exports.secondFilter = async function(req, res, next) {
             // console.log(ConceptIDs)
             outerQuery  = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs}))`;
             
-            let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '%${req.body.label}%' LIMIT 3 `;
+            let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
             db.sequelize.query(mainQuery).then(data => {  
     
                 //data is ARRAY of ARRAYS, merging into single array containg author records
@@ -374,66 +328,26 @@ module.exports.secondFilter = async function(req, res, next) {
             }).then(x=>{
             // DataToQuery = [...new Set(DataToQuery)];
             DataToQuery = DataToQuery
-       .map(e => e["id"])
+            .map(e => e["id"])
 
-     // store the keys of the unique objects
-    .map((e, i, final) => final.indexOf(e) === i && i)
+                // store the keys of the unique objects
+            .map((e, i, final) => final.indexOf(e) === i && i)
 
-    // eliminate the dead keys & store unique objects
-    .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
+            // eliminate the dead keys & store unique objects
+            .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
 
-                AuthorIDs=[];
-                ConceptIDs=[];
+            AuthorIDs=[];
+            ConceptIDs=[];
+
+            DataToQuery =  _.sortBy(DataToQuery,'label')
 
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
-                data: _.sortBy(DataToQuery,'label')
+                data: DataToQuery.slice(0,10)
             })
         })
         })
         })
         })
     }
-
-
-
-
-
-
-// module.exports.secondFilter = function(req, res, next) {
-//     let DataToQuery = [];
-//     Author.findAll({
-//         include:[{
-//             model:AuthorGroups,
-//             where:{
-//                 name:req.body.labels[req.body.labels.length-1]
-//             }
-//         }],
-//         limit:10
-//     }).then(data => {   
-//         if (data.length > 0) {
-            
-//             let authorsdata = [...data];
-        
-//             authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
-            
-//             authorsdata.forEach(author => {
-//                 Perspective.findAll({
-//                     where:{
-
-//                     }
-//                 })
-
-//             });
-//         }
-//     }).then(x=>{
-//             DataToQuery = [...new Set(DataToQuery)];
-
-//             res.status(httpResponse.success.c200.code).json({
-//                 responseType: httpResponse.responseTypes.success,
-//                 ...httpResponse.success.c200,
-//                 data: DataToQuery
-//             })
-//         });
-// };

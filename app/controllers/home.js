@@ -16,22 +16,29 @@ let objectMapping = {}
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#FF0000";
+let authorClusterColor = "#0000FF";
 
 
 module.exports.index = function(req, res, next) {
     let DataToQuery = []
     Author.findAll({
         where:{
-            [Sequelize.Op.or]:{
+            [Sequelize.Op.or]:[{
                 firstName:{
                     [Sequelize.Op.like]:req.params.label+'%'
-                },
+                }},{
                 lastName:{
                     [Sequelize.Op.like]:req.params.label+'%'
+                },
+                firstName:{
+                    [Sequelize.Op.like]:'% '+req.params.label+'%'
+                }},{
+                lastName:{
+                    [Sequelize.Op.like]:'% '+req.params.label+'%'
                 }
-            }
+            }]
         },
-        limit:3
+        limit:10
     }).
         then(data => {
             
@@ -50,11 +57,22 @@ module.exports.index = function(req, res, next) {
         
             Concept.findAll({
                 where:{
-                    name:{
-                        [Sequelize.Op.like]:'%'+req.params.label+'%'
-                    }
+                    [Sequelize.Op.or]:[
+                        {
+                            name:{
+                                [Sequelize.Op.like]:req.params.label+'%'
+                            }
+                        },
+                        {
+                            name:{
+                                [Sequelize.Op.like]:'% '+req.params.label+'%'
+                            }
+                        }   
+                    ]
+
+                    
                 },
-                limit:3
+                limit:10
             }).
             then(data=> {
                 data.forEach(concept => {
@@ -70,17 +88,25 @@ module.exports.index = function(req, res, next) {
                 
 
                 
-        })
-    }).then(x=>{
+        }).then(x=>{
         
 
             ConceptCluster.findAll({
                 where:{
-                    name:{
-                        [Sequelize.Op.like]:'%'+req.params.label+'%'
-                    }
+                    [Sequelize.Op.or]:[
+                        {
+                            name:{
+                                [Sequelize.Op.like]:req.params.label+'%'
+                            }
+                        },
+                        {
+                            name:{
+                                [Sequelize.Op.like]:'% '+req.params.label+'%'
+                            }
+                        }   
+                    ]
                 },
-                limit:3
+                limit:10
             }).
             then(data=> {
                 data.forEach(concept => {
@@ -94,18 +120,56 @@ module.exports.index = function(req, res, next) {
                     DataToQuery.push(objectMapping);
                 });
                 
-
-                
         }).then(x=>{
-            
-            DataToQuery = [...new Set(DataToQuery)];
+        
 
+            AuthorCluster.findAll({
+                where:{
+                    [Sequelize.Op.or]:[
+                        {
+                            name:{
+                                [Sequelize.Op.like]:req.params.label+'%'
+                            }
+                        },
+                        {
+                            name:{
+                                [Sequelize.Op.like]:'% '+req.params.label+'%'
+                            }
+                        }   
+                    ]
+                },
+                limit:10
+            }).
+            then(data=> {
+                data.forEach(author => {
+                    objectMapping = {};
+                    objectMapping.label = author.name  + "|Author Cluster";
+                    objectMapping.value = author.name;
+                    objectMapping.id = author.id;
+                    objectMapping.category = "Author Clusters";
+                    objectMapping.color = authorClusterColor;
+    
+                    DataToQuery.push(objectMapping);
+                })
+        }).then(x=>{
+                
+            DataToQuery = DataToQuery.map(e => e["id"])
+            // store the keys of the unique objects
+           .map((e, i, final) => final.indexOf(e) === i && i)
+            // eliminate the dead keys & store unique objects
+            .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
+    
+            DataToQuery =_.sortBy(DataToQuery,'label')
+             
+    
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
-                data: _.sortBy(DataToQuery,'label')
+                data: DataToQuery.slice(0,10)
             })
-        });
+        })
+    })
+    })
     })
         
 };
