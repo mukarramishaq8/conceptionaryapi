@@ -17,159 +17,180 @@ let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#FF0000";
 let authorClusterColor = "#0000FF";
+let authorGroupColor = '#33FF57';
 
 
-module.exports.index = function(req, res, next) {
+module.exports.index = function (req, res, next) {
     let DataToQuery = []
-    Author.findAll({
-        where:{
-            [Sequelize.Op.or]:[{
-                firstName:{
-                    [Sequelize.Op.like]:req.params.label+'%'
-                }},{
-                lastName:{
-                    [Sequelize.Op.like]:req.params.label+'%'
-                },
-                firstName:{
-                    [Sequelize.Op.like]:'% '+req.params.label+'%'
-                }},{
-                lastName:{
-                    [Sequelize.Op.like]:'% '+req.params.label+'%'
-                }
-            }]
-        },
-        limit:10
-    }).
+
+    db.sequelize.query("SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE '%" + req.params.label + "%'"
+        //where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("first_name")," ",Sequelize.col("last_name")),'Evan Abba'),
+        /* where: {
+             [Sequelize.Op.or]: [{
+                 firstName: {
+                     [Sequelize.Op.like]: req.params.label + '%'
+                 }
+             }, {
+                 lastName: {
+                     [Sequelize.Op.like]: req.params.label + '%'
+                 },
+                 firstName: {
+                     [Sequelize.Op.like]: '% ' + req.params.label + '%'
+                 }
+             }, {
+                 lastName: {
+                     [Sequelize.Op.like]: '% ' + req.params.label + '%'
+                 }
+             }]
+         },*/
+        //limit: 10
+    ).
         then(data => {
-            
+            data = data[0]
             data.forEach(author => {
                 objectMapping = {};
-                objectMapping.label = author.firstName + " " + author.lastName;
-                objectMapping.value = author.firstName + " " + author.lastName;
+                objectMapping.label = author.first_name + " " + author.last_name;
+                objectMapping.value = author.first_name + " " + author.last_name;
                 objectMapping.id = author.id;
                 objectMapping.category = "Author";
                 objectMapping.color = authorColor;
-
                 DataToQuery.push(objectMapping);
             });
-            
-    }).then(x=>{
-        
+
+        }).then(x => {
             Concept.findAll({
-                where:{
-                    [Sequelize.Op.or]:[
+                where: {
+                    [Sequelize.Op.or]: [
                         {
-                            name:{
-                                [Sequelize.Op.like]:req.params.label+'%'
+                            name: {
+                                [Sequelize.Op.like]: req.params.label + '%'
                             }
                         },
                         {
-                            name:{
-                                [Sequelize.Op.like]:'% '+req.params.label+'%'
+                            name: {
+                                [Sequelize.Op.like]: '% ' + req.params.label + '%'
                             }
-                        }   
+                        }
                     ]
 
-                    
+
                 },
-                limit:10
+                limit: 10
             }).
-            then(data=> {
-                data.forEach(concept => {
-                    objectMapping = {};
-                    objectMapping.label = concept.name ;
-                    objectMapping.value = concept.name;
-                    objectMapping.id = concept.id;
-                    objectMapping.category = "Concept";
-                    objectMapping.color = conceptColor;
+                then(data => {
+                    data.forEach(concept => {
+                        objectMapping = {};
+                        objectMapping.label = concept.name;
+                        objectMapping.value = concept.name;
+                        objectMapping.id = concept.id;
+                        objectMapping.category = "Concept";
+                        objectMapping.color = conceptColor;
 
-                    DataToQuery.push(objectMapping);
-                });
-                
+                        DataToQuery.push(objectMapping);
+                    });
 
-                
-        }).then(x=>{
-        
 
-            ConceptCluster.findAll({
-                where:{
-                    [Sequelize.Op.or]:[
-                        {
-                            name:{
-                                [Sequelize.Op.like]:req.params.label+'%'
-                            }
+
+                }).then(x => {
+                    ConceptCluster.findAll({
+                        where: {
+                            [Sequelize.Op.or]: [
+                                {
+                                    name: {
+                                        [Sequelize.Op.like]: req.params.label + '%'
+                                    }
+                                },
+                                {
+                                    name: {
+                                        [Sequelize.Op.like]: '% ' + req.params.label + '%'
+                                    }
+                                }
+                            ]
                         },
-                        {
-                            name:{
-                                [Sequelize.Op.like]:'% '+req.params.label+'%'
-                            }
-                        }   
-                    ]
-                },
-                limit:10
-            }).
-            then(data=> {
-                data.forEach(concept => {
-                    objectMapping = {};
-                    objectMapping.label = concept.name  + "|Concept Cluster";
-                    objectMapping.value = concept.name;
-                    objectMapping.id = concept.id;
-                    objectMapping.category = "Concept Clusters";
-                    objectMapping.color = conceptClusterColor;
+                        limit: 10
+                    }).
+                        then(data => {
 
-                    DataToQuery.push(objectMapping);
-                });
-                
-        }).then(x=>{
-        
+                            data.forEach(concept => {
+                                objectMapping = {};
+                                objectMapping.label = concept.name + "|Concept Cluster";
+                                objectMapping.value = concept.name;
+                                objectMapping.id = concept.id;
+                                objectMapping.category = "Concept Clusters";
+                                objectMapping.color = conceptClusterColor;
 
-            AuthorCluster.findAll({
-                where:{
-                    [Sequelize.Op.or]:[
-                        {
-                            name:{
-                                [Sequelize.Op.like]:req.params.label+'%'
-                            }
-                        },
-                        {
-                            name:{
-                                [Sequelize.Op.like]:'% '+req.params.label+'%'
-                            }
-                        }   
-                    ]
-                },
-                limit:10
-            }).
-            then(data=> {
-                data.forEach(author => {
-                    objectMapping = {};
-                    objectMapping.label = author.name  + "|Author Cluster";
-                    objectMapping.value = author.name;
-                    objectMapping.id = author.id;
-                    objectMapping.category = "Author Clusters";
-                    objectMapping.color = authorClusterColor;
-    
-                    DataToQuery.push(objectMapping);
+                                DataToQuery.push(objectMapping);
+                            });
+
+                        }).then(x => {
+                            AuthorCluster.findAll({
+
+                                where: {
+                                    [Sequelize.Op.or]: [
+                                        {
+                                            name: {
+                                                [Sequelize.Op.like]: req.params.label + '%'
+                                            }
+                                        },
+                                        {
+                                            name: {
+                                                [Sequelize.Op.like]: '% ' + req.params.label + '%'
+                                            }
+                                        }
+                                    ]
+                                },
+                                limit: 10
+                            }).
+                                then(data => {
+                                    data.forEach(author => {
+                                        objectMapping = {};
+                                        objectMapping.label = author.name + "|Author Cluster";
+                                        objectMapping.value = author.name;
+                                        objectMapping.id = author.id;
+                                        objectMapping.category = "Author Clusters";
+                                        objectMapping.color = authorClusterColor;
+
+                                        DataToQuery.push(objectMapping);
+
+                                    })
+                                }).then(x => {
+
+                                    AuthorGroups.findAll({
+                                        where: {
+
+                                            name: {
+                                                [Sequelize.Op.like]: req.params.label + '%'
+                                            }
+
+                                        },
+                                        limit: 10
+                                    }).then(data => {
+                                        data.forEach(authorGroup => {
+                                            objectMapping = {};
+                                            objectMapping.label = authorGroup.name + '| Author Group';
+                                            objectMapping.value = authorGroup.name;
+                                            objectMapping.id = authorGroup.id;
+                                            objectMapping.category = 'Author Group';
+                                            objectMapping.color = authorGroupColor;
+                                            DataToQuery.push(objectMapping);
+                                        })
+                                    }).then(x => {
+                                        /* DataToQuery = DataToQuery.map(e => e["id"])
+                                         // store the keys of the unique objects
+                                         .map((e, i, final) => final.indexOf(e) === i && i)
+                                         // eliminate the dead keys & store unique objects
+                                         .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);*/
+
+                                        DataToQuery = _.sortBy(DataToQuery, 'label');
+                                        res.status(httpResponse.success.c200.code).json({
+                                            responseType: httpResponse.responseTypes.success,
+                                            ...httpResponse.success.c200,
+                                            data: DataToQuery.slice(0, 10)
+                                        })
+                                    })
+                                })
+                        })
                 })
-        }).then(x=>{
-                
-            DataToQuery = DataToQuery.map(e => e["id"])
-            // store the keys of the unique objects
-           .map((e, i, final) => final.indexOf(e) === i && i)
-            // eliminate the dead keys & store unique objects
-            .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
-    
-            DataToQuery =_.sortBy(DataToQuery,'label')
-             
-    
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data: DataToQuery.slice(0,10)
-            })
         })
-    })
-    })
-    })
-        
+
 };
