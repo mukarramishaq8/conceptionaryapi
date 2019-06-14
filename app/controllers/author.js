@@ -192,9 +192,7 @@ function getAuthorGroupIds(authorgroupIds) {
         if (authorgroupIds.length == 1) {
             let data = await db.sequelize.query(`
         SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
-        (
-            SELECT author_id from authors_author_groups WHERE author_group_id IN ${authorgroupIds}
-        )`
+        (SELECT author_id from authors_author_groups WHERE author_group_id IN (${authorgroupIds}))`
             );
 
             if (data.length > 0) {
@@ -243,7 +241,7 @@ module.exports.secondFilter = async function (req, res, next) {
     let authorgroupIds = [];
     let groupIds = [];
     if (req.body.labels.length == 1) {
-        groupIds = req.body.labels[0].id;
+        groupIds.push(req.body.labels[0].id);
     }
     else {
         groupIds = req.body.labels.map(x => x.id);
