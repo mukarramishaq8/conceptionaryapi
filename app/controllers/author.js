@@ -247,10 +247,21 @@ module.exports.secondFilter = async function (req, res, next) {
         groupIds = req.body.labels.map(x => x.id);
     }
 
-    authorgroupIds = await getAuthorGroupIds(groupIds)
+    // authorgroupIds = await getAuthorGroupIds(groupIds)
+    authorgroupIds = groupIds;
 
-
-    outerQuery = `(SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds}) AND author_group_id NOT IN (${groupIds})) `;
+    if (groupIds.length == 1) {
+        outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds})`;
+    }
+    else {
+        outerQuery = `
+        SELECT author_id from 
+        (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[0]}) ) as a1
+        INNER JOIN
+        ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[1]}) ) as a2  
+        USING(author_id)   
+        `;
+    }
 
     let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND (first_name LIKE '${req.body.label}%' OR last_name LIKE '${req.body.label}%' OR first_name LIKE '% ${req.body.label}%' OR last_name LIKE '% ${req.body.label}%')  LIMIT 10 `;
     db.sequelize.query(mainQuery).then(data => {
@@ -300,9 +311,9 @@ module.exports.secondFilter = async function (req, res, next) {
                 innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${AuthorIDs[0]})`;
             }
             else {
-                innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs}))`
+                innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs.length>0?AuthorIDs:-1}))`
             }
-            mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
+            mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
 
 
             db.sequelize.query(mainQuery).then(data => {
@@ -330,7 +341,7 @@ module.exports.secondFilter = async function (req, res, next) {
             }).then(x => {
 
                 // console.log(ConceptIDs)
-                outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs}))`;
+                outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ?ConceptIDs: -1 }))`;
 
                 let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
                 db.sequelize.query(mainQuery).then(data => {
@@ -369,7 +380,10 @@ module.exports.secondFilter = async function (req, res, next) {
                     AuthorIDs = [];
                     ConceptIDs = [];
 
-                    DataToQuery = _.sortBy(DataToQuery, 'label');
+                   // DataToQuery = _.sortBy(DataToQuery, 'label');
+                   DataToQuery.sort((a,b)=>
+                     a.length - b.length 
+                   );
                     res.status(httpResponse.success.c200.code).json({
                         responseType: httpResponse.responseTypes.success,
                         ...httpResponse.success.c200,
