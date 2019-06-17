@@ -23,7 +23,7 @@ let authorGroupColor = '#33FF57';
 module.exports.index = function (req, res, next) {
     let DataToQuery = []
 
-    db.sequelize.query("SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE " + "'" + req.params.label + "%' OR (CONCAT(first_name, ' ', last_name)) LIKE '% " + req.params.label + "%'"
+    db.sequelize.query("SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE " + "'" + req.params.label + "%' OR (CONCAT(first_name, ' ', last_name)) LIKE '% " + req.params.label + "%' ORDER BY length(CONCAT(first_name, ' ', last_name))"
         //where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("first_name")," ",Sequelize.col("last_name")),'Evan Abba'),
         /* where: {
              [Sequelize.Op.or]: [{
@@ -75,9 +75,14 @@ module.exports.index = function (req, res, next) {
 
 
                 },
+                order: [
+                    [Sequelize.fn('length', Sequelize.col('name'))]
+                ],
+
                 limit: 10
             }).
                 then(data => {
+
                     data.forEach(concept => {
                         objectMapping = {};
                         objectMapping.label = concept.name;
@@ -106,7 +111,9 @@ module.exports.index = function (req, res, next) {
                                     }
                                 }
                             ]
+
                         },
+                        order: [Sequelize.fn('length', Sequelize.col('name'))],
                         limit: 10
                     }).
                         then(data => {
@@ -138,10 +145,13 @@ module.exports.index = function (req, res, next) {
                                             }
                                         }
                                     ]
+
                                 },
+                                order: [Sequelize.fn('length', Sequelize.col('name'))],
                                 limit: 10
                             }).
                                 then(data => {
+
                                     data.forEach(author => {
                                         objectMapping = {};
                                         objectMapping.label = author.name + "|Author Cluster";
@@ -163,6 +173,7 @@ module.exports.index = function (req, res, next) {
                                             }
 
                                         },
+                                        order: [Sequelize.fn('length', Sequelize.col('name'))],
                                         limit: 10
                                     }).then(data => {
                                         data.forEach(authorGroup => {
@@ -181,9 +192,9 @@ module.exports.index = function (req, res, next) {
                                          // eliminate the dead keys & store unique objects
                                          .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);*/
 
-                                        DataToQuery.sort((a, b) =>
-                                            a["label"].length - b["label"].length
-                                        );
+                                         DataToQuery.sort((a, b) =>
+                                             a["label"].length - b["label"].length
+                                         );
                                         res.status(httpResponse.success.c200.code).json({
                                             responseType: httpResponse.responseTypes.success,
                                             ...httpResponse.success.c200,

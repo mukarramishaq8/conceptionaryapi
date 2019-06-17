@@ -92,7 +92,10 @@ module.exports.filter = function (req, res, next) {
             where: {
                 name: { [Sequelize.Op.like]: req.body.tagsObject.labels + '%' }
             },
-            limit: 5
+            order: [
+                [Sequelize.fn('length', Sequelize.col('name'))]
+            ],
+            limit: 10
         }).then(data => {
             if (data.length > 0) {
 
@@ -114,7 +117,9 @@ module.exports.filter = function (req, res, next) {
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
-                data: _.sortBy(DataToQuery, 'label')
+                data: DataToQuery.sort((a, b) =>
+                    a["label"].length - b["label"].length
+                )//_.sortBy(DataToQuery, 'label')
             })
         });
     }
@@ -123,7 +128,7 @@ module.exports.filter = function (req, res, next) {
         let mainQuery = ` SELECT * from author_groups WHERE id IN (
         SELECT DISTINCT author_group_id from authors_author_groups WHERE author_id IN 
         (SELECT author_id from authors_author_groups WHERE author_group_id IN (${req.body.tagsObject.id}))
-        ) AND id NOT IN (${req.body.tagsObject.id}) AND name LIKE '${req.body.tagsObject.labels}%' `
+        ) AND id NOT IN (${req.body.tagsObject.id}) AND name LIKE '${req.body.tagsObject.labels}%' order by length(name) `
         db.sequelize.query(mainQuery).then(data => {
             if (data.length > 0) {
 
