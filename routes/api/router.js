@@ -7,7 +7,8 @@ const conceptController = require('./../../app/controllers/concept');
 const conceptClusterController = require('./../../app/controllers/conceptCluster');
 const perspectiveController = require('./../../app/controllers/perspective');
 const authorController = require('./../../app/controllers/author');
-const authorClusterController = require('./../../app/controllers/authorClusters');
+const authorClustersController = require('./../../app/controllers/authorClusters');
+const authorClusterController = require('./../../app/controllers/authorCluster');
 const homeController = require('./../../app/controllers/home');
 const authorGroupsController = require('./../../app/controllers/authorGroups');
 const userController = require('./../../app/controllers/users');
@@ -83,7 +84,15 @@ router.route('/authorGroups/search')
 /*** AuthorCluster related routes. ***/
 router.route('/authorClusters/search/:label')
     .get(authorClusterController.filter);
+/**Author cluster */
+router.route('/authorClusters')
+   .get(authorClustersController.index)
+   .post(authorClustersController.create);
 
+router.route('/authorClusters/:authorClusterId')
+   .get(authorClusterController.getOne)
+   .put(authorClusterController.update)
+   .delete(authorClusterController.delete);
 /*** Home related routes. ***/
 router.route('/home/all/:label')
     .get(homeController.index);
@@ -93,7 +102,7 @@ router.route('/users')
     .get(userController.index)
     .post(userController.register);
 
-router.get('/users/test',passport.authenticate('jwt', { session: false }), userController.test)
+router.get('/users/test', passport.authenticate('jwt', { session: false }), userController.test)
 
 router.route('/users/:userId')
     .get(userController.getOne)
@@ -103,6 +112,8 @@ router.route('/users/:userId')
 
 router.route('/login')
     .post(userController.login);
+router.route('/home/:name')
+    .get(homeController.getIdByName);
 
 
 

@@ -192,9 +192,9 @@ module.exports.index = function (req, res, next) {
                                          // eliminate the dead keys & store unique objects
                                          .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);*/
 
-                                         DataToQuery.sort((a, b) =>
-                                             a["label"].length - b["label"].length
-                                         );
+                                        DataToQuery.sort((a, b) =>
+                                            a["label"].length - b["label"].length
+                                        );
                                         res.status(httpResponse.success.c200.code).json({
                                             responseType: httpResponse.responseTypes.success,
                                             ...httpResponse.success.c200,
@@ -207,3 +207,17 @@ module.exports.index = function (req, res, next) {
         })
 
 };
+module.exports.getIdByName = (req, res, next) => {
+    let name = req.params.name;
+    Concept.find({
+        where: {
+            name: name
+        }
+    }).then(concetp => {
+        res.json(concept);
+    })
+        .catch((err) => {
+
+        }
+        );
+}
