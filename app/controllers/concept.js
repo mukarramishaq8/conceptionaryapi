@@ -15,23 +15,25 @@ const _ = require('underscore');
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.index = function(req, res, next) {
+module.exports.index = function (req, res, next) {
     Concept.findAll({
         ...serializers.getPaginators(req.query),
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {model: Perspective, include: [
-                {model: Author},
-                {model: Keyword},
-                {model: Tone},
-            ]}
+            {
+                model: Perspective, include: [
+                    { model: Author },
+                    { model: Keyword },
+                    { model: Tone },
+                ]
+            }
         ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data
     }))
-    .catch(next);
+        .catch(next);
 };
 
 /**
@@ -40,24 +42,102 @@ module.exports.index = function(req, res, next) {
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getOne = function(req, res, next){
-    Concept.findByPk(req.params.conceptId, {
-        attributes: serializers.getQueryFields(req.query),
-        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {model: Perspective, include: [
-                {model: Author},
-                {model: Keyword},
-                {model: Tone},
-            ]}
-        ]
-    })
-    .then(data => {
-        res.status(httpResponse.success.c200.code).json({
-            responseType: httpResponse.responseTypes.success,
-            ...httpResponse.success.c200,
-            data
-        });
-    }).catch(next);
+
+getAuthorsId = function (filters) {
+    return new Promise((resolve, reject) => {
+
+        let outerQuery = "";
+
+        if (filters.length == 1) {
+            outerQuery = `SELECT author_id as id FROM authors_author_groups WHERE author_group_id IN (${filters})`;
+        }
+        else {
+            outerQuery = `
+            SELECT author_id as id from 
+            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${filters[0]}) ) as a1
+            INNER JOIN
+            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${filters[1]}) ) as a2  
+            USING(author_id)   
+            `;
+        }
+
+        db.sequelize.query(outerQuery)
+            .then(data => {
+                let authorIds = data[0].map(x => x.id);
+
+                resolve(authorIds);
+            }).catch(err => console.log(err))
+
+    }).catch(err => console.log(err))
+}
+
+module.exports.getOne = async function (req, res, next) {
+    let authorIds = [];
+    if (req.body.Conceptobj.filters.length > 0) {
+        authorIds = await getAuthorsId(req.body.Conceptobj.filters)
+    }
+    if (authorIds.length > 0) {
+        Concept.findByPk(req.body.Conceptobj.concept_id, {
+
+            attributes: serializers.getQueryFields(req.query),
+            include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
+                {
+                    model: Perspective, include: [
+                        {
+                            model: Author,
+
+                            where: {
+                                id: {
+                                    [Sequelize.Op.in]: authorIds
+                                }
+                            }
+                        },
+                        { model: Keyword },
+                        { model: Tone },
+                    ]
+                }
+            ]
+        })
+            .then(data => {
+                console.log(data);
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+    } else {
+
+        Concept.findByPk(req.body.Conceptobj.concept_id, {
+
+            attributes: serializers.getQueryFields(req.query),
+            include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
+                {
+                    model: Perspective, include: [
+                        {
+                            model: Author
+                        },
+                        { model: Keyword },
+                        { model: Tone },
+                    ]
+                }
+            ]
+        })
+            .then(data => {
+                console.log(data);
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+
+    }
+
 }
 
 /**
@@ -66,15 +146,15 @@ module.exports.getOne = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.create = function(req, res, next){
+module.exports.create = function (req, res, next) {
     Concept.create(req.body)
-    .then(data => {
-        res.status(httpResponse.success.c201.code).json({
-            responseType: httpResponse.responseTypes.success,
-            ...httpResponse.success.c201,
-            data
-        });
-    }).catch(next);
+        .then(data => {
+            res.status(httpResponse.success.c201.code).json({
+                responseType: httpResponse.responseTypes.success,
+                ...httpResponse.success.c201,
+                data
+            });
+        }).catch(next);
 }
 
 /**
@@ -83,22 +163,22 @@ module.exports.create = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.update = function(req, res, next){
+module.exports.update = function (req, res, next) {
     Concept.findByPk(req.params.conceptId)
-    .then(concept => {
-        if (!concept) {
-            let e = new Error('resource not found');
-            e.status = httpResponse.error.client_error.c404.code;
-            throw e;
-        }
-        concept.update(req.body).then(data => {
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data
+        .then(concept => {
+            if (!concept) {
+                let e = new Error('resource not found');
+                e.status = httpResponse.error.client_error.c404.code;
+                throw e;
+            }
+            concept.update(req.body).then(data => {
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data
+                });
             });
-        });
-    }).catch(next);
+        }).catch(next);
 }
 
 /**
@@ -107,21 +187,21 @@ module.exports.update = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.delete = function(req, res, next){
+module.exports.delete = function (req, res, next) {
     Concept.findByPk(req.params.conceptId)
-    .then(concept => {
-        if (!concept) {
-            let e = new Error('resource not found');
-            e.status = httpResponse.error.client_error.c404.code;
-            throw e;
-        }
-        concept.destroy().then(data => {
-            res.status(httpResponse.success.c204.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c204
-            });
+        .then(concept => {
+            if (!concept) {
+                let e = new Error('resource not found');
+                e.status = httpResponse.error.client_error.c404.code;
+                throw e;
+            }
+            concept.destroy().then(data => {
+                res.status(httpResponse.success.c204.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c204
+                });
+            }).catch(next);
         }).catch(next);
-    }).catch(next);
 }
 
 
@@ -132,18 +212,18 @@ let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 
 
-module.exports.filter = function(req, res, next) {
+module.exports.filter = function (req, res, next) {
     let DataToQuery = [];
     Concept.findAll({
-        where:{
-            name:{
-                [Sequelize.Op.like]:'%'+req.params.label+'%'
+        where: {
+            name: {
+                [Sequelize.Op.like]: '%' + req.params.label + '%'
             }
         },
-        limit:10
-    }).then(data => {   
+        limit: 10
+    }).then(data => {
         if (data.length > 0) {
-            
+
             data.forEach(concept => {
                 objectMapping = {};
                 objectMapping.label = concept.name;
@@ -155,14 +235,14 @@ module.exports.filter = function(req, res, next) {
                 DataToQuery.push(objectMapping);
             });
         }
-    }).then(x=>{
-            DataToQuery = [...new Set(DataToQuery)];
+    }).then(x => {
+        DataToQuery = [...new Set(DataToQuery)];
 
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data: _.sortBy(DataToQuery,'label')
-            })
-        });
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            data: _.sortBy(DataToQuery, 'label')
+        })
+    });
 };
 

@@ -155,3 +155,30 @@ module.exports.delete = function (req, res, next) {
             }).catch(next);
         }).catch(next);
 }
+module.exports.getPerspectivesThroughAuthorCluster = function (req, res, next) {
+    console.log(req.params.authorClusterId)
+    let paginator = serializers.getPaginators(req.query);
+    paginator.offset = !paginator.offset ? 0 : paginator.offset;
+    paginator.limit = !paginator.limit ? 1000 : paginator.limit;
+    db.sequelize.query(`select
+    c.id conceptId, c.name conceptName, c.picture_link conceptPictureLink,
+    p.*,
+    a.id authorId, a.first_name authorFirstName, a.last_name authorLastName, a.picture_link authorPictureLink,
+    ag.id authorGroupId, ag.name authorGroupName, ag.picture_link authorGroupPictureLink,
+    ac.id authorClusterId, ac.name authorClusterName, ac.picture_link authorClusterPictureLink
+    from concepts c
+    join perspectives p on c.id = p.concept_id
+    join authors a on a.id = p.author_id
+    join authors_author_groups aag on aag.author_id = a.id
+    join author_groups ag on aag.author_group_id = ag.id
+    join author_clusters_author_groups agac on agac.author_group_id = ag.id
+    join author_clusters ac on agac.author_cluster_id = ac.id
+    where ac.id = ${req.params.authorClusterId} ${(paginator.offset || paginator.limit) ? 'limit ' + paginator.offset + ',' + paginator.limit : ''}`, { type: db.sequelize.QueryTypes.SELECT }).then((data) => {
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            data: data,
+            countData: data.length,
+        });
+    });
+}

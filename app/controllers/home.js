@@ -213,11 +213,11 @@ module.exports.getIdByName = (req, res, next) => {
         where: {
             name: name
         }
-    }).then(concetp => {
+    }).then(concept => {
         res.json(concept);
     })
         .catch((err) => {
-
+            res.json({err});
         }
         );
 }

@@ -32,6 +32,8 @@ router.route('/concepts/:conceptId')
     .get(conceptController.getOne)
     .put(conceptController.update)
     .delete(conceptController.delete);
+    router.route('/concepts/filter')
+    .post(conceptController.getOne);
 
 router.route('/concepts/search/:label')
     .get(conceptController.filter)
@@ -83,16 +85,16 @@ router.route('/authorGroups/search')
 
 /*** AuthorCluster related routes. ***/
 router.route('/authorClusters/search/:label')
-    .get(authorClusterController.filter);
+    .get(authorClustersController.filter);
 /**Author cluster */
-router.route('/authorClusters')
+/*router.route('/authorClusters')
    .get(authorClustersController.index)
-   .post(authorClustersController.create);
+   .post(authorClustersController.create);*/
 
 router.route('/authorClusters/:authorClusterId')
-   .get(authorClusterController.getOne)
-   .put(authorClusterController.update)
-   .delete(authorClusterController.delete);
+    .get(authorClusterController.getOne)
+    .put(authorClusterController.update)
+    .delete(authorClusterController.delete);
 /*** Home related routes. ***/
 router.route('/home/all/:label')
     .get(homeController.index);
@@ -114,6 +116,8 @@ router.route('/login')
     .post(userController.login);
 router.route('/home/:name')
     .get(homeController.getIdByName);
+router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
+// router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
 
 
 
