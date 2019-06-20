@@ -25,7 +25,7 @@ router.use((req, res, next) => {
 
 /*** Concepts related routes. ***/
 router.route('/concepts')
-    .get(conceptController.index)
+    .get(conceptController.getConceptId)
     .post(conceptController.create);
 
 router.route('/concepts/:conceptId')
@@ -82,6 +82,8 @@ router.route('/authors/search')
 
 router.route('/authorGroups/search')
     .post(authorGroupsController.filter);
+router.route('/authorGroups')
+    .post(authorGroupsController.groupIds);
 
 /*** AuthorCluster related routes. ***/
 router.route('/authorClusters/search/:label')
