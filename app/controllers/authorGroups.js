@@ -190,12 +190,26 @@ module.exports.filter = function (req, res, next) {
 };
 
 module.exports.groupIds=(req,res,next)=>{
+    let DataToQuery=[];
     let filters=req.body.filters;
     filters=filters.map(x=>`"${x}"`);
-     let query=`SELECT id from author_groups WHERE name IN (${filters})`;
+     let query=`SELECT * from author_groups WHERE name IN (${filters})`;
      db.sequelize.query(query).then(data=>{
-         ids=data[0].map(x=>x.id);
-         res.json(ids);
+        if (data.length > 0) {
+
+            let groupsData = data[0]
+
+            groupsData.forEach(group => {
+                objectMapping = {};
+                objectMapping.label = group.name;
+                objectMapping.value = group.name;
+                objectMapping.id = group.id;
+                objectMapping.type = "group";
+
+                DataToQuery.push(objectMapping);
+            });
+        }
+         res.json(DataToQuery);
      }).catch(err=>{
          console.log(err);
      });

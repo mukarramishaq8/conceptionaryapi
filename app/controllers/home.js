@@ -217,7 +217,7 @@ module.exports.getIdByName = (req, res, next) => {
         res.json(concept);
     })
         .catch((err) => {
-            res.json({err});
+            res.json({errn});
         }
         );
 }
