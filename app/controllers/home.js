@@ -153,14 +153,14 @@ module.exports.index = function (req, res, next) {
                                 then(data => {
 
                                     data.forEach(author => {
-                                        objectMapping = {};
-                                        objectMapping.label = author.name + "|Author Cluster";
-                                        objectMapping.value = author.name;
-                                        objectMapping.id = author.id;
-                                        objectMapping.category = "Author Clusters";
-                                        objectMapping.color = authorClusterColor;
+                                    objectMapping = {};
+                                    objectMapping.label = author.name + "|Author Cluster";
+                                    objectMapping.value = author.name;
+                                    objectMapping.id = author.id;
+                                    objectMapping.category = "Author Clusters";
+                                    objectMapping.color = authorClusterColor;
 
-                                        DataToQuery.push(objectMapping);
+                                    DataToQuery.push(objectMapping);
 
                                     })
                                 }).then(x => {

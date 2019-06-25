@@ -130,7 +130,7 @@ let objectMapping = {}
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#00FF00";
-
+let authorClusterColor="#aaa";
 
 module.exports.filter = function (req, res, next) {
     let DataToQuery = [];
@@ -227,95 +227,288 @@ function getAuthorGroupIds(authorgroupIds) {
 }
 
 module.exports.secondFilter = async function (req, res, next) {
-    let DataToQuery = [];
-
-
-    let AuthorIDs = [];
-    let ConceptIDs = [];
-
-    // SQUELIZE doesn't provide support/implementation for ALL operator hence using custom raw query
-    let outerQuery = "";
-    let innerQuery = "";
-
-
-    let authorgroupIds = [];
-    let groupIds = [];
-    if (req.body.labels.length == 1) {
-        groupIds.push(req.body.labels[0].id);
-    }
-    else {
-        groupIds = req.body.labels.map(x => x.id);
-    }
-
-    // authorgroupIds = await getAuthorGroupIds(groupIds)
-    authorgroupIds = groupIds;
-
-    if (groupIds.length == 1) {
-        outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds})`;
-    }
-    else {
-        outerQuery = `
-        SELECT author_id from 
-        (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[0]}) ) as a1
-        INNER JOIN
-        ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[1]}) ) as a2  
-        USING(author_id)   
-        `;
-    }
-
-    let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%' ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
-    db.sequelize.query(mainQuery).then(data => {
-
-        //data is ARRAY of ARRAYS, merging into single array containg author records
-        // var merged = [].concat.apply([], data[0]); 
-        if (true || merged.length > 0) {
-
-            // let authorsdata = [...merged];
-            let authorsdata = data[0];
-
-            //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
-
-            authorsdata.forEach(author => {
-                objectMapping = {};
-                objectMapping.label = author.first_name + " " + author.last_name;
-                objectMapping.value = author.first_name + " " + author.last_name;
-                objectMapping.id = author.id;
-                objectMapping.category = "Author";
-                objectMapping.color = authorColor;
-
-                DataToQuery.push(objectMapping);
-                // AuthorIDs.push(author.id);
-            });
-        }
-    }).then(x => {
-        let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) `;
-        db.sequelize.query(mainQuery).then(data => {
-
-            //data is ARRAY of ARRAYS, merging into single array containg author records
-            // var merged = [].concat.apply([], data[0]); 
-            if (true || merged.length > 0) {
-
-                // let authorsdata = [...merged];
-                let authorsdata = data[0];
-
-                //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
-
-                authorsdata.forEach(author => {
-                    AuthorIDs.push(author.id);
-                });
-            }
-        }).then(x => {
-
-            if (AuthorIDs.length == 1) {
-                // console.log(AuthorIDs)
-                innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${AuthorIDs[0]})`;
+    console.log(req.body.category);
+    switch (req.body.category) {
+        case "Author": {
+            let DataToQuery = [];
+            let groupIds = [];
+            let outerQuery = ``;
+            if (req.body.labels.length == 1) {
+                groupIds.push(req.body.labels[0].id);
             }
             else {
-                innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs.length > 0 ? AuthorIDs : -1}))`
+                groupIds = req.body.labels.map(x => x.id);
             }
-            mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
+            if (groupIds.length == 1) {
+                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
+            }
+            else {
+                outerQuery = `
+            SELECT author_id from 
+            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
+            INNER JOIN
+            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
+            USING(author_id)   
+            `;
+            }
+            db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+                .then(data => {
+                    if (data.length > 0) {
+                        data[0].forEach(author => {
+                            objectMapping = {};
+                            objectMapping.label = author.first_name + " " + author.last_name;
+                            objectMapping.value = author.first_name + " " + author.last_name;
+                            objectMapping.id = author.id;
+                            objectMapping.category = "Author";
+                            objectMapping.color = authorColor;
+
+                            DataToQuery.push(objectMapping);
+                        });
+                    }
+                }).then(x => {
+                    DataToQuery = [...new Set(DataToQuery)];
+
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                        data: DataToQuery
+                    })
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+            break;
+        case "Concept": {
+            let DataToQuery = [];
+            let groupIds = [];
+            let outerQuery = "";
+            if (req.body.labels.length == 1) {
+                groupIds.push(req.body.labels[0].id);
+            }
+            else {
+                groupIds = req.body.labels.map(x => x.id);
+            }
+            if (groupIds.length == 1) {
+                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
+            }
+            else {
+                outerQuery = `
+            SELECT author_id from 
+            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
+            INNER JOIN
+            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
+            USING(author_id)   
+            `;
+            }
+            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) LIMIT 10 `)
+                .then(data => {
+                    let authorIDs = data[0].map(author => author.id);
+                    let innerQuery = "";
+                    if (authorIDs.length == 1) {
+                        // console.log(AuthorIDs)
+                        innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${authorIDs[0]})`;
+                    }
+                    else {
+                        innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${authorIDs.length > 0 ? authorIDs : -1}))`
+                    }
+                    mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
+                    db.sequelize.query(mainQuery)
+                        .then(data => {
+                            if (data.length > 0) {
+                                data[0].forEach(concept => {
+                                    objectMapping = {};
+                                    objectMapping.label = concept.name;
+                                    objectMapping.value = concept.name;
+                                    objectMapping.id = concept.id;
+                                    objectMapping.category = "Concept";
+                                    objectMapping.color = conceptColor;
+                                    DataToQuery.push(objectMapping);
+                                });
+                            }
+                        })
+                        .then(x => {
+                            DataToQuery = [...new Set(DataToQuery)];
+
+                            res.status(httpResponse.success.c200.code).json({
+                                responseType: httpResponse.responseTypes.success,
+                                ...httpResponse.success.c200,
+                                data: DataToQuery
+                            })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+            break;
+        case "Concept Clusters": {
+            let conceptIDs = [];
+            let DataToQuery = [];
+            let groupIds = [];
+            let outerQuery = "";
+            if (req.body.labels.length == 1) {
+                groupIds.push(req.body.labels[0].id);
+            }
+            else {
+                groupIds = req.body.labels.map(x => x.id);
+            }
+            if (groupIds.length == 1) {
+                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
+            }
+            else {
+                outerQuery = `
+            SELECT author_id from 
+            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
+            INNER JOIN
+            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
+            USING(author_id)   
+            `;
+            }
+            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) LIMIT 10 `)
+                .then(data => {
+                    let authorIDs = data[0].map(author => author.id);
+                    let innerQuery = "";
+                    if (authorIDs.length == 1) {
+                        // console.log(AuthorIDs)
+                        innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${authorIDs[0]})`;
+                    }
+                    else {
+                        innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${authorIDs.length > 0 ? authorIDs : -1}))`
+                    }
+                    mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
+                    db.sequelize.query(mainQuery)
+                        .then(data => {
+                            conceptIDs = data[0].map(concept => concept.id);
+                            console.log(conceptIDs);
+                        })
+                        .then(x => {
+                            let outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${conceptIDs.length > 0 ? conceptIDs : -1}))`;
+                            let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
+                            db.sequelize.query(mainQuery)
+                                .then(data => {
+                                    console.log(data);
+                                    if (data.length > 0) {
+                                        data[0].forEach(conceptCluster => {
+                                            objectMapping = {};
+                                            objectMapping.label = conceptCluster.name + " |Concept cluster";
+                                            objectMapping.value = conceptCluster.name;
+                                            objectMapping.id = conceptCluster.id;
+                                            objectMapping.category = "Concept Clusters";
+                                            objectMapping.color = conceptClusterColor;
+
+                                            DataToQuery.push(objectMapping);
+                                        });
+                                    }
+                                })
+                                .then(x => {
+                                    DataToQuery = [...new Set(DataToQuery)];
+
+                                    res.status(httpResponse.success.c200.code).json({
+                                        responseType: httpResponse.responseTypes.success,
+                                        ...httpResponse.success.c200,
+                                        data: DataToQuery
+                                    })
+                                })
+                                .catch(err => {
+
+                                })
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }).catch(err => {
+                    console.log(err);
+                });
+        }
+            break;
+        case "Author Clusters":{
+            let DataToQuery = [];
+            let groupIds = [];
+            let author_cluster_ids=[];
+            let outerQuery = "";
+            if (req.body.labels.length == 1) {
+                groupIds.push(req.body.labels[0].id);
+            }
+            else {
+                groupIds = req.body.labels.map(x => x.id);
+            }
+            db.sequelize.query(`SELECT DISTINCT author_cluster_id from author_clusters_author_groups where author_group_id in (${groupIds})`)
+            .then(data=>{
+             author_cluster_ids=  data[0].map(author_cluster=>author_cluster.author_cluster_id);
+            })
+            .then(x=>{
+                db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') `)
+                .then(data=>{
+                    console.log(data);
+                    if(data.length>0){
+                        data[0].forEach(author=>{
+                            objectMapping = {};
+                            objectMapping.label = author.name + "|Author Cluster";
+                            objectMapping.value = author.name;
+                            objectMapping.id = author.id;
+                            objectMapping.category = "Author Clusters";
+                            objectMapping.color = authorClusterColor;
+                            DataToQuery.push(objectMapping);
+                        });
+                    }
+                })
+                .then(x=>{
+                    DataToQuery = [...new Set(DataToQuery)];
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                        data: DataToQuery
+                    })
+                })
+                .catch();
+            })
+            .catch(err=>{
+                console.log(err);
+            });
+
+        }
+        break;
+        default: {
+            let DataToQuery = [];
+
+            let AuthorIDs = [];
+            let ConceptIDs = [];
+
+            // SQUELIZE doesn't provide support/implementation for ALL operator hence using custom raw query
+            let outerQuery = "";
+            let innerQuery = "";
 
 
+            let authorgroupIds = [];
+            let groupIds = [];
+            if (req.body.labels.length == 1) {
+                groupIds.push(req.body.labels[0].id);
+            }
+            else {
+                groupIds = req.body.labels.map(x => x.id);
+            }
+
+            // authorgroupIds = await getAuthorGroupIds(groupIds)
+            authorgroupIds = groupIds;
+
+            if (groupIds.length == 1) {
+                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds})`;
+            }
+            else {
+                outerQuery = `
+            SELECT author_id from 
+            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[0]}) ) as a1
+            INNER JOIN
+            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[1]}) ) as a2  
+            USING(author_id)   
+            `;
+            }
+
+            let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
             db.sequelize.query(mainQuery).then(data => {
 
                 //data is ARRAY of ARRAYS, merging into single array containg author records
@@ -323,27 +516,24 @@ module.exports.secondFilter = async function (req, res, next) {
                 if (true || merged.length > 0) {
 
                     // let authorsdata = [...merged];
-                    let conceptsData = data[0];
+                    let authorsdata = data[0];
 
-                    conceptsData.forEach(concept => {
+                    //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
+
+                    authorsdata.forEach(author => {
                         objectMapping = {};
-                        objectMapping.label = concept.name;
-                        objectMapping.value = concept.name;
-                        objectMapping.id = concept.id;
-                        objectMapping.category = "Concept";
-                        objectMapping.color = conceptColor;
+                        objectMapping.label = author.first_name + " " + author.last_name;
+                        objectMapping.value = author.first_name + " " + author.last_name;
+                        objectMapping.id = author.id;
+                        objectMapping.category = "Author";
+                        objectMapping.color = authorColor;
 
                         DataToQuery.push(objectMapping);
-                        ConceptIDs.push(concept.id);
+                        // AuthorIDs.push(author.id);
                     });
                 }
-
             }).then(x => {
-
-                // console.log(ConceptIDs)
-                outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ? ConceptIDs : -1}))`;
-
-                let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
+                let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) `;
                 db.sequelize.query(mainQuery).then(data => {
 
                     //data is ARRAY of ARRAYS, merging into single array containg author records
@@ -351,46 +541,105 @@ module.exports.secondFilter = async function (req, res, next) {
                     if (true || merged.length > 0) {
 
                         // let authorsdata = [...merged];
-                        let conceptsClusterData = data[0];
+                        let authorsdata = data[0];
 
-                        conceptsClusterData.forEach(concept => {
-                            objectMapping = {};
-                            objectMapping.label = concept.name + " |Concept cluster";
-                            objectMapping.value = concept.name;
-                            objectMapping.id = concept.id;
-                            objectMapping.category = "Concept Clusters";
-                            objectMapping.color = conceptClusterColor;
+                        //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
 
-                            DataToQuery.push(objectMapping);
+                        authorsdata.forEach(author => {
+                            AuthorIDs.push(author.id);
                         });
                     }
-
                 }).then(x => {
-                    // DataToQuery = [...new Set(DataToQuery)];
-                    DataToQuery = DataToQuery
 
-                        .map(e => e["id"])
+                    if (AuthorIDs.length == 1) {
+                        // console.log(AuthorIDs)
+                        innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${AuthorIDs[0]})`;
+                    }
+                    else {
+                        innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs.length > 0 ? AuthorIDs : -1}))`
+                    }
+                    mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
 
-                        // store the keys of the unique objects
-                        .map((e, i, final) => final.indexOf(e) === i && i)
 
-                        // eliminate the dead keys & store unique objects
-                        .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
+                    db.sequelize.query(mainQuery).then(data => {
 
-                    AuthorIDs = [];
-                    ConceptIDs = [];
+                        //data is ARRAY of ARRAYS, merging into single array containg author records
+                        // var merged = [].concat.apply([], data[0]); 
+                        if (true || merged.length > 0) {
 
-                    // DataToQuery = _.sortBy(DataToQuery, 'label');
-                    DataToQuery.sort((a, b) =>
-                        a.length - b.length
-                    );
-                    res.status(httpResponse.success.c200.code).json({
-                        responseType: httpResponse.responseTypes.success,
-                        ...httpResponse.success.c200,
-                        data: DataToQuery.slice(0, 10)
+                            // let authorsdata = [...merged];
+                            let conceptsData = data[0];
+
+                            conceptsData.forEach(concept => {
+                                objectMapping = {};
+                                objectMapping.label = concept.name;
+                                objectMapping.value = concept.name;
+                                objectMapping.id = concept.id;
+                                objectMapping.category = "Concept";
+                                objectMapping.color = conceptColor;
+
+                                DataToQuery.push(objectMapping);
+                                ConceptIDs.push(concept.id);
+                            });
+                        }
+
+                    }).then(x => {
+
+                        // console.log(ConceptIDs)
+                        outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ? ConceptIDs : -1}))`;
+
+                        let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
+                        db.sequelize.query(mainQuery).then(data => {
+
+                            //data is ARRAY of ARRAYS, merging into single array containg author records
+                            // var merged = [].concat.apply([], data[0]); 
+                            if (true || merged.length > 0) {
+
+                                // let authorsdata = [...merged];
+                                let conceptsClusterData = data[0];
+
+                                conceptsClusterData.forEach(concept => {
+                                    objectMapping = {};
+                                    objectMapping.label = concept.name + " |Concept cluster";
+                                    objectMapping.value = concept.name;
+                                    objectMapping.id = concept.id;
+                                    objectMapping.category = "Concept Clusters";
+                                    objectMapping.color = conceptClusterColor;
+
+                                    DataToQuery.push(objectMapping);
+                                });
+                            }
+
+                        }).then(x => {
+                            // DataToQuery = [...new Set(DataToQuery)];
+                            DataToQuery = DataToQuery
+
+                                .map(e => e["id"])
+
+                                // store the keys of the unique objects
+                                .map((e, i, final) => final.indexOf(e) === i && i)
+
+                                // eliminate the dead keys & store unique objects
+                                .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
+
+                            AuthorIDs = [];
+                            ConceptIDs = [];
+
+                            // DataToQuery = _.sortBy(DataToQuery, 'label');
+                            DataToQuery.sort((a, b) =>
+                                a.length - b.length
+                            );
+                            res.status(httpResponse.success.c200.code).json({
+                                responseType: httpResponse.responseTypes.success,
+                                ...httpResponse.success.c200,
+                                data: DataToQuery.slice(0, 10)
+                            })
+                        })
                     })
                 })
             })
-        })
-    })
+
+        }
+    }
+
 }
