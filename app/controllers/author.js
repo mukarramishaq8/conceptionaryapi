@@ -13,6 +13,90 @@ const AuthorGroups = db.AuthorGroups;
  * @param {*} res 
  * @param {*} next 
  */
+module.exports.getAuthor=function(req,res,next){
+    if(req.body.author.groupIds.length>0){
+        let DataToQuery = [];
+        let groupIds = [];
+        let outerQuery = ``;
+        if (req.body.author.groupIds.length == 1) {
+            groupIds.push(req.body.author.groupIds[0].id);
+        }
+        else {
+            groupIds = req.body.author.groupIds.map(x => x.id);
+        }
+        if (groupIds.length == 1) {
+            outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id in (${groupIds})`;
+        }
+        else {
+            outerQuery = `
+        SELECT author_id from 
+        (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
+        INNER JOIN
+        ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
+        USING(author_id)   
+        `;
+        }
+        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+            .then(data => {
+                if (data.length > 0) {
+                    // data[0].forEach(author => {
+                    //     objectMapping = {};
+                    //     objectMapping.label = author.first_name + " " + author.last_name;
+                    //     objectMapping.value = author.first_name + " " + author.last_name;
+                    //     objectMapping.id = author.id;
+                    //     objectMapping.category = "Author";
+                    //     objectMapping.color = authorColor;
+
+                    //     DataToQuery.push(objectMapping);
+                    // });
+                }
+            }).then(x => {
+                DataToQuery = [...new Set(DataToQuery)];
+
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data: DataToQuery
+                })
+            })
+            .catch(err => {
+                console.log(err);
+            })
+    }else{
+        if(req.body.author.name){
+            Author.findOne({
+                where:{
+                    [Sequelize.Op.or]:[
+                        {first_name:req.body.author.name},
+                        {last_name:req.body.author.name},
+                         Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
+                            [Sequelize.Op.like]: '%' + req.body.author.name + '%'
+                          })
+                       
+                    ]
+                }
+            }).then(data => {
+                 obj={};
+                 objectMapping = {};
+                         objectMapping.label = data.firstName+" "+ data.lastName;
+                         objectMapping.value = data.firstName+" "+ data.lastName;
+                         objectMapping.id = data.id;
+                         objectMapping.category = "Author";
+                         // objectMapping.color = authorGroupColor;
+                         //objectMapping.type = "cluster";
+                         obj.selectedOption=objectMapping;
+             res.status(httpResponse.success.c200.code).json({
+             responseType: httpResponse.responseTypes.success,
+             ...httpResponse.success.c200,
+             obj
+         })}).catch(err=>{
+                console.log(err);
+            })
+        }else{
+            res.json({"msg":"query name not found"});
+        }
+    }
+}
 module.exports.index = function (req, res, next) {
     Author.findAll({
         ...serializers.getPaginators(req.query),
@@ -227,7 +311,6 @@ function getAuthorGroupIds(authorgroupIds) {
 }
 
 module.exports.secondFilter = async function (req, res, next) {
-    console.log(req.body.category);
     switch (req.body.category) {
         case "Author": {
             let DataToQuery = [];
@@ -443,7 +526,6 @@ module.exports.secondFilter = async function (req, res, next) {
             .then(x=>{
                 db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') `)
                 .then(data=>{
-                    console.log(data);
                     if(data.length>0){
                         data[0].forEach(author=>{
                             objectMapping = {};

@@ -42,7 +42,8 @@ router.route('/concepts/search/:label')
 router.route('/conceptClusters')
     .get(conceptClusterController.index)
     .post(conceptClusterController.create);
-
+    router.route('/conceptCluster')
+    .get(conceptClusterController.getConceptCluster)
 router.route('/conceptClusters/:conceptClusterId')
     .get(conceptClusterController.getOne)
     .put(conceptClusterController.update)
@@ -68,6 +69,8 @@ router.route('/perspectives/:perspectiveId')
 router.route('/authors')
     .get(authorController.index)
     .post(authorController.create);
+router.route('/author')
+      .post(authorController.getAuthor);
 
 router.route('/authors/:authorId')
     .get(authorController.getOne)
