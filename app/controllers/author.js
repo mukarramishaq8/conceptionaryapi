@@ -13,16 +13,16 @@ const AuthorGroups = db.AuthorGroups;
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getAuthor=function(req,res,next){
-    if(req.body.author.groupIds.length>0){
+module.exports.getAuthor = function (req, res, next) {
+    if (req.body.author.groupIds.length > 0) {
         let DataToQuery = [];
         let groupIds = [];
         let outerQuery = ``;
         if (req.body.author.groupIds.length == 1) {
-            groupIds.push(req.body.author.groupIds[0].id);
+            groupIds.push(req.body.author.groupIds[0]);
         }
         else {
-            groupIds = req.body.author.groupIds.map(x => x.id);
+            groupIds = req.body.author.groupIds;
         }
         if (groupIds.length == 1) {
             outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id in (${groupIds})`;
@@ -36,64 +36,65 @@ module.exports.getAuthor=function(req,res,next){
         USING(author_id)   
         `;
         }
-        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.author.name}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.author.name}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
             .then(data => {
-                if (data.length > 0) {
-                    // data[0].forEach(author => {
-                    //     objectMapping = {};
-                    //     objectMapping.label = author.first_name + " " + author.last_name;
-                    //     objectMapping.value = author.first_name + " " + author.last_name;
-                    //     objectMapping.id = author.id;
-                    //     objectMapping.category = "Author";
-                    //     objectMapping.color = authorColor;
-
-                    //     DataToQuery.push(objectMapping);
-                    // });
-                }
+                    console.log(data);
+                    data[0].forEach(author => {
+                        let obj={};
+                        objectMapping = {};
+                        objectMapping.label = author.first_name + " " + author.last_name;
+                        objectMapping.value = author.first_name + " " + author.last_name;
+                        objectMapping.id = author.id;
+                        objectMapping.category = "Author";
+                        obj.selectedOption=objectMapping;
+                        DataToQuery.push(obj);
+                    });
+                
             }).then(x => {
                 DataToQuery = [...new Set(DataToQuery)];
 
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
-                    data: DataToQuery
+                    dobj: DataToQuery[0]
                 })
             })
             .catch(err => {
                 console.log(err);
             })
-    }else{
-        if(req.body.author.name){
+    } else {
+        if (req.body.author.name) {
             Author.findOne({
-                where:{
-                    [Sequelize.Op.or]:[
-                        {first_name:req.body.author.name},
-                        {last_name:req.body.author.name},
-                         Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
+                where: {
+                    [Sequelize.Op.or]: [
+                        { first_name: req.body.author.name },
+                        { last_name: req.body.author.name },
+                        Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
                             [Sequelize.Op.like]: '%' + req.body.author.name + '%'
-                          })
-                       
+                        })
+
                     ]
                 }
             }).then(data => {
-                 obj={};
-                 objectMapping = {};
-                         objectMapping.label = data.firstName+" "+ data.lastName;
-                         objectMapping.value = data.firstName+" "+ data.lastName;
-                         objectMapping.id = data.id;
-                         objectMapping.category = "Author";
-                         // objectMapping.color = authorGroupColor;
-                         //objectMapping.type = "cluster";
-                         obj.selectedOption=objectMapping;
-             res.status(httpResponse.success.c200.code).json({
-             responseType: httpResponse.responseTypes.success,
-             ...httpResponse.success.c200,
-             obj
-         })}).catch(err=>{
+                obj = {};
+                objectMapping = {};
+                objectMapping.label = data.firstName + " " + data.lastName;
+                objectMapping.value = data.firstName + " " + data.lastName;
+                objectMapping.id = data.id;
+                objectMapping.category = "Authors";
+                // objectMapping.color = authorGroupColor;
+                //objectMapping.type = "cluster";
+                obj.selectedOption = objectMapping;
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    obj
+                })
+            }).catch(err => {
                 console.log(err);
             })
-        }else{
-            res.json({"msg":"query name not found"});
+        } else {
+            res.json({ "msg": "query name not found" });
         }
     }
 }
@@ -214,7 +215,7 @@ let objectMapping = {}
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#00FF00";
-let authorClusterColor="#aaa";
+let authorClusterColor = "#aaa";
 
 module.exports.filter = function (req, res, next) {
     let DataToQuery = [];
@@ -238,7 +239,7 @@ module.exports.filter = function (req, res, next) {
                 objectMapping.label = author.firstName + " " + author.lastName;
                 objectMapping.value = author.firstName + " " + author.lastName;
                 objectMapping.id = author.id;
-                objectMapping.category = "Author";
+                objectMapping.category = "Authors";
                 objectMapping.color = authorColor;
 
                 DataToQuery.push(objectMapping);
@@ -342,7 +343,7 @@ module.exports.secondFilter = async function (req, res, next) {
                             objectMapping.label = author.first_name + " " + author.last_name;
                             objectMapping.value = author.first_name + " " + author.last_name;
                             objectMapping.id = author.id;
-                            objectMapping.category = "Author";
+                            objectMapping.category = "Authors";
                             objectMapping.color = authorColor;
 
                             DataToQuery.push(objectMapping);
@@ -404,7 +405,7 @@ module.exports.secondFilter = async function (req, res, next) {
                                     objectMapping.label = concept.name;
                                     objectMapping.value = concept.name;
                                     objectMapping.id = concept.id;
-                                    objectMapping.category = "Concept";
+                                    objectMapping.category = "Concepts";
                                     objectMapping.color = conceptColor;
                                     DataToQuery.push(objectMapping);
                                 });
@@ -470,7 +471,7 @@ module.exports.secondFilter = async function (req, res, next) {
                         })
                         .then(x => {
                             let outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${conceptIDs.length > 0 ? conceptIDs : -1}))`;
-                            let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
+                            let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
                             db.sequelize.query(mainQuery)
                                 .then(data => {
                                     console.log(data);
@@ -480,7 +481,7 @@ module.exports.secondFilter = async function (req, res, next) {
                                             objectMapping.label = conceptCluster.name + " |Concept cluster";
                                             objectMapping.value = conceptCluster.name;
                                             objectMapping.id = conceptCluster.id;
-                                            objectMapping.category = "Concept Clusters";
+                                            objectMapping.category = "Concept-Clusters";
                                             objectMapping.color = conceptClusterColor;
 
                                             DataToQuery.push(objectMapping);
@@ -508,10 +509,10 @@ module.exports.secondFilter = async function (req, res, next) {
                 });
         }
             break;
-        case "Author Clusters":{
+        case "Author Clusters": {
             let DataToQuery = [];
             let groupIds = [];
-            let author_cluster_ids=[];
+            let author_cluster_ids = [];
             let outerQuery = "";
             if (req.body.labels.length == 1) {
                 groupIds.push(req.body.labels[0].id);
@@ -520,40 +521,40 @@ module.exports.secondFilter = async function (req, res, next) {
                 groupIds = req.body.labels.map(x => x.id);
             }
             db.sequelize.query(`SELECT DISTINCT author_cluster_id from author_clusters_author_groups where author_group_id in (${groupIds})`)
-            .then(data=>{
-             author_cluster_ids=  data[0].map(author_cluster=>author_cluster.author_cluster_id);
-            })
-            .then(x=>{
-                db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') `)
-                .then(data=>{
-                    if(data.length>0){
-                        data[0].forEach(author=>{
-                            objectMapping = {};
-                            objectMapping.label = author.name + "|Author Cluster";
-                            objectMapping.value = author.name;
-                            objectMapping.id = author.id;
-                            objectMapping.category = "Author Clusters";
-                            objectMapping.color = authorClusterColor;
-                            DataToQuery.push(objectMapping);
-                        });
-                    }
+                .then(data => {
+                    author_cluster_ids = data[0].map(author_cluster => author_cluster.author_cluster_id);
                 })
-                .then(x=>{
-                    DataToQuery = [...new Set(DataToQuery)];
-                    res.status(httpResponse.success.c200.code).json({
-                        responseType: httpResponse.responseTypes.success,
-                        ...httpResponse.success.c200,
-                        data: DataToQuery
-                    })
+                .then(x => {
+                    db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') `)
+                        .then(data => {
+                            if (data.length > 0) {
+                                data[0].forEach(author => {
+                                    objectMapping = {};
+                                    objectMapping.label = author.name + "|Author Cluster";
+                                    objectMapping.value = author.name;
+                                    objectMapping.id = author.id;
+                                    objectMapping.category = "Author-Clusters";
+                                    objectMapping.color = authorClusterColor;
+                                    DataToQuery.push(objectMapping);
+                                });
+                            }
+                        })
+                        .then(x => {
+                            DataToQuery = [...new Set(DataToQuery)];
+                            res.status(httpResponse.success.c200.code).json({
+                                responseType: httpResponse.responseTypes.success,
+                                ...httpResponse.success.c200,
+                                data: DataToQuery
+                            })
+                        })
+                        .catch();
                 })
-                .catch();
-            })
-            .catch(err=>{
-                console.log(err);
-            });
+                .catch(err => {
+                    console.log(err);
+                });
 
         }
-        break;
+            break;
         default: {
             let DataToQuery = [];
 
@@ -607,7 +608,7 @@ module.exports.secondFilter = async function (req, res, next) {
                         objectMapping.label = author.first_name + " " + author.last_name;
                         objectMapping.value = author.first_name + " " + author.last_name;
                         objectMapping.id = author.id;
-                        objectMapping.category = "Author";
+                        objectMapping.category = "Authors";
                         objectMapping.color = authorColor;
 
                         DataToQuery.push(objectMapping);
@@ -657,7 +658,7 @@ module.exports.secondFilter = async function (req, res, next) {
                                 objectMapping.label = concept.name;
                                 objectMapping.value = concept.name;
                                 objectMapping.id = concept.id;
-                                objectMapping.category = "Concept";
+                                objectMapping.category = "Concepts";
                                 objectMapping.color = conceptColor;
 
                                 DataToQuery.push(objectMapping);
@@ -685,7 +686,7 @@ module.exports.secondFilter = async function (req, res, next) {
                                     objectMapping.label = concept.name + " |Concept cluster";
                                     objectMapping.value = concept.name;
                                     objectMapping.id = concept.id;
-                                    objectMapping.category = "Concept Clusters";
+                                    objectMapping.category = "Concept-Clusters";
                                     objectMapping.color = conceptClusterColor;
 
                                     DataToQuery.push(objectMapping);

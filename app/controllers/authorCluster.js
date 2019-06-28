@@ -14,6 +14,75 @@ const Concept = db.Concept;
  * @param {*} res 
  * @param {*} next 
  */
+module.exports.getAuthorCluster=function(req,res,next){
+    if(req.body.cluster.name){
+        if(req.body.cluster.name&&req.body.cluster.groupIds.length>0){
+            let DataToQuery = [];
+            let groupIds = [];
+            let author_cluster_ids = [];
+            if (req.body.cluster.groupIds.length == 1) {
+                groupIds.push(req.body.cluster.groupIds[0]);
+            }
+            else {
+                groupIds = req.body.cluster.groupIds;
+            }
+            db.sequelize.query(`SELECT DISTINCT author_cluster_id from author_clusters_author_groups where author_group_id in (${groupIds})`)
+                .then(data => {
+                    author_cluster_ids = data[0].map(author_cluster => author_cluster.author_cluster_id);
+                })
+                .then(x => {
+                    db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.cluster.name}%' OR name LIKE '% ${req.body.cluster.name}%') `)
+                        .then(data => {
+                            console.log(data);
+                                data[0].forEach(author => {
+                                    obj={};
+                                    objectMapping = {};
+                                    objectMapping.label = author.name + "|Author Cluster";
+                                    objectMapping.value = author.name;
+                                    objectMapping.id = author.id;
+                                    objectMapping.category = "Author-Clusters";
+                                    obj.selectedOption=objectMapping;
+                                    DataToQuery.push(obj);
+                                });
+                        })
+                        .then(x => {
+                            DataToQuery = [...new Set(DataToQuery)];
+                            res.status(httpResponse.success.c200.code).json({
+                                responseType: httpResponse.responseTypes.success,
+                                ...httpResponse.success.c200,
+                                obj: DataToQuery[0]
+                            })
+                        })
+                        .catch();
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }else{
+            AuthorCluster.findOne({
+                where:{
+                    name:req.body.cluster.name
+                }
+            }).then(author=>{
+            obj={};
+            objectMapping = {};
+            objectMapping.label = author.name + "|Author Cluster";
+            objectMapping.value = author.name;
+            objectMapping.id = author.id;
+            objectMapping.category = "Author-Clusters";
+            obj.selectedOption=objectMapping;
+            res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            obj
+        })
+            })
+              .catch(err=>{
+                  console.log(err);
+              })
+        }
+    }
+}
 module.exports.index = function (req, res, next) {
     AuthorCluster.findAll({
         ...serializers.getPaginators(req.query),
@@ -28,7 +97,8 @@ module.exports.index = function (req, res, next) {
                 ],
             }
         ]
-    }).then(data => res.status(httpResponse.success.c200.code).json({
+    }).then(data =>
+         res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data

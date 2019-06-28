@@ -36,7 +36,7 @@ module.exports.filter = function(req, res, next) {
                 objectMapping.label = cluster.name + " |Author Cluster";
                 objectMapping.value = cluster.name;
                 objectMapping.id = cluster.id;
-                objectMapping.category = "Author Clusters";
+                objectMapping.category = "Author-Clusters";
                 objectMapping.color = authorClusterColor;
 
                 DataToQuery.push(objectMapping);

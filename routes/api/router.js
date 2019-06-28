@@ -27,7 +27,6 @@ router.use((req, res, next) => {
 router.route('/concepts')
     .get(conceptController.getConceptId)
     .post(conceptController.create);
-
 router.route('/concepts/:conceptId')
     .get(conceptController.getOne)
     .put(conceptController.update)
@@ -43,7 +42,7 @@ router.route('/conceptClusters')
     .get(conceptClusterController.index)
     .post(conceptClusterController.create);
     router.route('/conceptCluster')
-    .get(conceptClusterController.getConceptCluster)
+    .post(conceptClusterController.getConceptCluster)
 router.route('/conceptClusters/:conceptClusterId')
     .get(conceptClusterController.getOne)
     .put(conceptClusterController.update)
@@ -91,6 +90,8 @@ router.route('/authorGroups')
 /*** AuthorCluster related routes. ***/
 router.route('/authorClusters/search/:label')
     .get(authorClustersController.filter);
+router.route('/authorClusters')
+    .post(authorClusterController.getAuthorCluster);
 /**Author cluster */
 /*router.route('/authorClusters')
    .get(authorClustersController.index)

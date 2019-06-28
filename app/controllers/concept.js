@@ -27,7 +27,7 @@ module.exports.getConceptId=(req,res,next)=>{
                     objectMapping.label = data.name;
                     objectMapping.value = data.name;
                     objectMapping.id = data.id;
-                    objectMapping.category = "Concept";
+                    objectMapping.category = "Concepts";
                     // objectMapping.color = authorGroupColor;
                     //objectMapping.type = "cluster";
                     obj.selectedOption=objectMapping;
@@ -256,7 +256,7 @@ module.exports.filter = function (req, res, next) {
                 objectMapping.label = concept.name;
                 objectMapping.value = concept.name;
                 objectMapping.id = concept.id;
-                objectMapping.category = "Concept";
+                objectMapping.category = "Concepts";
                 objectMapping.color = conceptColor;
 
                 DataToQuery.push(objectMapping);

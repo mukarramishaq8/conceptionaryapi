@@ -52,7 +52,7 @@ module.exports.index = function (req, res, next) {
                 objectMapping.label = author.first_name + " " + author.last_name;
                 objectMapping.value = author.first_name + " " + author.last_name;
                 objectMapping.id = author.id;
-                objectMapping.category = "Author";
+                objectMapping.category = "Authors";
                 objectMapping.color = authorColor;
                 DataToQuery.push(objectMapping);
             });
@@ -88,7 +88,7 @@ module.exports.index = function (req, res, next) {
                         objectMapping.label = concept.name;
                         objectMapping.value = concept.name;
                         objectMapping.id = concept.id;
-                        objectMapping.category = "Concept";
+                        objectMapping.category = "Concepts";
                         objectMapping.color = conceptColor;
 
                         DataToQuery.push(objectMapping);
@@ -123,7 +123,7 @@ module.exports.index = function (req, res, next) {
                                 objectMapping.label = concept.name + "|Concept Cluster";
                                 objectMapping.value = concept.name;
                                 objectMapping.id = concept.id;
-                                objectMapping.category = "Concept Clusters";
+                                objectMapping.category = "Concept-Clusters";
                                 objectMapping.color = conceptClusterColor;
 
                                 DataToQuery.push(objectMapping);
@@ -157,9 +157,8 @@ module.exports.index = function (req, res, next) {
                                     objectMapping.label = author.name + "|Author Cluster";
                                     objectMapping.value = author.name;
                                     objectMapping.id = author.id;
-                                    objectMapping.category = "Author Clusters";
+                                    objectMapping.category = "Author-Clusters";
                                     objectMapping.color = authorClusterColor;
-
                                     DataToQuery.push(objectMapping);
 
                                     })
