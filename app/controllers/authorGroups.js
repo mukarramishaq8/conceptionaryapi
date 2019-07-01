@@ -196,9 +196,8 @@ module.exports.groupIds=(req,res,next)=>{
      let query=`SELECT * from author_groups WHERE name IN (${filters})`;
      db.sequelize.query(query).then(data=>{
         if (data.length > 0) {
-
+            console.log(data[0]);
             let groupsData = data[0]
-
             groupsData.forEach(group => {
                 objectMapping = {};
                 objectMapping.label = group.name;

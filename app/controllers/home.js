@@ -153,13 +153,13 @@ module.exports.index = function (req, res, next) {
                                 then(data => {
 
                                     data.forEach(author => {
-                                    objectMapping = {};
-                                    objectMapping.label = author.name + "|Author Cluster";
-                                    objectMapping.value = author.name;
-                                    objectMapping.id = author.id;
-                                    objectMapping.category = "Author-Clusters";
-                                    objectMapping.color = authorClusterColor;
-                                    DataToQuery.push(objectMapping);
+                                        objectMapping = {};
+                                        objectMapping.label = author.name + "|Author Cluster";
+                                        objectMapping.value = author.name;
+                                        objectMapping.id = author.id;
+                                        objectMapping.category = "Author-Clusters";
+                                        objectMapping.color = authorClusterColor;
+                                        DataToQuery.push(objectMapping);
 
                                     })
                                 }).then(x => {
@@ -216,7 +216,7 @@ module.exports.getIdByName = (req, res, next) => {
         res.json(concept);
     })
         .catch((err) => {
-            res.json({errn});
+            res.json({ errn });
         }
         );
 }

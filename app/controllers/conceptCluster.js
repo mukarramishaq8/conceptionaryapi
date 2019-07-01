@@ -29,7 +29,6 @@ module.exports.getConceptCluster = function (req, res, next) {
             else {
                 groupIds = req.body.cluster.groupIds;
             }
-            console.log(groupIds);
             if (groupIds.length == 1) {
                 outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
             }

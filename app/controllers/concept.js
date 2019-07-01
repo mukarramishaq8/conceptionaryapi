@@ -15,32 +15,33 @@ const _ = require('underscore');
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getConceptId=(req,res,next)=>{
-   if(req.query.name){
-       Concept.findOne({
-           where:{
-               name:req.query.name
-           }
-       }).then(data => {
-            obj={};
+module.exports.getConceptId = (req, res, next) => {
+    if (req.query.name) {
+        Concept.findOne({
+            where: {
+                name: req.query.name
+            }
+        }).then(data => {
+            obj = {};
             objectMapping = {};
-                    objectMapping.label = data.name;
-                    objectMapping.value = data.name;
-                    objectMapping.id = data.id;
-                    objectMapping.category = "Concepts";
-                    // objectMapping.color = authorGroupColor;
-                    //objectMapping.type = "cluster";
-                    obj.selectedOption=objectMapping;
-        res.status(httpResponse.success.c200.code).json({
-        responseType: httpResponse.responseTypes.success,
-        ...httpResponse.success.c200,
-        obj
-    })}).catch(err=>{
-           console.log(err);
-       })
-   }else{
-       res.json({"msg":"query name not found"});
-   }
+            objectMapping.label = data.name;
+            objectMapping.value = data.name;
+            objectMapping.id = data.id;
+            objectMapping.category = "Concepts";
+            // objectMapping.color = authorGroupColor;
+            //objectMapping.type = "cluster";
+            obj.selectedOption = objectMapping;
+            res.status(httpResponse.success.c200.code).json({
+                responseType: httpResponse.responseTypes.success,
+                ...httpResponse.success.c200,
+                obj
+            })
+        }).catch(err => {
+            console.log(err);
+        })
+    } else {
+        res.json({ "msg": "query name not found" });
+    }
 }
 module.exports.index = function (req, res, next) {
     Concept.findAll({
@@ -244,7 +245,7 @@ module.exports.filter = function (req, res, next) {
     Concept.findAll({
         where: {
             name: {
-                [Sequelize.Op.like]: '%' + req.params.label + '%'
+                [Sequelize.Op.like]: req.params.label + '%'
             }
         },
         limit: 10

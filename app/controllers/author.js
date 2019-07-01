@@ -36,20 +36,20 @@ module.exports.getAuthor = function (req, res, next) {
         USING(author_id)   
         `;
         }
-        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.author.name}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.author.name}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) = '${req.body.author.name}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
             .then(data => {
-                    console.log(data);
-                    data[0].forEach(author => {
-                        let obj={};
-                        objectMapping = {};
-                        objectMapping.label = author.first_name + " " + author.last_name;
-                        objectMapping.value = author.first_name + " " + author.last_name;
-                        objectMapping.id = author.id;
-                        objectMapping.category = "Author";
-                        obj.selectedOption=objectMapping;
-                        DataToQuery.push(obj);
-                    });
-                
+                console.log(data);
+                data[0].forEach(author => {
+                    let obj = {};
+                    objectMapping = {};
+                    objectMapping.label = author.first_name + " " + author.last_name;
+                    objectMapping.value = author.first_name + " " + author.last_name;
+                    objectMapping.id = author.id;
+                    objectMapping.category = "Author";
+                    obj.selectedOption = objectMapping;
+                    DataToQuery.push(obj);
+                });
+
             }).then(x => {
                 DataToQuery = [...new Set(DataToQuery)];
 
@@ -67,12 +67,12 @@ module.exports.getAuthor = function (req, res, next) {
             Author.findOne({
                 where: {
                     [Sequelize.Op.or]: [
-                        { first_name: req.body.author.name },
-                        { last_name: req.body.author.name },
                         Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
-                            [Sequelize.Op.like]: '%' + req.body.author.name + '%'
+                            [Sequelize.Op.eq]: req.body.author.name
+                        }),
+                        Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
+                            [Sequelize.Op.eq]: req.body.author.name
                         })
-
                     ]
                 }
             }).then(data => {
@@ -226,7 +226,7 @@ module.exports.filter = function (req, res, next) {
                     [Sequelize.Op.like]: req.params.label + '%'
                 },
                 lastName: {
-                    [Sequelize.Op.like]: req.params.label + '%'
+                    [Sequelize.Op.like]: '% ' + req.params.label + '%'
                 }
             }
         },
@@ -335,7 +335,7 @@ module.exports.secondFilter = async function (req, res, next) {
             USING(author_id)   
             `;
             }
-            db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+            db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${req.body.label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
                 .then(data => {
                     if (data.length > 0) {
                         data[0].forEach(author => {
