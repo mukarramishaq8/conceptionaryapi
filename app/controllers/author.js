@@ -2,11 +2,16 @@ const db = require('../bootstrap');
 const Sequelize = require('sequelize');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const chalk = require("chalk");
 const _ = require('underscore');
-const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
-const AuthorGroups = db.AuthorGroups;
+// const AuthorGroups = db.AuthorGroups;
+const Concept = db.Concept;
+const AuthorBioHeading = db.AuthorBioHeading;
+const AuthorGroup = db.AuthorGroups;
+const Book = db.Book;
+const BookDescription = db.BookDescription;
 /**
  * send a list of records
  * @param {*} req 
@@ -45,7 +50,7 @@ module.exports.getAuthor = function (req, res, next) {
                     objectMapping.label = author.first_name + " " + author.last_name;
                     objectMapping.value = author.first_name + " " + author.last_name;
                     objectMapping.id = author.id;
-                    objectMapping.category = "Author";
+                    objectMapping.category = "Authors";
                     obj.selectedOption = objectMapping;
                     DataToQuery.push(obj);
                 });
@@ -98,23 +103,36 @@ module.exports.getAuthor = function (req, res, next) {
         }
     }
 }
+
 module.exports.index = function (req, res, next) {
     Author.findAll({
         ...serializers.getPaginators(req.query),
         attributes: serializers.getQueryFields(req.query),
-        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {
-                model: Perspective, include: [
-                    { model: Concept }
+        include: serializers.isRelationshipIncluded(req.query) !== true
+            ? undefined
+            : serializers.withSelfAssociationsOnly(req.query) !== true
+                ? [
+                    {
+                        model: Perspective, include: [
+                            { model: Concept }
+                        ]
+                    },
+                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                    { model: Book, include: { model: BookDescription } },
                 ]
-            }
-        ]
+                : [
+                    { association: 'AuthorOnAuthors' },
+                    { association: 'AuthorConvoAuthors' },
+                    { association: 'AuthorInfluenceAuthors' },
+                ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data,
         query: req.query
-    })).catch(next);
+    })).catch(err => {
+        console.log(err);
+    });
 };
 
 /**
@@ -126,24 +144,32 @@ module.exports.index = function (req, res, next) {
 module.exports.getOne = function (req, res, next) {
     Author.findByPk(req.params.authorId, {
         attributes: serializers.getQueryFields(req.query),
-        include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {
-                model: Perspective,
-                include: {
-                    model: Concept
-                }
-            }
-        ]
+        include: serializers.isRelationshipIncluded(req.query) !== true ?
+         undefined: serializers.withSelfAssociationsOnly(req.query) !== true ?
+                [
+                    {
+                        model: Perspective, include: [
+                            { model: Concept }
+                        ]
+                    },
+                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                    { model: Book, include: { model: BookDescription } },
+                ]
+                : [
+                    { association: 'AuthorOnAuthors' },
+                    { association: 'AuthorConvoAuthors' },
+                    { association: 'AuthorInfluenceAuthors' },
+                ]
+    }).then(data => {
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            data
+        });
+    }).catch(err => {
+        console.log(err);
     })
-        .then(data => {
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data
-            });
-        }).catch(next);
 }
-
 /**
  * create a record
  * @param {*} req 

@@ -38,3 +38,6 @@ module.exports.getQueryFields = ({fields}, delimiter = ' ') => {
 module.exports.isRelationshipIncluded = ({relationships}) => {
     return _.isEmpty(relationships) || _.isEqual(relationships, 'false') ? false : true;
 }
+module.exports.withSelfAssociationsOnly = ({withSelfAssociationsOnly}) => {
+    return _.isEmpty(withSelfAssociationsOnly) || _.isEqual(withSelfAssociationsOnly, 'false') ? false : true;
+}

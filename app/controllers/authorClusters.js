@@ -5,6 +5,7 @@ const serializers = require('../helpers/serializers');
 const Concept = db.Concept;
 const ConceptCluster = db.ConceptCluster;
 const AuthorCluster = db.AuthorCluster;
+const AuthorGroup = db.AuthorGroups;
 const Perspective = db.Perspective;
 const Author = db.Author;
 const Keyword = db.Keyword;
@@ -17,11 +18,11 @@ let objectMapping = {}
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let authorClusterColor = "#808080";
-
+let authorGroupColor = '#33FF57';
 
 module.exports.filter = function(req, res, next) {
     let DataToQuery = [];
-    AuthorCluster.findAll({
+    AuthorGroup.findAll({
         where:{
             name:{
                 [Sequelize.Op.like]:'%'+req.params.label+'%'
@@ -33,11 +34,11 @@ module.exports.filter = function(req, res, next) {
             
             data.forEach(cluster => {
                 objectMapping = {};
-                objectMapping.label = cluster.name + " |Author Cluster";
+                objectMapping.label = cluster.name + " |Author Group";
                 objectMapping.value = cluster.name;
                 objectMapping.id = cluster.id;
-                objectMapping.category = "Author-Clusters";
-                objectMapping.color = authorClusterColor;
+                objectMapping.category = "Author-Groups";
+                objectMapping.color = authorGroupColor;
 
                 DataToQuery.push(objectMapping);
             });
