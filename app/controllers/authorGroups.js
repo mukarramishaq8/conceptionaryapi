@@ -26,11 +26,16 @@ let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let authorGroupColor = "#4AC4AC";
 
-module.exports.index = function (req, res, next) {
+module.exports.search = function (req, res, next) {
     let DataToQuery = [];
-    let fetchedLabesl = req.body.labels;
-    let body = req.body;
+    // let fetchedLabesl = req.params.label;
+    // let body = req.body;
     AuthorGroups.findAll({
+        where:{
+            name:{
+                [Sequelize.Op.like]:req.params.label + '%'
+            }
+        },
         limit: 10
     }).then(data => {
         if (data.length > 0) {
@@ -40,7 +45,7 @@ module.exports.index = function (req, res, next) {
                 objectMapping.label = author.name;
                 objectMapping.value = author.name;
                 objectMapping.id = author.id;
-                objectMapping.category = "AuthorGroups";
+                objectMapping.category = "Author-Groups";
                 objectMapping.color = authorGroupColor;
 
                 DataToQuery.push(objectMapping);

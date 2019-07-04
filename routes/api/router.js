@@ -11,6 +11,7 @@ const authorClustersController = require('./../../app/controllers/authorClusters
 const authorClusterController = require('./../../app/controllers/authorCluster');
 const homeController = require('./../../app/controllers/home');
 const authorGroupsController = require('./../../app/controllers/authorGroups');
+const authorGroupController = require('./../../app/controllers/authorGroup');
 const userController = require('./../../app/controllers/users');
 const router = express.Router();
 
@@ -82,8 +83,13 @@ router.route('/authors/search/:label')
 router.route('/authors/search')
     .post(authorController.secondFilter);
 
+//Search from Navbar
+router.route('/authorGroups/search/:label')
+    .get(authorGroupsController.search);
+
 router.route('/authorGroups/search')
     .post(authorGroupsController.filter);
+
 router.route('/authorGroups')
     .post(authorGroupsController.groupIds);
 
@@ -123,7 +129,7 @@ router.route('/login')
 router.route('/home/:name')
     .get(homeController.getIdByName);
 router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
-// router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
+router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
 
 
 

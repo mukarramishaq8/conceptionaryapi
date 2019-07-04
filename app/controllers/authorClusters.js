@@ -22,10 +22,10 @@ let authorGroupColor = '#33FF57';
 
 module.exports.filter = function(req, res, next) {
     let DataToQuery = [];
-    AuthorGroup.findAll({
+    AuthorCluster.findAll({
         where:{
             name:{
-                [Sequelize.Op.like]:'%'+req.params.label+'%'
+                [Sequelize.Op.like]:req.params.label+'%'
             }
         },
         limit:10
@@ -34,12 +34,11 @@ module.exports.filter = function(req, res, next) {
             
             data.forEach(cluster => {
                 objectMapping = {};
-                objectMapping.label = cluster.name + " |Author Group";
+                objectMapping.label = cluster.name + " |Author Cluster";
                 objectMapping.value = cluster.name;
                 objectMapping.id = cluster.id;
-                objectMapping.category = "Author-Groups";
-                objectMapping.color = authorGroupColor;
-
+                objectMapping.category = "Author-Clusters";
+                objectMapping.color = authorClusterColor;
                 DataToQuery.push(objectMapping);
             });
         }
