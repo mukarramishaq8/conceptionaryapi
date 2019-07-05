@@ -23,7 +23,7 @@ let authorGroupColor = '#33FF57';
 module.exports.index = function (req, res, next) {
     let DataToQuery = []
 
-    db.sequelize.query("SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE " + "'" + req.params.label + "%' OR (CONCAT(first_name, ' ', last_name)) LIKE '% " + req.params.label + "%' ORDER BY length(CONCAT(first_name, ' ', last_name))"
+    db.sequelize.query("SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE " + "'" + req.params.label + "%' ORDER BY length(CONCAT(first_name, ' ', last_name))"
         //where: Sequelize.where(Sequelize.fn("concat", Sequelize.col("first_name")," ",Sequelize.col("last_name")),'Evan Abba'),
         /* where: {
              [Sequelize.Op.or]: [{

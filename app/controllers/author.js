@@ -411,7 +411,7 @@ module.exports.secondFilter = async function (req, res, next) {
             USING(author_id)   
             `;
             }
-            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) LIMIT 10 `)
+            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery})  `)
                 .then(data => {
                     let authorIDs = data[0].map(author => author.id);
                     let innerQuery = "";
@@ -478,7 +478,7 @@ module.exports.secondFilter = async function (req, res, next) {
             USING(author_id)   
             `;
             }
-            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) LIMIT 10 `)
+            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) `)
                 .then(data => {
                     let authorIDs = data[0].map(author => author.id);
                     let innerQuery = "";
@@ -617,7 +617,7 @@ module.exports.secondFilter = async function (req, res, next) {
             `;
             }
 
-            let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '%${req.body.label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
+            let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
             db.sequelize.query(mainQuery).then(data => {
 
                 //data is ARRAY of ARRAYS, merging into single array containg author records
@@ -697,7 +697,7 @@ module.exports.secondFilter = async function (req, res, next) {
                         // console.log(ConceptIDs)
                         outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ? ConceptIDs : -1}))`;
 
-                        let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 3 `;
+                        let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
                         db.sequelize.query(mainQuery).then(data => {
 
                             //data is ARRAY of ARRAYS, merging into single array containg author records
