@@ -180,7 +180,7 @@ module.exports.index = function (req, res, next) {
                                             objectMapping.label = authorGroup.name + '| Author Group';
                                             objectMapping.value = authorGroup.name;
                                             objectMapping.id = authorGroup.id;
-                                            objectMapping.category = 'Author Group';
+                                            objectMapping.category = 'Author-Groups';
                                             objectMapping.color = authorGroupColor;
                                             DataToQuery.push(objectMapping);
                                         })
