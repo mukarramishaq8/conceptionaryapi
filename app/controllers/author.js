@@ -2,6 +2,7 @@ const db = require('../bootstrap');
 const Sequelize = require('sequelize');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const {getAuthorIds}=require('../Queries');
 const chalk = require("chalk");
 const _ = require('underscore');
 const Perspective = db.Perspective;
@@ -18,32 +19,13 @@ const BookDescription = db.BookDescription;
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getAuthor = function (req, res, next) {
-    if (req.body.author.groupIds.length > 0) {
+module.exports.getAuthor = async function (req, res, next) {
+    if (req.body.author.groupIds.length > 0 && req.body.author.name) {
         let DataToQuery = [];
-        let groupIds = [];
         let outerQuery = ``;
-        if (req.body.author.groupIds.length == 1) {
-            groupIds.push(req.body.author.groupIds[0]);
-        }
-        else {
-            groupIds = req.body.author.groupIds;
-        }
-        if (groupIds.length == 1) {
-            outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id in (${groupIds})`;
-        }
-        else {
-            outerQuery = `
-        SELECT author_id from 
-        (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
-        INNER JOIN
-        ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
-        USING(author_id)   
-        `;
-        }
-        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) = '${req.body.author.name}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+        const outerQuery=await getAuthorIds(req.body.author.groupIds);
+        db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) = '${req.body.author.name}') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
             .then(data => {
-                console.log(data);
                 data[0].forEach(author => {
                     let obj = {};
                     objectMapping = {};
@@ -87,8 +69,6 @@ module.exports.getAuthor = function (req, res, next) {
                 objectMapping.value = data.firstName + " " + data.lastName;
                 objectMapping.id = data.id;
                 objectMapping.category = "Authors";
-                // objectMapping.color = authorGroupColor;
-                //objectMapping.type = "cluster";
                 obj.selectedOption = objectMapping;
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
@@ -247,14 +227,14 @@ module.exports.filter = function (req, res, next) {
     let DataToQuery = [];
     Author.findAll({
         where: {
-            [Sequelize.Op.or]: {
-                firstName: {
-                    [Sequelize.Op.like]: req.params.label + '%'
-                },
-                lastName: {
-                    [Sequelize.Op.like]: '% ' + req.params.label + '%'
-                }
-            }
+            [Sequelize.Op.or]: [
+                {
+                    firstName: { [Sequelize.Op.like]: req.params.label +'%'}
+               },
+              {
+                lastName: { [Sequelize.Op.like]:  req.params.label+'%'}
+              }
+            ]
         },
         limit: 10
     }).then(data => {
@@ -296,46 +276,46 @@ module.exports.filter = function (req, res, next) {
 // }
 
 
-function getAuthorGroupIds(authorgroupIds) {
-    return new Promise(async (resolve, reject) => {
-        let authorgroupIdsfromClusters = [];
+// function getAuthorGroupIds(authorgroupIds) {
+//     return new Promise(async (resolve, reject) => {
+//         let authorgroupIdsfromClusters = [];
 
-        if (authorgroupIds.length == 1) {
-            let data = await db.sequelize.query(`
-        SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
-        (SELECT author_id from authors_author_groups WHERE author_group_id IN (${authorgroupIds})) `
-            );
+//         if (authorgroupIds.length == 1) {
+//             let data = await db.sequelize.query(`
+//         SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
+//         (SELECT author_id from authors_author_groups WHERE author_group_id IN (${authorgroupIds})) `
+//             );
 
-            if (data.length > 0) {
-                data[0].forEach(x => {
-                    authorgroupIdsfromClusters.push(x.gid)
-                })
-            }
+//             if (data.length > 0) {
+//                 data[0].forEach(x => {
+//                     authorgroupIdsfromClusters.push(x.gid)
+//                 })
+//             }
 
-        } else {
-            let data = await db.sequelize.query(`
-        SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
-        (
-            SELECT author_id from
-            (SELECT author_id from authors_author_groups WHERE author_group_id = ${authorgroupIds[0]}) as g1
-            INNER JOIN
-            (SELECT author_id from authors_author_groups WHERE author_group_id = ${authorgroupIds[1]}) as g2
+//         } else {
+//             let data = await db.sequelize.query(`
+//         SELECT DISTINCT author_group_id as gid from authors_author_groups WHERE author_id IN 
+//         (
+//             SELECT author_id from
+//             (SELECT author_id from authors_author_groups WHERE author_group_id = ${authorgroupIds[0]}) as g1
+//             INNER JOIN
+//             (SELECT author_id from authors_author_groups WHERE author_group_id = ${authorgroupIds[1]}) as g2
             
-            using(author_id)
-        )`
-            );
-            if (data.length > 0) {
+//             using(author_id)
+//         )`
+//             );
+//             if (data.length > 0) {
 
 
-                data[0].forEach(x => {
-                    authorgroupIdsfromClusters.push(x.gid)
-                })
-            }
-        }
+//                 data[0].forEach(x => {
+//                     authorgroupIdsfromClusters.push(x.gid)
+//                 })
+//             }
+//         }
 
-        resolve(authorgroupIdsfromClusters);
-    });
-}
+//         resolve(authorgroupIdsfromClusters);
+//     });
+// }
 
 module.exports.secondFilter = async function (req, res, next) {
     switch (req.body.category) {
@@ -343,24 +323,8 @@ module.exports.secondFilter = async function (req, res, next) {
             let DataToQuery = [];
             let groupIds = [];
             let outerQuery = ``;
-            if (req.body.labels.length == 1) {
-                groupIds.push(req.body.labels[0].id);
-            }
-            else {
-                groupIds = req.body.labels.map(x => x.id);
-            }
-            if (groupIds.length == 1) {
-                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
-            }
-            else {
-                outerQuery = `
-            SELECT author_id from 
-            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
-            INNER JOIN
-            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
-            USING(author_id)   
-            `;
-            }
+            groupIds=req.body.labels.map(x=>x.id);
+            outerQuery=await getAuthorIds(groupIds);
             db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${req.body.label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
                 .then(data => {
                     if (data.length > 0) {
@@ -393,30 +357,13 @@ module.exports.secondFilter = async function (req, res, next) {
             let DataToQuery = [];
             let groupIds = [];
             let outerQuery = "";
-            if (req.body.labels.length == 1) {
-                groupIds.push(req.body.labels[0].id);
-            }
-            else {
-                groupIds = req.body.labels.map(x => x.id);
-            }
-            if (groupIds.length == 1) {
-                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
-            }
-            else {
-                outerQuery = `
-            SELECT author_id from 
-            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
-            INNER JOIN
-            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
-            USING(author_id)   
-            `;
-            }
+            groupIds=req.body.labels.map(x=>x.id);
+            outerQuery=await getAuthorIds(groupIds);
             db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery})  `)
                 .then(data => {
                     let authorIDs = data[0].map(author => author.id);
                     let innerQuery = "";
                     if (authorIDs.length == 1) {
-                        // console.log(AuthorIDs)
                         innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${authorIDs[0]})`;
                     }
                     else {
@@ -458,26 +405,8 @@ module.exports.secondFilter = async function (req, res, next) {
         case "Concept Clusters": {
             let conceptIDs = [];
             let DataToQuery = [];
-            let groupIds = [];
-            let outerQuery = "";
-            if (req.body.labels.length == 1) {
-                groupIds.push(req.body.labels[0].id);
-            }
-            else {
-                groupIds = req.body.labels.map(x => x.id);
-            }
-            if (groupIds.length == 1) {
-                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds})`;
-            }
-            else {
-                outerQuery = `
-            SELECT author_id from 
-            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[0]}) ) as a1
-            INNER JOIN
-            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${groupIds[1]}) ) as a2  
-            USING(author_id)   
-            `;
-            }
+            let groupIds = req.body.labels.map(x=>x.id);
+            let outerQuery = await getAuthorIds(groupIds);
             db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) `)
                 .then(data => {
                     let authorIDs = data[0].map(author => author.id);
@@ -539,7 +468,6 @@ module.exports.secondFilter = async function (req, res, next) {
             let DataToQuery = [];
             let groupIds = [];
             let author_cluster_ids = [];
-            let outerQuery = "";
             if (req.body.labels.length == 1) {
                 groupIds.push(req.body.labels[0].id);
             }
@@ -590,33 +518,8 @@ module.exports.secondFilter = async function (req, res, next) {
             // SQUELIZE doesn't provide support/implementation for ALL operator hence using custom raw query
             let outerQuery = "";
             let innerQuery = "";
-
-
-            let authorgroupIds = [];
-            let groupIds = [];
-            if (req.body.labels.length == 1) {
-                groupIds.push(req.body.labels[0].id);
-            }
-            else {
-                groupIds = req.body.labels.map(x => x.id);
-            }
-
-            // authorgroupIds = await getAuthorGroupIds(groupIds)
-            authorgroupIds = groupIds;
-
-            if (groupIds.length == 1) {
-                outerQuery = `SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds})`;
-            }
-            else {
-                outerQuery = `
-            SELECT author_id from 
-            (SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[0]}) ) as a1
-            INNER JOIN
-            ( SELECT author_id FROM authors_author_groups WHERE author_group_id IN (${authorgroupIds[1]}) ) as a2  
-            USING(author_id)   
-            `;
-            }
-
+            let groupIds = req.body.labels.map(x=>x.id);
+            outerQuery=await getAuthorIds(groupIds);
             let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
             db.sequelize.query(mainQuery).then(data => {
 
