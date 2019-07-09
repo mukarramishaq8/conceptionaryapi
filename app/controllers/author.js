@@ -105,12 +105,13 @@ module.exports.index = function (req, res, next) {
                     { association: 'AuthorConvoAuthors' },
                     { association: 'AuthorInfluenceAuthors' },
                 ]
-    }).then(data => res.status(httpResponse.success.c200.code).json({
+    }).then(data =>{
+        res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
         ...httpResponse.success.c200,
         data,
         query: req.query
-    })).catch(err => {
+    })}).catch(err => {
         console.log(err);
     });
 };
@@ -121,7 +122,68 @@ module.exports.index = function (req, res, next) {
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getOne = function (req, res, next) {
+// function getPictureLink(data){
+//         console.log("******************************");
+//         let author_with_picture=[];
+//         Author.findAll({
+//             attributes: ['first_name', 'last_name','id'],
+//             limit:10
+//         }).then(authors=>{
+//             authors.forEach(author=>{
+//                 let link={};
+//                  let author_lastName=(((author.dataValues.last_name).split(" ")).join("+")).toLowerCase();
+//                  let author_firstName=(((author.dataValues.first_name).split(" ")).join("+")).toLowerCase();
+//                  author_firstName=((author_firstName).split(".")).join("");
+//                  let pictureLink=author_lastName.concat("+"+author_firstName+".jpg");
+//                  pictureLink=`https://conceptionary-images.s3.amazonaws.com/${pictureLink}`;
+//                 link.id=author.dataValues.id;
+//                 link.pictureLink=pictureLink;
+//                 author_with_picture.push(link);
+//             });
+//         }).then(x=>{
+//             author_with_picture.forEach(author=>{
+//                 Author.update(
+//                     {picture_link:author.pictureLink},
+//                     {where:{id:author.id}}
+//                     ).then(x=>{
+//                         console.log("success");
+//                     })
+//                      .catch(err=>{
+//                          console.log(err);
+//                      })
+//             });
+//         })
+//         .catch(err=>{
+//           console.log(err);
+//         })
+    
+//     /*if("pictureLink" in data){
+//        let author_lastName=(((data.lastName).split(" ")).join("+")).toLowerCase();
+//        let author_firstName=(((data.firstName).split(" ")).join("+")).toLowerCase();
+//        author_firstName=((author_firstName).split(".")).join("");
+//        let author_image=author_lastName.concat("+"+author_firstName+".jpg");
+       
+//       data.pictureLink=`https://conceptionary-images.s3.amazonaws.com/${author_image}`;
+//     }
+//     console.log("*********************************");
+//     console.log(data.authors_convo_authors);
+//     if("AuthorConvoAuthors" in data){
+//         if(data.AuthorConvoAuthors.lenght>0){
+//             data.AuthorConvoAuthors.forEach(function(convo){
+//                 console.log(convo);
+//             });
+//         }
+//     }
+//     if("AuthorInfluenceAuthors" in data){
+//         if(data.AuthorInfluenceAuthors.lenght>0){
+//             data.AuthorInfluenceAuthors.forEach(function(influence){
+//                 console.log(influence);
+//             });
+//         }
+//     }*/
+//     return data;
+//  }
+module.exports.getOne =async function(req, res, next) {
     Author.findByPk(req.params.authorId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ?
