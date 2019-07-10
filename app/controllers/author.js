@@ -20,10 +20,10 @@ const BookDescription = db.BookDescription;
  * @param {*} next 
  */
 module.exports.getAuthor = async function (req, res, next) {
-    if (req.body.author.groupIds.length > 0 && req.body.author.name) {
+    if (req.body.author.groupIds.length >0 && req.body.author.name) {
         let DataToQuery = [];
         let outerQuery = ``;
-        const outerQuery=await getAuthorIds(req.body.author.groupIds);
+        outerQuery=await getAuthorIds(req.body.author.groupIds);
         db.sequelize.query(`SELECT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) = '${req.body.author.name}') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
             .then(data => {
                 data[0].forEach(author => {
@@ -39,7 +39,6 @@ module.exports.getAuthor = async function (req, res, next) {
 
             }).then(x => {
                 DataToQuery = [...new Set(DataToQuery)];
-
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
@@ -469,7 +468,7 @@ module.exports.secondFilter = async function (req, res, next) {
             let DataToQuery = [];
             let groupIds = req.body.labels.map(x=>x.id);
             let outerQuery = await getAuthorIds(groupIds);
-            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery}) `)
+            db.sequelize.query(`SELECT id FROM authors where id IN (${outerQuery})`)
                 .then(data => {
                     let authorIDs = data[0].map(author => author.id);
                     let innerQuery = "";

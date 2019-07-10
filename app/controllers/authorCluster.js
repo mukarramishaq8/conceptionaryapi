@@ -33,7 +33,7 @@ module.exports.getAuthorCluster=function(req,res,next){
                 .then(x => {
                     db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${req.body.cluster.name}%' OR name LIKE '% ${req.body.cluster.name}%') `)
                         .then(data => {
-                            console.log(data);
+                            
                                 data[0].forEach(author => {
                                     obj={};
                                     objectMapping = {};
@@ -64,18 +64,26 @@ module.exports.getAuthorCluster=function(req,res,next){
                     name:req.body.cluster.name
                 }
             }).then(author=>{
-            obj={};
-            objectMapping = {};
-            objectMapping.label = author.name + "|Author Cluster";
-            objectMapping.value = author.name;
-            objectMapping.id = author.id;
-            objectMapping.category = "Author-Clusters";
-            obj.selectedOption=objectMapping;
-            res.status(httpResponse.success.c200.code).json({
-            responseType: httpResponse.responseTypes.success,
-            ...httpResponse.success.c200,
-            obj
-        })
+                if(author){
+                    let obj={};
+                    objectMapping = {};
+                    objectMapping.label = author.name + "|Author Cluster";
+                    objectMapping.value = author.name;
+                    objectMapping.id = author.id;
+                    objectMapping.category = "Author-Clusters";
+                    obj.selectedOption=objectMapping;
+                    res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    obj
+                })
+                }else{
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                    })
+                }
+           
             })
               .catch(err=>{
                   console.log(err);
