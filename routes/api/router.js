@@ -14,7 +14,6 @@ const authorGroupsController = require('./../../app/controllers/authorGroups');
 const authorGroupController = require('./../../app/controllers/authorGroup');
 const userController = require('./../../app/controllers/users');
 const router = express.Router();
-
 var passport = require('passport');
 require('../../app/controllers/auth.js')(passport)
 
@@ -32,7 +31,7 @@ router.route('/concepts/:conceptId')
     .get(conceptController.getOne)
     .put(conceptController.update)
     .delete(conceptController.delete);
-    router.route('/concepts/filter')
+router.route('/concepts/filter')
     .post(conceptController.getOne);
 
 router.route('/concepts/search/:label')
@@ -42,7 +41,7 @@ router.route('/concepts/search/:label')
 router.route('/conceptClusters')
     .get(conceptClusterController.index)
     .post(conceptClusterController.create);
-    router.route('/conceptCluster')
+router.route('/conceptCluster')
     .post(conceptClusterController.getConceptCluster)
 router.route('/conceptClusters/:conceptClusterId')
     .get(conceptClusterController.getOne)
@@ -70,7 +69,7 @@ router.route('/authors')
     .get(authorController.index)
     .post(authorController.create);
 router.route('/author')
-      .post(authorController.getAuthor);
+    .post(authorController.getAuthor);
 
 router.route('/authors/:authorId')
     .get(authorController.getOne)
@@ -110,27 +109,19 @@ router.route('/authorClusters/:authorClusterId')
 /*** Home related routes. ***/
 router.route('/home/all/:label')
     .get(homeController.index);
-
 /*** Users related routes. ***/
 router.route('/users')
     .get(userController.index)
     .post(userController.register);
-
+router.route('/users/like')
+    .post(userController.createUserlike);
 router.get('/users/test', passport.authenticate('jwt', { session: false }), userController.test)
-
 router.route('/users/:userId')
     .get(userController.getOne)
     .put(userController.update)
     .delete(userController.delete);
-
-
 router.route('/login')
     .post(userController.login);
-router.route('/home/:name')
-    .get(homeController.getIdByName);
 router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
 router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
-
-
-
 module.exports = router;

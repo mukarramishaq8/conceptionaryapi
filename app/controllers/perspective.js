@@ -13,15 +13,15 @@ const Tone = db.Tone;
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.index = function(req, res, next) {
+module.exports.index = function (req, res, next) {
     Perspective.findAll({
         ...serializers.getPaginators(req.query),
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {model: Concept},
-            {model: Author},
-            {model: Keyword},
-            {model: Tone},
+            { model: Concept },
+            { model: Author },
+            { model: Keyword },
+            { model: Tone },
         ]
     }).then(data => res.status(httpResponse.success.c200.code).json({
         responseType: httpResponse.responseTypes.success,
@@ -37,14 +37,14 @@ module.exports.index = function(req, res, next) {
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.getOne = function(req, res, next){
+module.exports.getOne = function (req, res, next) {
     Perspective.findByPk(req.params.perspectiveId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-            {model: Concept},
-            {model: Author},
-            {model: Keyword},
-            {model: Tone},
+            { model: Concept },
+            { model: Author },
+            { model: Keyword },
+            { model: Tone },
         ]
     }).then(data => {
         res.status(httpResponse.success.c200.code).json({
@@ -61,15 +61,15 @@ module.exports.getOne = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.create = function(req, res, next){
+module.exports.create = function (req, res, next) {
     Perspective.create(req.body)
-    .then(data => {
-        res.status(httpResponse.success.c201.code).json({
-            responseType: httpResponse.responseTypes.success,
-            ...httpResponse.success.c201,
-            data
-        });
-    }).catch(next);
+        .then(data => {
+            res.status(httpResponse.success.c201.code).json({
+                responseType: httpResponse.responseTypes.success,
+                ...httpResponse.success.c201,
+                data
+            });
+        }).catch(next);
 }
 
 /**
@@ -78,22 +78,22 @@ module.exports.create = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.update = function(req, res, next){
+module.exports.update = function (req, res, next) {
     Perspective.findByPk(req.params.perspectiveId)
-    .then(perspective => {
-        if (!perspective) {
-            let e = new Error('resource not found');
-            e.status = httpResponse.error.client_error.c404.code;
-            throw e;
-        }
-        perspective.update(req.body).then(data => {
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data
+        .then(perspective => {
+            if (!perspective) {
+                let e = new Error('resource not found');
+                e.status = httpResponse.error.client_error.c404.code;
+                throw e;
+            }
+            perspective.update(req.body).then(data => {
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data
+                });
             });
-        });
-    }).catch(next);
+        }).catch(next);
 }
 
 /**
@@ -102,19 +102,19 @@ module.exports.update = function(req, res, next){
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.delete = function(req, res, next){
+module.exports.delete = function (req, res, next) {
     Perspective.findByPk(req.params.perspectiveId)
-    .then(perspective => {
-        if (!perspective) {
-            let e = new Error('resource not found');
-            e.status = httpResponse.error.client_error.c404.code;
-            throw e;
-        }
-        perspective.destroy().then(data => {
-            res.status(httpResponse.success.c204.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c204
-            });
+        .then(perspective => {
+            if (!perspective) {
+                let e = new Error('resource not found');
+                e.status = httpResponse.error.client_error.c404.code;
+                throw e;
+            }
+            perspective.destroy().then(data => {
+                res.status(httpResponse.success.c204.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c204
+                });
+            }).catch(next);
         }).catch(next);
-    }).catch(next);
 }

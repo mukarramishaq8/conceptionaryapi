@@ -1,10 +1,40 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const Users = db.User
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+// const UserLike = db.userLike;
+const Users = db.User;
+const perspectives = db.Perspective;
 
+/**
+ * do user likes
+ * 
+ */
+// {
+//     where: {
+//         userId: req.body.userLike.user_id,
+//         perspectiveId: req.body.userLike.perspective_id
+//     }
+// }
+module.exports.createUserlike = function (req, res, next) {
+    Users.findAll({
+        include: {
+            model: perspectives,
+            where: {
+                id: 5
+            }
+        }
+    })
+        .then(user => {
+            console.log(user[0].Perspectives);
+            res.send("hello");
+        })
+        .catch(err => {
+            res.send("");
+            console.log(err);
+        });
+}
 /**
  * send a list of records
  * @param {*} req 
@@ -120,7 +150,7 @@ const comparePassword = function (passw, hash, cb) {
 
 
 module.exports.login = function (req, res, next) {
-    // var admin_required = req.body.admin;
+    // var admin_required = req.body.admin
     if (!req.body.username || !req.body.password) {
         res.status(400).json({
             success: false,
@@ -132,8 +162,10 @@ module.exports.login = function (req, res, next) {
         var password = req.body.password.toLowerCase();
 
         Users.findOne({
-            username: username,
-            password: password
+            where: {
+                username: username
+                // password: password
+            }
         }).then(data => {
             // check if password matches
             comparePassword(req.body.password, data.password, function (err, isMatch) {

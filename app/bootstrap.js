@@ -29,13 +29,15 @@ db.AuthorBioHeading = require('./models/AuthorBioHeading')(sequelize, Sequelize)
 db.Book = require('./models/Book')(sequelize, Sequelize);
 db.BookDescription = require('./models/BookDescription')(sequelize, Sequelize);
 db.AuthorOnAuthor = require('./models/AuthorOnAuthor')(sequelize, Sequelize);
-
+// db.userLike = require("./models/UserLikes");
 
 /***  Set Relationships  ***/
 db.Concept.hasMany(db.Perspective);
 db.Perspective.belongsTo(db.Concept);
 db.Perspective.belongsTo(db.Author);
 db.Author.hasMany(db.Perspective);
+db.User.belongsToMany(db.Perspective, { through: 'user_likes' , timestamps: false,});
+db.Perspective.belongsToMany(db.User, { through: 'user_likes', timestamps: false, });
 db.Perspective.belongsToMany(db.Keyword, { through: 'perspectives_keywords', timestamps: false, foreignKey: 'perspective_id', otherKey: 'keyword_id' });
 db.Author.belongsToMany(db.AuthorGroups, { through: 'authors_author_groups', timestamps: false, foreignKey: 'author_id', otherKey: 'author_group_id' });
 // db.AuthorGroups.belongsTo(db.Author, {through:'authors_author_groups',timestamps:false,foreignKey:'author_id',otherKey:'author_group_id'});
