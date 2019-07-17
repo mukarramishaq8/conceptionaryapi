@@ -1,6 +1,7 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const chalk=require("chalk");
 const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
@@ -79,9 +80,11 @@ module.exports.upLoadPerspective = function (req, res) {
                         res.json({ msg: `${data.length} records saved` });
                     });
             } catch (err) {
+                console.log(chalk.green("*************************"));
                 console.log(err);
             }
         } else {
+            console.log();
             console.log(err);
             //res.json({msg:"file not uploaded"});
         }
