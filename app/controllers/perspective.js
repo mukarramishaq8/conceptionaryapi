@@ -1,7 +1,7 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
-const chalk=require("chalk");
+const chalk = require("chalk");
 const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
@@ -23,7 +23,6 @@ var path = require('path');
  * @param {*} next 
  */
 module.exports.upLoadPerspective = function (req, res) {
-    console.log(req);
     upload(req, res, function (err) {
         if (!err) {
             try {
@@ -38,25 +37,31 @@ module.exports.upLoadPerspective = function (req, res) {
                     })
                     .on('end', async () => {
                         for (let i = 0; i < perspectives.length; i++) {
-                            if (perspectives[i].CONCEPT && perspectives[i].AUTHOR_FIRST && perspectives[i].AUTHOR_LAST) {
+                            if (perspectives[i].CONCEPT) {
                                 concept = await getConceptByName(perspectives[i].CONCEPT);
                                 if (!concept) {
                                     newCreated = true;
                                     concept = await createConcept({ name: perspectives[i].CONCEPT })
                                 }
-                                author = await getAuthorByLabel(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
-                                if (!author) {
-                                    newCreated = true;
-                                    author = await createAuthor(
-                                        {
-                                            firstName: perspectives[i].AUTHOR_FIRST,
-                                            lastName: perspectives[i].AUTHOR_LAST,
-                                            dob: "",
-                                            dod: "",
-                                            gender: "",
-                                            pictureLink: ""
-                                        }
-                                    );
+                                if (perspectives[i].AUTHOR_FIRST || perspectives[i].AUTHOR_LAST) {
+                                    author = await getAuthorByLabel(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
+                                    if (!author) {
+                                        newCreated = true;
+                                        author = await createAuthor(
+                                            {
+                                                firstName: perspectives[i].AUTHOR_FIRST,
+                                                lastName: perspectives[i].AUTHOR_LAST,
+                                                dob: "",
+                                                dod: "",
+                                                gender: "",
+                                                pictureLink: ""
+                                            }
+                                        );
+                                    }
+                                } else {
+                                    console.log("***************************");
+                                    author.dataValues.id = null;
+                                    console.log(author);
                                 }
                                 let newperspective = await getPerspective({ author_id: author.id, concept_id: concept.id });
                                 if (!newperspective || newCreated) {
@@ -80,13 +85,10 @@ module.exports.upLoadPerspective = function (req, res) {
                         res.json({ msg: `${data.length} records saved` });
                     });
             } catch (err) {
-                console.log(chalk.green("*************************"));
                 console.log(err);
             }
         } else {
-            console.log();
-            console.log(err);
-            //res.json({msg:"file not uploaded"});
+            res.json({ msg: "file not uploaded" });
         }
     })
 }

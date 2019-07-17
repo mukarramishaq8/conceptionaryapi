@@ -9,7 +9,6 @@ var upload=function(){
 			cb(null,file.fieldname + '-' + Date.now()+ '.' + file.originalname.split('.')[file.originalname.split('.').length -1])
         }
     });
-    
     let upload=multer({
         storage:storage
     }).single('file');
