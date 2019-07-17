@@ -4,10 +4,12 @@
 module.exports = (sequelize, Sequelize) => {
     return sequelize.define('Perspective', {
         pronoun: {type: Sequelize.STRING, allowNull: true},
-        description: {type: Sequelize.TEXT, allowNull: true},
-        longDescription: {type: Sequelize.TEXT, allowNull: true},
+        description: {type: Sequelize.TEXT, allowNull: false},
+        longDescription: {type: Sequelize.TEXT, allowNull: false},
         citation: {type: Sequelize.TEXT, allowNull: true},
-        loves: {type: Sequelize.INTEGER, allowNull: true}
+        loves: {type: Sequelize.INTEGER, allowNull: true},
+        concept_id:{type: Sequelize.INTEGER, allowNull: false},
+        author_id:{type: Sequelize.INTEGER, allowNull: false}
     }, {
         sequelize,
         freezeTableName: true,

@@ -32,10 +32,10 @@ db.AuthorOnAuthor = require('./models/AuthorOnAuthor')(sequelize, Sequelize);
 // db.userLike = require("./models/UserLikes");
 
 /***  Set Relationships  ***/
-db.Concept.hasMany(db.Perspective);
-db.Perspective.belongsTo(db.Concept);
-db.Perspective.belongsTo(db.Author);
-db.Author.hasMany(db.Perspective);
+db.Concept.hasMany(db.Perspective,{ foreignKey: 'concept_id' });
+db.Perspective.belongsTo(db.Concept,{ foreignKey: 'concept_id'});
+db.Perspective.belongsTo(db.Author,{ foreignKey: 'author_id' });
+db.Author.hasMany(db.Perspective,{ foreignKey: 'author_id'});
 db.User.belongsToMany(db.Perspective, { through: 'user_likes' , timestamps: false,});
 db.Perspective.belongsToMany(db.User, { through: 'user_likes', timestamps: false, });
 db.Perspective.belongsToMany(db.Keyword, { through: 'perspectives_keywords', timestamps: false, foreignKey: 'perspective_id', otherKey: 'keyword_id' });

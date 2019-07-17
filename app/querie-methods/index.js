@@ -60,7 +60,12 @@ module.exports.getAuthorByLabel=function(label){
 module.exports.searchAllAuthorsByLabel = function (label) {
     return db.sequelize.query(`SELECT * FROM authors WHERE (CONCAT(first_name, ' ', last_name)) LIKE '${label}%' OR (CONCAT(first_name, ' ', last_name)) LIKE '% ${label}%' ORDER BY length(CONCAT(first_name, ' ', last_name)) limit 10`)
 }
-
+/**
+ * create new author
+ */
+module.exports.createAuthor=function(author){
+   return Author.create(author)
+}
 //@public search all Concepts by  name prefix or postfix
 module.exports.searchAllConceptsByLabel = function (label) {
        return Concept.findAll({
@@ -109,6 +114,22 @@ module.exports.searchAllConceptClustersByLabel = function (label) {
         })
 }
 
+/**
+ * get concept by exact name
+ */
+module.exports.getConceptByName=function(name){
+    return Concept.findOne({
+        where: {
+            name:name
+        }
+    })
+}
+/**
+ * create new concept
+ */
+module.exports.createConcept=function(concept){
+    return Concept.create(concept)
+}
 //@public search all AuthorCluster by  name prefix or postfix
 module.exports.searchAllAuthorClustersByLabel = function (label) {
        return AuthorCluster.findAll({
@@ -187,3 +208,20 @@ module.exports.searchConceptClustersByFilters=function(conceptIDs,label){
     author_cluster_ids = data[0].map(author_cluster => author_cluster.author_cluster_id);
     return db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${label}%' OR name LIKE '% ${label}%') `)
  }
+
+ /**
+  * creat perspective
+  */
+
+  module.exports.ceatePerspective=async function(perspective){
+    return Perspective.create(perspective)
+  }
+
+  /**
+   * get perspective
+   */
+  module.exports.getPerspective=function(obj){
+   return Perspective.findOne({
+        where:obj
+    });
+  }

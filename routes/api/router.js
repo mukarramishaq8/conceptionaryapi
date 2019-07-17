@@ -57,7 +57,8 @@ router.route('/conceptClusters/search/:label')
 router.route('/perspectives')
     .get(perspectiveController.index)
     .post(perspectiveController.create);
-
+    router.route('/perspectives/upload')
+    .post(perspectiveController.upLoadPerspective)
 router.route('/perspectives/:perspectiveId')
     .get(perspectiveController.getOne)
     .put(perspectiveController.update)
