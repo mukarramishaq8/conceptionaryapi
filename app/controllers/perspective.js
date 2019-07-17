@@ -6,10 +6,10 @@ const Perspective = db.Perspective;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
-const { getConceptByName, getAuthorByLabel, createConcept, createAuthor,ceatePerspective,getPerspective } = require("../querie-methods");
+const { getConceptByName, getAuthorByLabel, createConcept, createAuthor, ceatePerspective, getPerspective } = require("../querie-methods");
 const csv = require('csv-parser');
 const fs = require('fs');
-const upload=require('../config/upload')();
+const upload = require('../config/upload')();
 var path = require('path');
 /**
  * upload file
@@ -21,68 +21,69 @@ var path = require('path');
  * @param {*} res 
  * @param {*} next 
  */
-module.exports.upLoadPerspective =function (req,res) {
+module.exports.upLoadPerspective = function (req, res) {
     console.log(req);
-    upload(req,res,function(err){
-        if(!err){
-            try{
+    upload(req, res, function (err) {
+        if (!err) {
+            try {
                 let concept = {};
                 let author = {};
-                let data=[];
-                let newCreated=false;
+                let data = [];
+                let newCreated = false;
                 let perspectives = [];
-                   fs.createReadStream(`${req.file.path}`).pipe(csv())
+                fs.createReadStream(`${req.file.path}`).pipe(csv())
                     .on('data', (row) => {
                         perspectives.push(row);
                     })
-                    .on('end', async() => {
-                        for(let i=0;i<perspectives.length;i++){
-                            if(perspectives[i].CONCEPT&&perspectives[i].AUTHOR_FIRST&&perspectives[i].AUTHOR_LAST){
-                                concept=await getConceptByName(perspectives[i].CONCEPT);
+                    .on('end', async () => {
+                        for (let i = 0; i < perspectives.length; i++) {
+                            if (perspectives[i].CONCEPT && perspectives[i].AUTHOR_FIRST && perspectives[i].AUTHOR_LAST) {
+                                concept = await getConceptByName(perspectives[i].CONCEPT);
                                 if (!concept) {
-                                    newCreated=true;
-                                 concept= await createConcept({ name: perspectives[i].CONCEPT })
-                                } 
-                                author= await getAuthorByLabel(perspectives[i].AUTHOR_FIRST+" "+perspectives[i].AUTHOR_LAST);
-                               if(!author){
-                                   newCreated=true;
-                                   author= await createAuthor(
-                                    {
-                                        firstName:perspectives[i].AUTHOR_FIRST,
-                                        lastName:perspectives[i].AUTHOR_LAST,
-                                        dob:"",
-                                        dod:"",
-                                        gender:"",
-                                        pictureLink:""
-                                    }
-                                    );
-                               }
-                       let newperspective=await getPerspective({author_id:author.id,concept_id:concept.id});
-                         if(!newperspective||newCreated){
-                           let perspec= await ceatePerspective(
-                                {
-                                  pronoun:perspectives[i].PRONOUN,
-                                  description:perspectives[i].DESCRIPTION,
-                                  longDescription:perspectives[i].LNG,
-                                  citation:perspectives[i].CITATION,
-                                   author_id:author.id,
-                                   concept_id:concept.id
+                                    newCreated = true;
+                                    concept = await createConcept({ name: perspectives[i].CONCEPT })
                                 }
-                            )
-                            
-                            data.push(perspec);
-                         }
-                           }else{
-                               continue;
-                           }
+                                author = await getAuthorByLabel(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
+                                if (!author) {
+                                    newCreated = true;
+                                    author = await createAuthor(
+                                        {
+                                            firstName: perspectives[i].AUTHOR_FIRST,
+                                            lastName: perspectives[i].AUTHOR_LAST,
+                                            dob: "",
+                                            dod: "",
+                                            gender: "",
+                                            pictureLink: ""
+                                        }
+                                    );
+                                }
+                                let newperspective = await getPerspective({ author_id: author.id, concept_id: concept.id });
+                                if (!newperspective || newCreated) {
+                                    let perspec = await ceatePerspective(
+                                        {
+                                            pronoun: perspectives[i].PRONOUN,
+                                            description: perspectives[i].DESCRIPTION,
+                                            longDescription: perspectives[i].LNG,
+                                            citation: perspectives[i].CITATION,
+                                            author_id: author.id,
+                                            concept_id: concept.id
+                                        }
+                                    )
+
+                                    data.push(perspec);
+                                }
+                            } else {
+                                continue;
+                            }
                         }
-                          res.json({msg: `${data.length} records saved`});
+                        res.json({ msg: `${data.length} records saved` });
                     });
-               }catch(err){
-                   console.log(err);
-               }
-        }else{
-            res.json({msg:"file not uploaded"});
+            } catch (err) {
+                console.log(err);
+            }
+        } else {
+            console.log(err);
+            //res.json({msg:"file not uploaded"});
         }
     })
 }
