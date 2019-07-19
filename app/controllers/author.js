@@ -210,6 +210,7 @@ module.exports.getOne = async function (req, res, next) {
                     { association: 'AuthorInfluenceAuthors' },
                 ]
     }).then(data => {
+        
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,

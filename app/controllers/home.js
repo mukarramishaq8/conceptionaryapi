@@ -56,18 +56,3 @@ module.exports.index = async function (req, res, next) {
         })
     }
 }
-
-// module.exports.getIdByName = (req, res, next) => {
-//     let name = req.params.name;
-//     Concept.find({
-//         where: {
-//             name: name
-//         }
-//     }).then(concept => {
-//         res.json(concept);
-//     })
-//         .catch((err) => {
-//             res.json({ errn });
-//         }
-//         );
-// }

@@ -22,20 +22,29 @@ module.exports.getConceptId = (req, res, next) => {
                 name: req.query.name
             }
         }).then(data => {
-            obj = {};
-            objectMapping = {};
-            objectMapping.label = data.name;
-            objectMapping.value = data.name;
-            objectMapping.id = data.id;
-            objectMapping.category = "Concepts";
-            // objectMapping.color = authorGroupColor;
-            //objectMapping.type = "cluster";
-            obj.selectedOption = objectMapping;
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                obj
-            })
+            if(data){
+                obj = {};
+                objectMapping = {};
+                objectMapping.label = data.name;
+                objectMapping.value = data.name;
+                objectMapping.id = data.id;
+                objectMapping.category = "Concepts";
+                // objectMapping.color = authorGroupColor;
+                //objectMapping.type = "cluster";
+                obj.selectedOption = objectMapping;
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    obj
+                })
+            }else{
+                obj={};
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    obj
+                })
+            }
         }).catch(err => {
             console.log(err);
         })

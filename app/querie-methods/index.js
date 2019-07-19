@@ -43,7 +43,7 @@ module.exports.getAuthorIds = function (Ids) {
 /** 
  * search all authors by  name prefix or postfix
  * */ 
-module.exports.getAuthorByLabel=function(label){
+module.exports.getAuthorByName=function(label){
    return  Author.findOne({
         where: {
             [Sequelize.Op.or]: [
@@ -65,6 +65,17 @@ module.exports.searchAllAuthorsByLabel = function (label) {
  */
 module.exports.createAuthor=function(author){
    return Author.create(author)
+}
+/**
+ * check for anonymous
+ */
+module.exports.checkAnonymous=function(){
+   //return db.sequelize.query(`select * from authors where last_name=${"anonymous"}`)
+   return Author.findOne({
+       where:{
+           last_name:'anonymous'
+       }
+   })
 }
 //@public search all Concepts by  name prefix or postfix
 module.exports.searchAllConceptsByLabel = function (label) {
@@ -174,7 +185,12 @@ module.exports.searchAllAuthorGroupsByLabel = function (label) {
 module.exports.searchAuthorsByFilters=function(filters,label){
    return db.sequelize.query(`SELECT * FROM authors where id IN (${filters}) AND ( CONCAT(first_name,' ',last_name) LIKE '${label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
 }
-
+/**
+ * get Author by Filters
+ */
+module.exports.getAuthorByFilters=function(filters,label){
+    return db.sequelize.query(`SELECT * FROM authors where id IN (${filters}) AND ( CONCAT(first_name,' ',last_name) LIKE '${label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+ }
 /**
  * search concepts by filters
  */
@@ -215,6 +231,7 @@ module.exports.searchConceptClustersByFilters=function(conceptIDs,label){
 
   module.exports.ceatePerspective=async function(perspective){
     return Perspective.create(perspective)
+    //return db.sequelize.query(`INSERT INTO perspectives (pronoun,description,long_description,citation,concept_id,author_id) VALUES (${perspective.pronoun},${perspective.description},${perspective.longDescription},${perspective.citation},${perspective.concept_id},${perspective.author_id})`)
   }
 
   /**

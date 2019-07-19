@@ -1,13 +1,16 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const querystring = require('querystring');
 const chalk = require("chalk");
+const iconv = require('iconv-lite');
+const excelToJson = require('convert-excel-to-json');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
-const { getConceptByName, getAuthorByLabel, createConcept, createAuthor, ceatePerspective, getPerspective } = require("../querie-methods");
+const { getConceptByName, getAuthorByName, createConcept, createAuthor, ceatePerspective, getPerspective, checkAnonymous } = require("../querie-methods");
 const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
@@ -25,70 +28,104 @@ var path = require('path');
 module.exports.upLoadPerspective = function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
-            try {
-                let concept = {};
-                let author = {};
-                let data = [];
-                let newCreated = false;
-                let perspectives = [];
-                fs.createReadStream(`${req.file.path}`).pipe(csv())
-                    .on('data', (row) => {
-                        perspectives.push(row);
-                    })
-                    .on('end', async () => {
-                        for (let i = 0; i < perspectives.length; i++) {
-                            if (perspectives[i].CONCEPT) {
-                                concept = await getConceptByName(perspectives[i].CONCEPT);
-                                if (!concept) {
-                                    newCreated = true;
-                                    concept = await createConcept({ name: perspectives[i].CONCEPT })
-                                }
-                                if (perspectives[i].AUTHOR_FIRST || perspectives[i].AUTHOR_LAST) {
-                                    author = await getAuthorByLabel(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
-                                    if (!author) {
-                                        newCreated = true;
-                                        author = await createAuthor(
-                                            {
-                                                firstName: perspectives[i].AUTHOR_FIRST,
-                                                lastName: perspectives[i].AUTHOR_LAST,
-                                                dob: "",
-                                                dod: "",
-                                                gender: "",
-                                                pictureLink: ""
-                                            }
-                                        );
-                                    }
-                                } else {
-                                    console.log("***************************");
-                                    author.dataValues.id = null;
-                                    console.log(author);
-                                }
-                                let newperspective = await getPerspective({ author_id: author.id, concept_id: concept.id });
-                                if (!newperspective || newCreated) {
-                                    let perspec = await ceatePerspective(
-                                        {
-                                            pronoun: perspectives[i].PRONOUN,
-                                            description: perspectives[i].DESCRIPTION,
-                                            longDescription: perspectives[i].LNG,
-                                            citation: perspectives[i].CITATION,
-                                            author_id: author.id,
-                                            concept_id: concept.id
-                                        }
-                                    )
+            (async () => {
+                try {
+                    let concept = {};
+                    let author = {};
+                    let data = [];
+                    let newCreated = false;
+                    let perspectives = [];
+                    let skip = [];
+                    const result = excelToJson({
+                        source: fs.readFileSync(`${req.file.path}`),
+                        columnToKey: {
+                            A: "ID",
+                            B: "PRONOUN",
+                            C: "CONCEPT",
+                            D: "DESCRIPTION",
+                            E: "AUTHOR_LAST",
+                            F: "AUTHOR_FIRST",
+                            G: "CITATION",
+                            H: "LNG"
 
-                                    data.push(perspec);
+
+                        },
+                        header: {
+                            rows: 1
+                        }
+                    });
+                    perspectives = result['Sheet1']
+                    for (let i = 0; i < perspectives.length; i++) {
+                        if (perspectives[i].CONCEPT) {
+                            concept = await getConceptByName(perspectives[i].CONCEPT);
+                            if (!concept) {
+                                newCreated = true;
+                                concept = await createConcept({ name: perspectives[i].CONCEPT })
+                            }
+                            if (perspectives[i].AUTHOR_FIRST || perspectives[i].AUTHOR_LAST) {
+                                author = await getAuthorByName(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
+                                if (!author) {
+                                    newCreated = true;
+                                    author = await createAuthor(
+                                        {
+                                            firstName: perspectives[i].AUTHOR_FIRST,
+                                            lastName: perspectives[i].AUTHOR_LAST,
+                                            dob: "",
+                                            dod: "",
+                                            gender: "",
+                                            pictureLink: ""
+                                        }
+                                    );
                                 }
                             } else {
-                                continue;
+                                author = await checkAnonymous();
+                                if (!author) {
+                                    newCreated = true;
+                                    author = await createAuthor(
+                                        {
+                                            firstName: perspectives[i].AUTHOR_FIRST,
+                                            lastName: "anonymous",
+                                            dob: "",
+                                            dod: "",
+                                            gender: "",
+                                            pictureLink: ""
+                                        }
+                                    );
+                                }
                             }
+                            let newperspective = await getPerspective({ author_id: author.id, concept_id: concept.id });
+                            if (!newperspective || newCreated) {
+                                if (!perspectives[i].LNG || !perspectives[i].DESCRIPTION) {
+                                    skip.push(i);
+                                    continue;
+                                }
+                                let perspec = await ceatePerspective(
+                                    {
+                                        pronoun: perspectives[i].PRONOUN,
+                                        description: perspectives[i].DESCRIPTION,
+                                        longDescription: perspectives[i].LNG,
+                                        citation: perspectives[i].CITATION,
+                                        author_id: author.id,
+                                        concept_id: concept.id
+                                    }
+                                )
+                                data.push(perspec);
+                            } else {
+                                skip.push(i);
+                            }
+                        } else {
+                            skip.push(i);
+                            continue;
                         }
-                        res.json({ msg: `${data.length} records saved` });
-                    });
-            } catch (err) {
-                console.log(err);
-            }
+                    };
+                    res.json({ msg: `${data.length} records saved`, skip });
+                    //res.json({"no":perspectives.length});
+                } catch (err) {
+                    console.log(err);
+                }
+            })();
         } else {
-            res.json({ msg: "file not uploaded" });
+            res.json({ msg: "file not uploaded", skip });
         }
     })
 }
