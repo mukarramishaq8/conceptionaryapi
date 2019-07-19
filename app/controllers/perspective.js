@@ -95,7 +95,7 @@ module.exports.upLoadPerspective = function (req, res) {
                             }
                             let newperspective = await getPerspective({ author_id: author.id, concept_id: concept.id });
                             if (!newperspective || newCreated) {
-                                if (!perspectives[i].LNG || !perspectives[i].DESCRIPTION) {
+                                if (!perspectives[i].DESCRIPTION) {
                                     skip.push(i);
                                     continue;
                                 }
