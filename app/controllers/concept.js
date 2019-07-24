@@ -163,7 +163,6 @@ module.exports.getOne = async function (req, res, next) {
             ]
         })
             .then(data => {
-                console.log(data);
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,

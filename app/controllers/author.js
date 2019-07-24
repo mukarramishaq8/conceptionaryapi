@@ -210,7 +210,7 @@ module.exports.getOne = async function (req, res, next) {
                     { association: 'AuthorInfluenceAuthors' },
                 ]
     }).then(data => {
-        
+
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
@@ -443,182 +443,182 @@ module.exports.secondFilter = async function (req, res, next) {
         }
             break;
         default: {
-        //     let DataToQuery = [];
-        //     let AuthorIDs = [];
-        //     let ConceptIDs = [];
-        //     let outerQuery = "";
-        //     let innerQuery = "";
-        //     let groupIds = req.body.labels.map(x => x.id);
-        //     AuthorIDs = await getAuthorIds(groupIds);
-        //     //let authors=await searchAuthorsByFilters(AuthorIDs,req.body.label);
-        //      let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
-        //      db.sequelize.query(mainQuery).then(data => {
+            //     let DataToQuery = [];
+            //     let AuthorIDs = [];
+            //     let ConceptIDs = [];
+            //     let outerQuery = "";
+            //     let innerQuery = "";
+            //     let groupIds = req.body.labels.map(x => x.id);
+            //     AuthorIDs = await getAuthorIds(groupIds);
+            //     //let authors=await searchAuthorsByFilters(AuthorIDs,req.body.label);
+            //      let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) AND ( CONCAT(first_name,' ',last_name) LIKE '${req.body.label}%' ) ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `;
+            //      db.sequelize.query(mainQuery).then(data => {
 
-        //         //data is ARRAY of ARRAYS, merging into single array containg author records
-        //         // var merged = [].concat.apply([], data[0]); 
-        //         if (true || merged.length > 0) {
+            //         //data is ARRAY of ARRAYS, merging into single array containg author records
+            //         // var merged = [].concat.apply([], data[0]); 
+            //         if (true || merged.length > 0) {
 
-        //             // let authorsdata = [...merged];
-        //             let authorsdata = data[0];
+            //             // let authorsdata = [...merged];
+            //             let authorsdata = data[0];
 
-        //             //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
+            //             //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
 
-        //             authorsdata.forEach(author => {
-        //                 objectMapping = {};
-        //                 objectMapping.label = author.first_name + " " + author.last_name;
-        //                 objectMapping.value = author.first_name + " " + author.last_name;
-        //                 objectMapping.id = author.id;
-        //                 objectMapping.category = "Authors";
-        //                 objectMapping.color = authorColor;
+            //             authorsdata.forEach(author => {
+            //                 objectMapping = {};
+            //                 objectMapping.label = author.first_name + " " + author.last_name;
+            //                 objectMapping.value = author.first_name + " " + author.last_name;
+            //                 objectMapping.id = author.id;
+            //                 objectMapping.category = "Authors";
+            //                 objectMapping.color = authorColor;
 
-        //                 DataToQuery.push(objectMapping);
-        //                 // AuthorIDs.push(author.id);
-        //             });
-        //         }
-        //     }).then(x => {
-        //         let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) `;
-        //         db.sequelize.query(mainQuery).then(data => {
+            //                 DataToQuery.push(objectMapping);
+            //                 // AuthorIDs.push(author.id);
+            //             });
+            //         }
+            //     }).then(x => {
+            //         let mainQuery = `SELECT DISTINCT * FROM authors where id IN (${outerQuery}) `;
+            //         db.sequelize.query(mainQuery).then(data => {
 
-        //             //data is ARRAY of ARRAYS, merging into single array containg author records
-        //             // var merged = [].concat.apply([], data[0]); 
-        //             if (true || merged.length > 0) {
+            //             //data is ARRAY of ARRAYS, merging into single array containg author records
+            //             // var merged = [].concat.apply([], data[0]); 
+            //             if (true || merged.length > 0) {
 
-        //                 // let authorsdata = [...merged];
-        //                 let authorsdata = data[0];
+            //                 // let authorsdata = [...merged];
+            //                 let authorsdata = data[0];
 
-        //                 //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
+            //                 //authorsdata = authorsdata.filter(x=> x.firstName.toLowerCase().includes(req.body.label));
 
-        //                 authorsdata.forEach(author => {
-        //                     AuthorIDs.push(author.id);
-        //                 });
-        //             }
-        //         }).then(x => {
+            //                 authorsdata.forEach(author => {
+            //                     AuthorIDs.push(author.id);
+            //                 });
+            //             }
+            //         }).then(x => {
 
-        //             if (AuthorIDs.length == 1) {
-        //                 // console.log(AuthorIDs)
-        //                 innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${AuthorIDs[0]})`;
-        //             }
-        //             else {
-        //                 innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs.length > 0 ? AuthorIDs : -1}))`
-        //             }
-        //             mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
+            //             if (AuthorIDs.length == 1) {
+            //                 // console.log(AuthorIDs)
+            //                 innerQuery = `(SELECT DISTINCT concept_id from perspectives where author_id = ${AuthorIDs[0]})`;
+            //             }
+            //             else {
+            //                 innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${AuthorIDs.length > 0 ? AuthorIDs : -1}))`
+            //             }
+            //             mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%') LIMIT 10 `;
 
 
-        //             db.sequelize.query(mainQuery).then(data => {
+            //             db.sequelize.query(mainQuery).then(data => {
 
-        //                 //data is ARRAY of ARRAYS, merging into single array containg author records
-        //                 // var merged = [].concat.apply([], data[0]); 
-        //                 if (true || merged.length > 0) {
+            //                 //data is ARRAY of ARRAYS, merging into single array containg author records
+            //                 // var merged = [].concat.apply([], data[0]); 
+            //                 if (true || merged.length > 0) {
 
-        //                     // let authorsdata = [...merged];
-        //                     let conceptsData = data[0];
+            //                     // let authorsdata = [...merged];
+            //                     let conceptsData = data[0];
 
-        //                     conceptsData.forEach(concept => {
-        //                         objectMapping = {};
-        //                         objectMapping.label = concept.name;
-        //                         objectMapping.value = concept.name;
-        //                         objectMapping.id = concept.id;
-        //                         objectMapping.category = "Concepts";
-        //                         objectMapping.color = conceptColor;
+            //                     conceptsData.forEach(concept => {
+            //                         objectMapping = {};
+            //                         objectMapping.label = concept.name;
+            //                         objectMapping.value = concept.name;
+            //                         objectMapping.id = concept.id;
+            //                         objectMapping.category = "Concepts";
+            //                         objectMapping.color = conceptColor;
 
-        //                         DataToQuery.push(objectMapping);
-        //                         ConceptIDs.push(concept.id);
-        //                     });
-        //                 }
+            //                         DataToQuery.push(objectMapping);
+            //                         ConceptIDs.push(concept.id);
+            //                     });
+            //                 }
 
-        //             }).then(x => {
+            //             }).then(x => {
 
-        //                 // console.log(ConceptIDs)
-        //                 outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ? ConceptIDs : -1}))`;
+            //                 // console.log(ConceptIDs)
+            //                 outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${ConceptIDs.length > 0 ? ConceptIDs : -1}))`;
 
-        //                 let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
-        //                 db.sequelize.query(mainQuery).then(data => {
+            //                 let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND name LIKE '${req.body.label}%' OR name LIKE '% ${req.body.label}%' LIMIT 10 `;
+            //                 db.sequelize.query(mainQuery).then(data => {
 
-        //                     //data is ARRAY of ARRAYS, merging into single array containg author records
-        //                     // var merged = [].concat.apply([], data[0]); 
-        //                     if (true || merged.length > 0) {
+            //                     //data is ARRAY of ARRAYS, merging into single array containg author records
+            //                     // var merged = [].concat.apply([], data[0]); 
+            //                     if (true || merged.length > 0) {
 
-        //                         // let authorsdata = [...merged];
-        //                         let conceptsClusterData = data[0];
+            //                         // let authorsdata = [...merged];
+            //                         let conceptsClusterData = data[0];
 
-        //                         conceptsClusterData.forEach(concept => {
-        //                             objectMapping = {};
-        //                             objectMapping.label = concept.name + " |Concept cluster";
-        //                             objectMapping.value = concept.name;
-        //                             objectMapping.id = concept.id;
-        //                             objectMapping.category = "Concept-Clusters";
-        //                             objectMapping.color = conceptClusterColor;
+            //                         conceptsClusterData.forEach(concept => {
+            //                             objectMapping = {};
+            //                             objectMapping.label = concept.name + " |Concept cluster";
+            //                             objectMapping.value = concept.name;
+            //                             objectMapping.id = concept.id;
+            //                             objectMapping.category = "Concept-Clusters";
+            //                             objectMapping.color = conceptClusterColor;
 
-        //                             DataToQuery.push(objectMapping);
-        //                         });
-        //                     }
+            //                             DataToQuery.push(objectMapping);
+            //                         });
+            //                     }
 
-        //                 }).then(x => {
-        //                     // DataToQuery = [...new Set(DataToQuery)];
-        //                     DataToQuery = DataToQuery
+            //                 }).then(x => {
+            //                     // DataToQuery = [...new Set(DataToQuery)];
+            //                     DataToQuery = DataToQuery
 
-        //                         .map(e => e["id"])
+            //                         .map(e => e["id"])
 
-        //                         // store the keys of the unique objects
-        //                         .map((e, i, final) => final.indexOf(e) === i && i)
+            //                         // store the keys of the unique objects
+            //                         .map((e, i, final) => final.indexOf(e) === i && i)
 
-        //                         // eliminate the dead keys & store unique objects
-        //                         .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
+            //                         // eliminate the dead keys & store unique objects
+            //                         .filter(e => DataToQuery[e]).map(e => DataToQuery[e]);
 
-        //                     AuthorIDs = [];
-        //                     ConceptIDs = [];
+            //                     AuthorIDs = [];
+            //                     ConceptIDs = [];
 
-        //                     // DataToQuery = _.sortBy(DataToQuery, 'label');
-        //                     DataToQuery.sort((a, b) =>
-        //                         a.length - b.length
-        //                     );
-        //                     res.status(httpResponse.success.c200.code).json({
-        //                         responseType: httpResponse.responseTypes.success,
-        //                         ...httpResponse.success.c200,
-        //                         data: DataToQuery.slice(0, 10)
-        //                     })
-        //                 })
-        //             })
-        //         })
-        //     })
+            //                     // DataToQuery = _.sortBy(DataToQuery, 'label');
+            //                     DataToQuery.sort((a, b) =>
+            //                         a.length - b.length
+            //                     );
+            //                     res.status(httpResponse.success.c200.code).json({
+            //                         responseType: httpResponse.responseTypes.success,
+            //                         ...httpResponse.success.c200,
+            //                         data: DataToQuery.slice(0, 10)
+            //                     })
+            //                 })
+            //             })
+            //         })
+            //     })
 
-        /**
-         * new implementation
-         */
-        let DataToQuery = []
-        try {
-            let result=[];
-            let groupIds = req.body.labels.map(x => x.id);
-            let authorIDs = await getAuthorIds(groupIds);
-            let authors = await searchAuthorsByFilters(authorIDs,req.body.label);
-            result = await mapObject("Authors", authors[0]);
-            DataToQuery.push(...result);
-            let Concepts = await searchConceptsByFilters(authorIDs,req.body.label);
-             result = await mapObject("Concepts", Concepts[0])
-             DataToQuery.push(...result);
-            let conceptClusters = await searchConceptClustersByFilters(authorIDs,req.body.label);
-            result = await mapObject("Concept-Cluster", conceptClusters);
-            DataToQuery.push(...result);
-            let authorClusters = await searchAuthorClustersByFilters(authorIDs,req.body.label);
-            result = await mapObject("Author-Clusters", authorClusters);
-            DataToQuery.push(...result);
-            let authorGroups = await searchAllAuthorGroupsByLabel(req.params.label);
-            result = await mapObject("Author-Groups", authorGroups);
-            DataToQuery.push(...result);
-        } catch (err) {
-            console.log(err);
+            /**
+             * new implementation
+             */
+            let DataToQuery = []
+            try {
+                let result = [];
+                let groupIds = req.body.labels.map(x => x.id);
+                let authorIDs = await getAuthorIds(groupIds);
+                let authors = await searchAuthorsByFilters(authorIDs, req.body.label);
+                result = await mapObject("Authors", authors[0]);
+                DataToQuery.push(...result);
+                let Concepts = await searchConceptsByFilters(authorIDs, req.body.label);
+                result = await mapObject("Concepts", Concepts[0])
+                DataToQuery.push(...result);
+                let conceptClusters = await searchConceptClustersByFilters(authorIDs, req.body.label);
+                result = await mapObject("Concept-Cluster", conceptClusters);
+                DataToQuery.push(...result);
+                let authorClusters = await searchAuthorClustersByFilters(authorIDs, req.body.label);
+                result = await mapObject("Author-Clusters", authorClusters);
+                DataToQuery.push(...result);
+                let authorGroups = await searchAllAuthorGroupsByLabel(req.params.label);
+                result = await mapObject("Author-Groups", authorGroups);
+                DataToQuery.push(...result);
+            } catch (err) {
+                console.log(err);
+            }
+            finally {
+                DataToQuery.sort((a, b) =>
+                    a["label"].length - b["label"].length
+                );
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data: DataToQuery.slice(0, 10)
+                })
+            }
+
         }
-        finally {
-              DataToQuery.sort((a, b) =>
-                  a["label"].length-b["label"].length
-              );
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data: DataToQuery.slice(0, 10)
-            })
-        }
- 
- }
-}
+    }
 }

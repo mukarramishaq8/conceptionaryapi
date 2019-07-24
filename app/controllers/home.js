@@ -31,11 +31,9 @@ module.exports.index = async function (req, res, next) {
         let Concepts = await searchAllConceptsByLabel(req.params.label);
         result = await mapObject("Concepts", Concepts)
         DataToQuery.push(...result);
-
         let conceptClusters = await searchAllConceptClustersByLabel(req.params.label);
         result = await mapObject("Concept-Cluster", conceptClusters);
         DataToQuery.push(...result);
-
         let authorClusters = await searchAllAuthorClustersByLabel(req.params.label);
         result = await mapObject("Author-Clusters", authorClusters);
         DataToQuery.push(...result);

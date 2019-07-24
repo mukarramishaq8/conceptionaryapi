@@ -42,9 +42,9 @@ module.exports.getAuthorIds = function (Ids) {
 
 /** 
  * search all authors by  name prefix or postfix
- * */ 
-module.exports.getAuthorByName=function(label){
-   return  Author.findOne({
+ * */
+module.exports.getAuthorByName = function (label) {
+    return Author.findOne({
         where: {
             [Sequelize.Op.or]: [
                 Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
@@ -63,150 +63,162 @@ module.exports.searchAllAuthorsByLabel = function (label) {
 /**
  * create new author
  */
-module.exports.createAuthor=function(author){
-   return Author.create(author)
+module.exports.createAuthor = function (author) {
+    return Author.create(author)
 }
 /**
- * check for anonymous
+ * get author by Last name
  */
-module.exports.checkAnonymous=function(){
-   //return db.sequelize.query(`select * from authors where last_name=${"anonymous"}`)
-   return Author.findOne({
-       where:{
-           last_name:'anonymous'
-       }
-   })
+module.exports.getAuthorByLastName = function (last_name) {
+    //return db.sequelize.query(`select * from authors where last_name=${"anonymous"}`)
+    return Author.findOne({
+        where: {
+            [Sequelize.Op.and]:[
+                {
+                    lastName: last_name,
+                    [Sequelize.Op.or]:[
+                        {
+                            firstName:""
+                        },
+                        {
+                            firstName:null
+                        }
+                    ]
+                }
+            ]
+        }
+    })
 }
 //@public search all Concepts by  name prefix or postfix
 module.exports.searchAllConceptsByLabel = function (label) {
-       return Concept.findAll({
-            where: {
-                [Sequelize.Op.or]: [
-                    {
-                        name: {
-                            [Sequelize.Op.like]: label + '%'
-                        }
-                    },
-                    {
-                        name: {
-                            [Sequelize.Op.like]: '% ' + label + '%'
-                        }
+    return Concept.findAll({
+        where: {
+            [Sequelize.Op.or]: [
+                {
+                    name: {
+                        [Sequelize.Op.like]: label + '%'
                     }
-                ]
-            },
-            order: [
-                [Sequelize.fn('length', Sequelize.col('name'))]
-            ],
+                },
+                {
+                    name: {
+                        [Sequelize.Op.like]: '% ' + label + '%'
+                    }
+                }
+            ]
+        },
+        order: [
+            [Sequelize.fn('length', Sequelize.col('name'))]
+        ],
 
-            limit: 10
-        })
+        limit: 10
+    })
 }
 
 //@public search all conceptCluster by  name prefix or postfix
 module.exports.searchAllConceptClustersByLabel = function (label) {
-       return ConceptCluster.findAll({
-            where: {
-                [Sequelize.Op.or]: [
-                    {
-                        name: {
-                            [Sequelize.Op.like]: label + '%'
-                        }
-                    },
-                    {
-                        name: {
-                            [Sequelize.Op.like]: '% ' + label + '%'
-                        }
+    return ConceptCluster.findAll({
+        where: {
+            [Sequelize.Op.or]: [
+                {
+                    name: {
+                        [Sequelize.Op.like]: label + '%'
                     }
-                ]
+                },
+                {
+                    name: {
+                        [Sequelize.Op.like]: '% ' + label + '%'
+                    }
+                }
+            ]
 
-            },
-            order: [Sequelize.fn('length', Sequelize.col('name'))],
-            limit: 10
-        })
+        },
+        order: [Sequelize.fn('length', Sequelize.col('name'))],
+        limit: 10
+    })
 }
 
 /**
  * get concept by exact name
  */
-module.exports.getConceptByName=function(name){
+module.exports.getConceptByName = function (name) {
     return Concept.findOne({
         where: {
-            name:name
+            name: name
         }
     })
 }
 /**
  * create new concept
  */
-module.exports.createConcept=function(concept){
+module.exports.createConcept = function (concept) {
     return Concept.create(concept)
 }
 //@public search all AuthorCluster by  name prefix or postfix
 module.exports.searchAllAuthorClustersByLabel = function (label) {
-       return AuthorCluster.findAll({
-            where: {
-                [Sequelize.Op.or]: [
-                    {
-                        name: {
-                            [Sequelize.Op.like]: label + '%'
-                        }
-                    },
-                    {
-                        name: {
-                            [Sequelize.Op.like]: '% ' + label + '%'
-                        }
+    return AuthorCluster.findAll({
+        where: {
+            [Sequelize.Op.or]: [
+                {
+                    name: {
+                        [Sequelize.Op.like]: label + '%'
                     }
-                ]
+                },
+                {
+                    name: {
+                        [Sequelize.Op.like]: '% ' + label + '%'
+                    }
+                }
+            ]
 
-            },
-            order: [Sequelize.fn('length', Sequelize.col('name'))],
-            limit: 10
-        })
+        },
+        order: [Sequelize.fn('length', Sequelize.col('name'))],
+        limit: 10
+    })
 }
 
 // search all AuthorGroups by  name prefix or postfix
 module.exports.searchAllAuthorGroupsByLabel = function (label) {
-        return AuthorGroups.findAll({
-            where: {
+    return AuthorGroups.findAll({
+        where: {
 
-                name: {
-                    [Sequelize.Op.like]: label + '%'
-                }
+            name: {
+                [Sequelize.Op.like]: label + '%'
+            }
 
-            },
-            order: [Sequelize.fn('length', Sequelize.col('name'))],
-            limit: 10
-        })
+        },
+        order: [Sequelize.fn('length', Sequelize.col('name'))],
+        limit: 10
+    })
 }
 
 /**
  * search Authors by filters 
  */
-module.exports.searchAuthorsByFilters=function(filters,label){
-   return db.sequelize.query(`SELECT * FROM authors where id IN (${filters}) AND ( CONCAT(first_name,' ',last_name) LIKE '${label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
+module.exports.searchAuthorsByFilters = function (filters, label) {
+    return db.sequelize.query(`SELECT * FROM authors where id IN (${filters}) AND ( CONCAT(first_name,' ',last_name) LIKE '${label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
 }
 /**
  * get Author by Filters
  */
-module.exports.getAuthorByFilters=function(filters,label){
+module.exports.getAuthorByFilters = function (filters, label) {
     return db.sequelize.query(`SELECT * FROM authors where id IN (${filters}) AND ( CONCAT(first_name,' ',last_name) LIKE '${label}%' OR CONCAT(first_name,' ',last_name) LIKE '% ${label}%') ORDER BY length(CONCAT(first_name, ' ', last_name)) LIMIT 10 `)
- }
+}
 /**
  * search concepts by filters
  */
 
- module.exports.searchConceptsByFilters=function(authorIDs,label){
+module.exports.searchConceptsByFilters = function (authorIDs, label) {
     let innerQuery = "";
     innerQuery = `(SELECT DISTINCT concept_id FROM perspectives WHERE author_id IN (${authorIDs.length > 0 ? authorIDs : -1}))`
     mainQuery = `SELECT DISTINCT * from concepts where id IN ${innerQuery} AND (name LIKE '${label}%' OR name LIKE '% ${label}%') LIMIT 10 `;
     return db.sequelize.query(mainQuery)
- }
+}
 
- /**
-  * Search concept-clusters by filters
-  */
+/**
+ * Search concept-clusters by filters
+ */
 
-module.exports.searchConceptClustersByFilters=function(conceptIDs,label){
+module.exports.searchConceptClustersByFilters = function (conceptIDs, label) {
 
     let outerQuery = `(SELECT DISTINCT concept_cluster_id FROM concepts_concept_clusters WHERE concept_id IN (${conceptIDs.length > 0 ? conceptIDs : -1}))`;
     let mainQuery = `SELECT DISTINCT * FROM concept_clusters where id IN (${outerQuery}) AND (name LIKE '${label}%' OR name LIKE '% ${label}%') LIMIT 10 `;
@@ -217,28 +229,28 @@ module.exports.searchConceptClustersByFilters=function(conceptIDs,label){
  * search Author-Clusters By Filters
  */
 
- module.exports.searchAuthorClustersByFilters=async function(groupIds,label){
-    let author_cluster_ids=[];
-    let data= await db.sequelize.query(`SELECT DISTINCT author_cluster_id from author_clusters_author_groups where author_group_id in (${groupIds})`)
+module.exports.searchAuthorClustersByFilters = async function (groupIds, label) {
+    let author_cluster_ids = [];
+    let data = await db.sequelize.query(`SELECT DISTINCT author_cluster_id from author_clusters_author_groups where author_group_id in (${groupIds})`)
     console.log(data[0]);
     author_cluster_ids = data[0].map(author_cluster => author_cluster.author_cluster_id);
     return db.sequelize.query(`SELECT DISTINCT * from author_clusters where id in (${author_cluster_ids}) AND (name LIKE '${label}%' OR name LIKE '% ${label}%') `)
- }
+}
 
- /**
-  * creat perspective
-  */
+/**
+ * creat perspective
+ */
 
-  module.exports.ceatePerspective=async function(perspective){
+module.exports.ceatePerspective = async function (perspective) {
     return Perspective.create(perspective)
     //return db.sequelize.query(`INSERT INTO perspectives (pronoun,description,long_description,citation,concept_id,author_id) VALUES (${perspective.pronoun},${perspective.description},${perspective.longDescription},${perspective.citation},${perspective.concept_id},${perspective.author_id})`)
-  }
+}
 
-  /**
-   * get perspective
-   */
-  module.exports.getPerspective=function(obj){
-   return Perspective.findOne({
-        where:obj
+/**
+ * get perspective
+ */
+module.exports.getPerspective = function (obj) {
+    return Perspective.findOne({
+        where: obj
     });
-  }
+}

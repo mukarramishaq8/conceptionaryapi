@@ -10,7 +10,7 @@ const Perspective = db.Perspective;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
-const { getConceptByName, getAuthorByName, createConcept, createAuthor, ceatePerspective, getPerspective, checkAnonymous } = require("../querie-methods");
+const { getConceptByName, getAuthorByName, createConcept, createAuthor, ceatePerspective, getPerspective, getAuthorByLastName } = require("../querie-methods");
 const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
@@ -25,6 +25,30 @@ var path = require('path');
  * @param {*} res 
  * @param {*} next 
  */
+function parseExcelToJson(path) {
+    return new Promise((resolve, reject) => {
+        let result = excelToJson({
+            source: fs.readFileSync(path),
+            columnToKey: {
+                A: "ID",
+                B: "PRONOUN",
+                C: "CONCEPT",
+                D: "DESCRIPTION",
+                E: "AUTHOR_LAST",
+                F: "AUTHOR_FIRST",
+                G: "CITATION",
+                H: "LNG"
+
+
+            },
+            header: {
+                rows: 1
+            }
+        });
+        result = result[Object.keys(result)[0]];
+        resolve(result);
+    })
+}
 module.exports.upLoadPerspective = function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
@@ -36,25 +60,7 @@ module.exports.upLoadPerspective = function (req, res) {
                     let newCreated = false;
                     let perspectives = [];
                     let skip = [];
-                    const result = excelToJson({
-                        source: fs.readFileSync(`${req.file.path}`),
-                        columnToKey: {
-                            A: "ID",
-                            B: "PRONOUN",
-                            C: "CONCEPT",
-                            D: "DESCRIPTION",
-                            E: "AUTHOR_LAST",
-                            F: "AUTHOR_FIRST",
-                            G: "CITATION",
-                            H: "LNG"
-
-
-                        },
-                        header: {
-                            rows: 1
-                        }
-                    });
-                    perspectives = result['Sheet1']
+                    perspectives = await parseExcelToJson(req.file.path);
                     for (let i = 0; i < perspectives.length; i++) {
                         if (perspectives[i].CONCEPT) {
                             concept = await getConceptByName(perspectives[i].CONCEPT);
@@ -62,28 +68,46 @@ module.exports.upLoadPerspective = function (req, res) {
                                 newCreated = true;
                                 concept = await createConcept({ name: perspectives[i].CONCEPT })
                             }
-                            if (perspectives[i].AUTHOR_FIRST || perspectives[i].AUTHOR_LAST) {
-                                author = await getAuthorByName(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
-                                if (!author) {
-                                    newCreated = true;
-                                    author = await createAuthor(
-                                        {
-                                            firstName: perspectives[i].AUTHOR_FIRST,
-                                            lastName: perspectives[i].AUTHOR_LAST,
-                                            dob: "",
-                                            dod: "",
-                                            gender: "",
-                                            pictureLink: ""
-                                        }
-                                    );
+                            if (perspectives[i].AUTHOR_LAST) {
+                                if (perspectives[i].AUTHOR_LAST && perspectives[i].AUTHOR_FIRST) {
+                                    author = await getAuthorByName(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
+                                    if (!author) {
+                                        newCreated = true;
+                                        author = await createAuthor(
+                                            {
+                                                firstName: perspectives[i].AUTHOR_FIRST,
+                                                lastName: perspectives[i].AUTHOR_LAST,
+                                                dob: "",
+                                                dod: "",
+                                                gender: "",
+                                                pictureLink: ""
+                                            }
+                                        );
+                                    }
+                                } else {
+                                    author = await getAuthorByLastName(perspectives[i].AUTHOR_LAST);
+                                    console.log(author);
+                                    if (!author ) {
+                                        newCreated = true;
+                                        author = await createAuthor(
+                                            {
+                                                firstName: "",
+                                                lastName: perspectives[i].AUTHOR_LAST,
+                                                dob: "",
+                                                dod: "",
+                                                gender: "",
+                                                pictureLink: ""
+                                            }
+                                        );
+                                    }
                                 }
                             } else {
-                                author = await checkAnonymous();
+                                author = await getAuthorByLastName("anonymous");
                                 if (!author) {
                                     newCreated = true;
                                     author = await createAuthor(
                                         {
-                                            firstName: perspectives[i].AUTHOR_FIRST,
+                                            firstName: "",
                                             lastName: "anonymous",
                                             dob: "",
                                             dod: "",
@@ -119,7 +143,7 @@ module.exports.upLoadPerspective = function (req, res) {
                         }
                     };
                     res.json({ msg: `${data.length} records saved`, skip });
-                    //res.json({"no":perspectives.length});
+                    //res.json({data});
                 } catch (err) {
                     console.log(err);
                 }
