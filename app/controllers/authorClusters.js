@@ -17,7 +17,8 @@ let objectMapping = {}
 
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
-let authorClusterColor = "#808080";
+let conceptClusterColor = "#FF0000";
+let authorClusterColor = "#0000FF";
 let authorGroupColor = '#33FF57';
 
 module.exports.filter = function(req, res, next) {

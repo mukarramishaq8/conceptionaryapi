@@ -287,13 +287,8 @@ module.exports.delete = function (req, res, next) {
 
 
 let objectMapping = {}
-
 let authorColor = "#A52A2A";
-let conceptColor = "#000000";
-let conceptClusterColor = "#00FF00";
-let authorClusterColor = "#aaa";
-
-module.exports.filter = function (req, res, next) {
+module.exports.filter =function (req, res, next) {
     let DataToQuery = [];
     Author.findAll({
         where: {
@@ -307,9 +302,8 @@ module.exports.filter = function (req, res, next) {
             ]
         },
         limit: 10
-    }).then(data => {
+    }).then( async data => {
         if (data.length > 0) {
-
             data.forEach(author => {
                 objectMapping = {};
                 objectMapping.label = author.firstName + " " + author.lastName;

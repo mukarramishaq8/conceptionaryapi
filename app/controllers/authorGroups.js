@@ -24,7 +24,9 @@ let objectMapping = {}
 
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
-let authorGroupColor = "#4AC4AC";
+let conceptClusterColor = "#FF0000";
+let authorClusterColor = "#0000FF";
+let authorGroupColor = '#33FF57';
 
 module.exports.search = function (req, res, next) {
     let DataToQuery = [];

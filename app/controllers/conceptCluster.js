@@ -240,6 +240,8 @@ let objectMapping = {}
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#FF0000";
+let authorClusterColor = "#0000FF";
+let authorGroupColor = '#33FF57';
 
 
 module.exports.filter = function(req, res, next) {
@@ -256,7 +258,7 @@ module.exports.filter = function(req, res, next) {
             
             data.forEach(cluster => {
                 objectMapping = {};
-                objectMapping.label = cluster.name + " |Concept Cluster";
+                objectMapping.label = cluster.name + " | "+cluster.type;
                 objectMapping.value = cluster.name;
                 objectMapping.id = cluster.id;
                 objectMapping.category = "Concept-Clusters";

@@ -1,4 +1,4 @@
-const chalk=require("chalk");
+
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
 let conceptClusterColor = "#FF0000";
@@ -41,7 +41,7 @@ switch(category){
         return new Promise(resolve=>{
             data.forEach(concept => {
                 objectMapping = {};
-                objectMapping.label = concept.name + "|Concept Cluster";
+                objectMapping.label = concept.name +" | "+concept.type;
                 objectMapping.value = concept.name;
                 objectMapping.id = concept.id;
                 objectMapping.category = "Concept-Clusters";
