@@ -263,13 +263,14 @@ module.exports.filter = function(req, res, next) {
                 objectMapping.id = cluster.id;
                 objectMapping.category = "Concept-Clusters";
                 objectMapping.color = conceptClusterColor;
-
                 DataToQuery.push(objectMapping);
             });
         }
     }).then(x=>{
+            DataToQuery.sort((a, b) =>
+            a["label"].length - b["label"].length
+            );
             DataToQuery = [...new Set(DataToQuery)];
-
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,

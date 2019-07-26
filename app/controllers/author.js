@@ -99,17 +99,17 @@ module.exports.index = function (req, res, next) {
             : serializers.withSelfAssociationsOnly(req.query) !== true
                 ? [
                     {
-                        model: Perspective, include: [
-                            { model: Concept }
+                        model: Perspective,include: [
+                            { model: Concept}
                         ]
-                    },
-                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
-                    { model: Book, include: { model: BookDescription } },
+                     },
+                     { model: AuthorGroup,include: { model: AuthorBioHeading} },
+                     { model: Book,include: { model: BookDescription} },
                 ]
                 : [
-                    { association: 'AuthorOnAuthors' },
-                    { association: 'AuthorConvoAuthors' },
-                    { association: 'AuthorInfluenceAuthors' },
+                    { association: 'AuthorOnAuthors'},
+                    { association: 'AuthorConvoAuthors'},
+                    { association: 'AuthorInfluenceAuthors'},
                 ]
     }).then(data => {
         res.status(httpResponse.success.c200.code).json({
@@ -197,12 +197,12 @@ module.exports.getOne = async function (req, res, next) {
             undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
                 [
                     {
-                        model: Perspective, include: [
-                            { model: Concept }
+                        model: Perspective,limit:100, include: [
+                            { model: Concept}
                         ]
                     },
-                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
-                    { model: Book, include: { model: BookDescription } },
+                     { model: AuthorGroup, include: { model: AuthorBioHeading} },
+                     { model: Book, include: { model: BookDescription} },
                 ]
                 : [
                     { association: 'AuthorOnAuthors' },
@@ -317,7 +317,6 @@ module.exports.filter =function (req, res, next) {
         }
     }).then(x => {
         DataToQuery = [...new Set(DataToQuery)];
-
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
@@ -343,6 +342,9 @@ module.exports.secondFilter = async function (req, res, next) {
                 console.log(err);
                 DataToQuery = [];
             } finally {
+                DataToQuery.sort((a, b) =>
+                a["label"].length - b["label"].length
+                );
                 DataToQuery = [...new Set(DataToQuery)];
 
                 res.status(httpResponse.success.c200.code).json({
@@ -368,8 +370,10 @@ module.exports.secondFilter = async function (req, res, next) {
                 DataToQuery = [];
                 console.log(err);
             } finally {
+                DataToQuery.sort((a, b) =>
+                a["label"].length - b["label"].length
+                );
                 DataToQuery = [...new Set(DataToQuery)];
-
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,

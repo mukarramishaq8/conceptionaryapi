@@ -2,8 +2,10 @@ const db = require('../bootstrap');
 const Sequelize = require('sequelize');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
+const chalk=require('chalk');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
+const ConceptCluster=db.ConceptCluster;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
@@ -148,19 +150,26 @@ module.exports.getOne = async function (req, res, next) {
     } else {
 
         Concept.findByPk(req.body.Conceptobj.concept_id, {
-
             attributes: serializers.getQueryFields(req.query),
-            include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
-                {
-                    model: Perspective, include: [
+            include: serializers.isRelationshipIncluded(req.query) !== true
+                ? undefined
+                : serializers.withListAndRelatedOnly(req.query) !== true
+                    ? [
                         {
-                            model: Author
-                        },
-                        { model: Keyword },
-                        { model: Tone },
+                            model: Perspective, include: [
+                                { model: Author },
+                                { model: Keyword },
+                                { model: Tone },
+                            ]
+                        }
                     ]
-                }
-            ]
+                    : [
+                        {
+                            model: ConceptCluster, include: [
+                                { model: Concept }
+                            ]
+                        }
+                    ]
         })
             .then(data => {
                 res.status(httpResponse.success.c200.code).json({
@@ -168,9 +177,7 @@ module.exports.getOne = async function (req, res, next) {
                     ...httpResponse.success.c200,
                     data
                 });
-            }).catch(err => {
-                console.log(err);
-            });
+            }).catch(next);
 
     }
 
@@ -270,17 +277,18 @@ module.exports.filter = function (req, res, next) {
                 objectMapping.id = concept.id;
                 objectMapping.category = "Concepts";
                 objectMapping.color = conceptColor;
-
                 DataToQuery.push(objectMapping);
             });
         }
     }).then(x => {
+        DataToQuery.sort((a, b) =>
+            a["label"].length - b["label"].length
+        );
         DataToQuery = [...new Set(DataToQuery)];
-
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
-            data: _.sortBy(DataToQuery, 'label')
+            data:DataToQuery
         })
     });
 };

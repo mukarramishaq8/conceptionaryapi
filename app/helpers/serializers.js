@@ -41,3 +41,6 @@ module.exports.isRelationshipIncluded = ({relationships}) => {
 module.exports.withSelfAssociationsOnly = ({withSelfAssociationsOnly}) => {
     return _.isEmpty(withSelfAssociationsOnly) || _.isEqual(withSelfAssociationsOnly, 'false') ? false : true;
 }
+module.exports.withListAndRelatedOnly=({withListAndRelatedOnly})=>{
+    return _.isEmpty(withListAndRelatedOnly) || _.isEqual(withListAndRelatedOnly, 'false') ? false : true;
+}

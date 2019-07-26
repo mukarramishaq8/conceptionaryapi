@@ -33,9 +33,9 @@ module.exports.search = function (req, res, next) {
     // let fetchedLabesl = req.params.label;
     // let body = req.body;
     AuthorGroups.findAll({
-        where:{
-            name:{
-                [Sequelize.Op.like]:req.params.label + '%'
+        where: {
+            name: {
+                [Sequelize.Op.like]: req.params.label + '%'
             }
         },
         limit: 10
@@ -54,8 +54,10 @@ module.exports.search = function (req, res, next) {
             });
         }
     }).then(x => {
+        DataToQuery.sort((a, b) =>
+            a["label"].length - b["label"].length
+        );
         DataToQuery = [...new Set(DataToQuery)];
-
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
@@ -196,14 +198,13 @@ module.exports.filter = function (req, res, next) {
 
 };
 
-module.exports.groupIds=(req,res,next)=>{
-    let DataToQuery=[];
-    let filters=req.body.filters;
-    filters=filters.map(x=>`"${x}"`);
-     let query=`SELECT * from author_groups WHERE name IN (${filters})`;
-     db.sequelize.query(query).then(data=>{
+module.exports.groupIds = (req, res, next) => {
+    let DataToQuery = [];
+    let filters = req.body.filters;
+    filters = filters.map(x => `"${x}"`);
+    let query = `SELECT * from author_groups WHERE name IN (${filters})`;
+    db.sequelize.query(query).then(data => {
         if (data.length > 0) {
-            console.log(data[0]);
             let groupsData = data[0]
             groupsData.forEach(group => {
                 objectMapping = {};
@@ -215,8 +216,8 @@ module.exports.groupIds=(req,res,next)=>{
                 DataToQuery.push(objectMapping);
             });
         }
-         res.json(DataToQuery);
-     }).catch(err=>{
-         console.log(err);
-     });
+        res.json(DataToQuery);
+    }).catch(err => {
+        console.log(err);
+    });
 }
