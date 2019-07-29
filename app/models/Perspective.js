@@ -9,7 +9,8 @@ module.exports = (sequelize, Sequelize) => {
         citation: { type: Sequelize.TEXT, allowNull: true },
         loves: { type: Sequelize.INTEGER, allowNull: true },
         concept_id: { type: Sequelize.INTEGER, allowNull: true },
-        author_id: { type: Sequelize.INTEGER, allowNull: true }
+        author_id: { type: Sequelize.INTEGER, allowNull: true,onDelete: 'CASCADE',
+        }
     }, {
             sequelize,
             freezeTableName: true,

@@ -2,7 +2,7 @@ const db = require('../bootstrap');
 const Sequelize = require('sequelize');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
-const { getAuthorIds } = require('../querie-methods');
+const { getAuthorIds, getAllAuthorsByName, updatePerspectivesByAuthorId, getAllAuthorsByLastName, deleteAuthorById } = require('../querie-methods');
 const chalk = require("chalk");
 const _ = require('underscore');
 const { mapObject } = require("../utils");
@@ -26,6 +26,43 @@ const BookDescription = db.BookDescription;
  * @param {*} res 
  * @param {*} next 
  */
+/**
+ * remove duplicate authors
+ */
+module.exports.removeDuplicateAuthors = async function (req, res, next) {
+    let firstName = req.param("firstname");
+    let lastName = req.param("lastname");
+    let authors = [];
+    let records = 0;
+    try{
+    if (lastName) {
+        if (firstName) {
+            authors = await getAllAuthorsByName(firstName + " " + lastName)
+        }
+        authors = await getAllAuthorsByLastName(lastName)
+    }
+    if (authors.length > 0) {
+        let updateWith = authors[0].id;
+        for(let i=0;i<authors.length;i++){
+            if (authors[i].id == updateWith) {
+                continue;
+            }
+            let result = await updatePerspectivesByAuthorId(authors[i].id, updateWith);
+            if (result.length > 0) {
+                records = records + result.length;
+                await deleteAuthorById(authors[i].id);
+            }
+        }
+    }
+    res.json({ "no of records changed": records });
+}catch(err){
+    console.log(err);
+}
+}
+module.exports.getAuthorsByLastName=async function(req,res){
+    let authors=await getAllAuthorsByLastName(req.param('lastname'));
+    res.json(authors);
+}
 module.exports.getAuthor = async function (req, res, next) {
     if (req.body.author.groupIds.length > 0 && req.body.author.name) {
         let DataToQuery = [];
@@ -99,17 +136,17 @@ module.exports.index = function (req, res, next) {
             : serializers.withSelfAssociationsOnly(req.query) !== true
                 ? [
                     {
-                        model: Perspective,include: [
-                            { model: Concept}
+                        model: Perspective, include: [
+                            { model: Concept }
                         ]
-                     },
-                     { model: AuthorGroup,include: { model: AuthorBioHeading} },
-                     { model: Book,include: { model: BookDescription} },
+                    },
+                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                    { model: Book, include: { model: BookDescription } },
                 ]
                 : [
-                    { association: 'AuthorOnAuthors'},
-                    { association: 'AuthorConvoAuthors'},
-                    { association: 'AuthorInfluenceAuthors'},
+                    { association: 'AuthorOnAuthors' },
+                    { association: 'AuthorConvoAuthors' },
+                    { association: 'AuthorInfluenceAuthors' },
                 ]
     }).then(data => {
         res.status(httpResponse.success.c200.code).json({
@@ -197,12 +234,12 @@ module.exports.getOne = async function (req, res, next) {
             undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
                 [
                     {
-                        model: Perspective,limit:100, include: [
-                            { model: Concept}
+                        model: Perspective, limit: 100, include: [
+                            { model: Concept }
                         ]
                     },
-                     { model: AuthorGroup, include: { model: AuthorBioHeading} },
-                     { model: Book, include: { model: BookDescription} },
+                    { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                    { model: Book, include: { model: BookDescription } },
                 ]
                 : [
                     { association: 'AuthorOnAuthors' },
@@ -288,7 +325,7 @@ module.exports.delete = function (req, res, next) {
 
 let objectMapping = {}
 let authorColor = "#A52A2A";
-module.exports.filter =function (req, res, next) {
+module.exports.filter = function (req, res, next) {
     let DataToQuery = [];
     Author.findAll({
         where: {
@@ -302,7 +339,7 @@ module.exports.filter =function (req, res, next) {
             ]
         },
         limit: 10
-    }).then( async data => {
+    }).then(async data => {
         if (data.length > 0) {
             data.forEach(author => {
                 objectMapping = {};
@@ -343,7 +380,7 @@ module.exports.secondFilter = async function (req, res, next) {
                 DataToQuery = [];
             } finally {
                 DataToQuery.sort((a, b) =>
-                a["label"].length - b["label"].length
+                    a["label"].length - b["label"].length
                 );
                 DataToQuery = [...new Set(DataToQuery)];
 
@@ -371,7 +408,7 @@ module.exports.secondFilter = async function (req, res, next) {
                 console.log(err);
             } finally {
                 DataToQuery.sort((a, b) =>
-                a["label"].length - b["label"].length
+                    a["label"].length - b["label"].length
                 );
                 DataToQuery = [...new Set(DataToQuery)];
                 res.status(httpResponse.success.c200.code).json({

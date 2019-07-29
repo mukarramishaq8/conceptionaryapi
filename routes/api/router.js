@@ -82,7 +82,10 @@ router.route('/authors/search/:label')
 
 router.route('/authors/search')
     .post(authorController.secondFilter);
-
+router.route('/authors/duplicate/search')
+    .get(authorController.removeDuplicateAuthors);
+router.route('/authors/duplicate/lastname')
+    .get(authorController.getAuthorsByLastName);
 //Search from Navbar
 router.route('/authorGroups/search/:label')
     .get(authorGroupsController.search);

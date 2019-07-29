@@ -67,6 +67,17 @@ module.exports.createAuthor = function (author) {
     return Author.create(author)
 }
 /**
+ * delete author by ID
+ */
+module.exports.deleteAuthorById=async function(authorId){
+  Author.findByPk(authorId)
+        .then(author=>{
+            if(author){
+                author.destroy()
+            }
+        })
+}
+/**
  * get author by Last name
  */
 module.exports.getAuthorByLastName = function (last_name) {
@@ -76,6 +87,45 @@ module.exports.getAuthorByLastName = function (last_name) {
             [Sequelize.Op.and]:[
                 {
                     lastName: last_name,
+                    [Sequelize.Op.or]:[
+                        {
+                            firstName:""
+                        },
+                        {
+                            firstName:null
+                        }
+                    ]
+                }
+            ]
+        }
+    })
+}
+/**
+ * find All authors by name 
+ */
+module.exports.getAllAuthorsByName=function(name){
+    return Author.findAll({
+        where: {
+            [Sequelize.Op.or]: [
+                Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
+                    [Sequelize.Op.eq]: label
+                }),
+                Sequelize.where(Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), {
+                    [Sequelize.Op.eq]: label
+                })
+            ]
+        }
+    })
+}
+/**
+ * find All Authors by Lastname
+ */
+module.exports.getAllAuthorsByLastName=function(lastName){
+    return Author.findAll({
+        where: {
+            [Sequelize.Op.and]:[
+                {
+                    lastName: lastName,
                     [Sequelize.Op.or]:[
                         {
                             firstName:""
@@ -253,4 +303,13 @@ module.exports.getPerspective = function (obj) {
     return Perspective.findOne({
         where: obj
     });
+}
+/**
+ * Delete perspectives BY ID
+ */
+module.exports.updatePerspectivesByAuthorId=function(authorId,updatewith){
+    return Perspective.update(
+        {author_id:updatewith},
+        {where:{author_id:authorId}}
+    )
 }
