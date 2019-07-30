@@ -17,24 +17,7 @@ const perspectives = db.Perspective;
 //         perspectiveId: req.body.userLike.perspective_id
 //     }
 // }
-module.exports.createUserlike = function (req, res, next) {
-    Users.findAll({
-        include: {
-            model: perspectives,
-            where: {
-                id: 5
-            }
-        }
-    })
-        .then(user => {
-            console.log(user[0].Perspectives);
-            res.send("hello");
-        })
-        .catch(err => {
-            res.send("");
-            console.log(err);
-        });
-}
+
 /**
  * send a list of records
  * @param {*} req 

@@ -87,7 +87,7 @@ module.exports.upLoadPerspective = function (req, res) {
                                 } else {
                                     author = await getAuthorByLastName(perspectives[i].AUTHOR_LAST);
                                     console.log(author);
-                                    if (!author ) {
+                                    if (!author) {
                                         newCreated = true;
                                         author = await createAuthor(
                                             {
@@ -257,4 +257,41 @@ module.exports.delete = function (req, res, next) {
                 });
             }).catch(next);
         }).catch(next);
+}
+module.exports.createLike = async function (req, res) {
+    let perspective = await Perspective.findByPk(req.body.like.id);
+    if (perspective) {
+        if (perspective.loves == null || perspective.loves === "") {
+            perspective.loves = 1;
+            perspective = await perspective.save();
+        } else {
+            if(req.body.like.type==="increase"){
+            perspective.loves += 1;
+            perspective = await perspective.save();
+            }else if(req.body.like.type==="decrease"){
+                perspective.loves -= 1;
+                perspective = await perspective.save();
+            }
+        }
+        res.json({ perspective });
+    } else {
+        res.json({ msg: "resource not found" });
+    }
+
+    // Users.findAll({
+    //     include: {
+    //         model: perspectives,
+    //         where: {
+    //             id: 5
+    //         }
+    //     }
+    // })
+    //     .then(user => {
+    //         console.log(user[0].Perspectives);
+    //         res.send("hello");
+    //     })
+    //     .catch(err => {
+    //         res.send("");
+    //         console.log(err);
+    //     });
 }

@@ -63,7 +63,8 @@ router.route('/perspectives/:perspectiveId')
     .get(perspectiveController.getOne)
     .put(perspectiveController.update)
     .delete(perspectiveController.delete);
-
+router.route('/perspective/like')
+    .post(perspectiveController.createLike);
 
 /*** Authors related routes. ***/
 router.route('/authors')
@@ -117,8 +118,6 @@ router.route('/home/all/:label')
 router.route('/users')
     .get(userController.index)
     .post(userController.register);
-router.route('/users/like')
-    .post(userController.createUserlike);
 router.get('/users/test', passport.authenticate('jwt', { session: false }), userController.test)
 router.route('/users/:userId')
     .get(userController.getOne)
