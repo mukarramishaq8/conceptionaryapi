@@ -295,3 +295,20 @@ module.exports.createLike = async function (req, res) {
     //         console.log(err);
     //     });
 }
+
+module.exports.getPerspectiveDetail = function (req, res) {
+    Perspective.findByPk(req.params.perspectiveId, {
+        include:[
+            { model: Concept },
+            { model: Author }
+        ]
+    }).then(data => {
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            data
+        });
+    }).catch(err=>{
+        console.log(err);
+    });
+}

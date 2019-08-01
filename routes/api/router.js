@@ -65,6 +65,8 @@ router.route('/perspectives/:perspectiveId')
     .delete(perspectiveController.delete);
 router.route('/perspective/like')
     .post(perspectiveController.createLike);
+router.route('/perspective/detail/:perspectiveId')
+    .get(perspectiveController.getPerspectiveDetail);
 
 /*** Authors related routes. ***/
 router.route('/authors')

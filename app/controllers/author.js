@@ -30,38 +30,38 @@ const BookDescription = db.BookDescription;
  * remove duplicate authors
  */
 module.exports.removeDuplicateAuthors = async function (req, res, next) {
-    
-//     let firstName = req.param("firstname");
-//     let lastName = req.param("lastname");
-//     let authors = [];
-//     let records = 0;
-//     try{
-//     if (lastName) {
-//         if (firstName) {
-//             authors = await getAllAuthorsByName(firstName + " " + lastName)
-//         }
-//         authors = await getAllAuthorsByLastName(lastName)
-//     }
-//     if (authors.length > 0) {
-//         let updateWith = authors[0].id;
-//         for(let i=0;i<authors.length;i++){
-//             if (authors[i].id == updateWith) {
-//                 continue;
-//             }
-//             let result = await updatePerspectivesByAuthorId(authors[i].id, updateWith);
-//             if (result.length > 0) {
-//                 records = records + result.length;
-//                 await deleteAuthorById(authors[i].id);
-//             }
-//         }
-//     }
-//     res.json({ "no of records changed": records });
-// }catch(err){
-//     console.log(err);
-// }
+
+    //     let firstName = req.param("firstname");
+    //     let lastName = req.param("lastname");
+    //     let authors = [];
+    //     let records = 0;
+    //     try{
+    //     if (lastName) {
+    //         if (firstName) {
+    //             authors = await getAllAuthorsByName(firstName + " " + lastName)
+    //         }
+    //         authors = await getAllAuthorsByLastName(lastName)
+    //     }
+    //     if (authors.length > 0) {
+    //         let updateWith = authors[0].id;
+    //         for(let i=0;i<authors.length;i++){
+    //             if (authors[i].id == updateWith) {
+    //                 continue;
+    //             }
+    //             let result = await updatePerspectivesByAuthorId(authors[i].id, updateWith);
+    //             if (result.length > 0) {
+    //                 records = records + result.length;
+    //                 await deleteAuthorById(authors[i].id);
+    //             }
+    //         }
+    //     }
+    //     res.json({ "no of records changed": records });
+    // }catch(err){
+    //     console.log(err);
+    // }
 }
-module.exports.getAuthorsByLastName=async function(req,res){
-    let authors=await getAllAuthorsByLastName(req.param('lastname'));
+module.exports.getAuthorsByLastName = async function (req, res) {
+    let authors = await getAllAuthorsByLastName(req.param('lastname'));
     res.json(authors);
 }
 module.exports.getAuthor = async function (req, res, next) {
