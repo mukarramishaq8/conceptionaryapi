@@ -2,10 +2,10 @@ const db = require('../bootstrap');
 const Sequelize = require('sequelize');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
-const chalk=require('chalk');
+const chalk = require('chalk');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
-const ConceptCluster=db.ConceptCluster;
+const ConceptCluster = db.ConceptCluster;
 const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
@@ -24,7 +24,7 @@ module.exports.getConceptId = (req, res, next) => {
                 name: req.query.name
             }
         }).then(data => {
-            if(data){
+            if (data) {
                 obj = {};
                 objectMapping = {};
                 objectMapping.label = data.name;
@@ -39,8 +39,8 @@ module.exports.getConceptId = (req, res, next) => {
                     ...httpResponse.success.c200,
                     obj
                 })
-            }else{
-                obj={};
+            } else {
+                obj = {};
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
@@ -148,7 +148,6 @@ module.exports.getOne = async function (req, res, next) {
                 console.log(err);
             });
     } else {
-
         Concept.findByPk(req.body.Conceptobj.concept_id, {
             attributes: serializers.getQueryFields(req.query),
             include: serializers.isRelationshipIncluded(req.query) !== true
@@ -156,10 +155,10 @@ module.exports.getOne = async function (req, res, next) {
                 : serializers.withListAndRelatedOnly(req.query) !== true
                     ? [
                         {
-                            model: Perspective, include: [
+                            model: Perspective, attributes: ['id'], include: [
                                 { model: Author },
                                 { model: Keyword },
-                                { model: Tone },
+                                { model: Tone }
                             ]
                         }
                     ]
@@ -172,12 +171,23 @@ module.exports.getOne = async function (req, res, next) {
                     ]
         })
             .then(data => {
-                res.status(httpResponse.success.c200.code).json({
-                    responseType: httpResponse.responseTypes.success,
-                    ...httpResponse.success.c200,
-                    data
-                });
-            }).catch(next);
+                let Perspectives = {};
+                if (data.Perspectives) {
+                    Concept.findByPk(req.body.Conceptobj.concept_id, {
+                        include: [{ model: Perspective, limit: 100 }]
+                    }).then(result => {
+                        Perspectives.allPerspectives = data;
+                        Perspectives.limitedPerspectives = result.Perspectives;
+                        res.status(httpResponse.success.c200.code).json({
+                            responseType: httpResponse.responseTypes.success,
+                            ...httpResponse.success.c200,
+                            Perspectives
+                        });
+                    })
+                }
+            }).catch(err => {
+                console.log(err)
+            });
 
     }
 
@@ -288,7 +298,7 @@ module.exports.filter = function (req, res, next) {
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
-            data:DataToQuery
+            data: DataToQuery
         })
     });
 };
