@@ -30,7 +30,6 @@ const BookDescription = db.BookDescription;
  * remove duplicate authors
  */
 module.exports.removeDuplicateAuthors = async function (req, res, next) {
-
     //     let firstName = req.param("firstname");
     //     let lastName = req.param("lastname");
     //     let authors = [];
@@ -59,6 +58,27 @@ module.exports.removeDuplicateAuthors = async function (req, res, next) {
     // }catch(err){
     //     console.log(err);
     // }
+}
+module.exports.getPerspectivesByAuthorLastName=function(req,res){
+    Author.findAll(
+        {
+            where:{lastName:req.params.author_lastName},
+            include:{model:Perspective}
+        }
+    ).then(result=>{
+        let perspectives=[];
+        result.forEach(author=>{
+            perspectives.push(...author.Perspectives);
+        })
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            perspectives
+        })
+    })
+    .catch(err=>{
+        console.log(err);
+    })
 }
 module.exports.getAuthorsByLastName = async function (req, res) {
     let authors = await getAllAuthorsByLastName(req.param('lastname'));

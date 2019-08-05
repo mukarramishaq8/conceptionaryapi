@@ -109,7 +109,18 @@ getAuthorsId = function (filters) {
 
     }).catch(err => console.log(err))
 }
-
+module.exports.getPerspectivesByConcept=async function(req,res){
+   let result=await Concept.findByPk(req.params.conceptId, {
+        include: [{ model: Perspective, limit: 100 }]
+    })
+    if(result&&result.Perspectives){
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            perspectives:result.Perspectives
+        });
+    }
+}
 module.exports.getOne = async function (req, res, next) {
     let authorIds = [];
     if (req.body.Conceptobj.filters.length > 0) {
@@ -138,7 +149,6 @@ module.exports.getOne = async function (req, res, next) {
             ]
         })
             .then(data => {
-                console.log(data);
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
@@ -176,14 +186,20 @@ module.exports.getOne = async function (req, res, next) {
                     Concept.findByPk(req.body.Conceptobj.concept_id, {
                         include: [{ model: Perspective, limit: 100 }]
                     }).then(result => {
-                        Perspectives.allPerspectives = data;
-                        Perspectives.limitedPerspectives = result.Perspectives;
+                        Perspectives.perspectivesRelations = data;
+                        Perspectives.perspectivesDetail = result.Perspectives;
                         res.status(httpResponse.success.c200.code).json({
                             responseType: httpResponse.responseTypes.success,
                             ...httpResponse.success.c200,
                             Perspectives
                         });
                     })
+                }else{
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                        data
+                    });
                 }
             }).catch(err => {
                 console.log(err)
