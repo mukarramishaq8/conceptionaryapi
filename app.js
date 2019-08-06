@@ -12,23 +12,30 @@ const app = express();
 const namespaces = {
   api: '/api/rest/v1'
 };
-
+//app.use(require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER'));
+var prerender = require('prerender-node').set('prerenderServiceUrl', 'http://localhost:3000');
+//var prerender = require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER');
+app.use(prerender);
 app.use(logger('dev'));
 app.use(express.json());
 app.use(cors())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 /***  Register routers  ***/
 app.use(namespaces.api, apiRouter);
-app.get('/', (req, res, next) => res.json({ hello: 'hello world' }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('/*', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+})
+// app.get('/', (req, res, next) => res.json({ hello: 'hello world' }));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
-app.use(require('prerender-node'));
+console.log("prerender in action");
+
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
