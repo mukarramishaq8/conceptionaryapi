@@ -13,8 +13,8 @@ const namespaces = {
   api: '/api/rest/v1'
 };
 //app.use(require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER'));
-var prerender = require('prerender-node').set('prerenderServiceUrl', 'http://localhost:3000');
-//var prerender = require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER');
+// var prerender = require('prerender-node').set('prerenderServiceUrl', 'http://localhost:3000');
+var prerender = require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER');
 app.use(prerender);
 app.use(logger('dev'));
 app.use(express.json());
