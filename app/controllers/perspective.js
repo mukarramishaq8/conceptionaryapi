@@ -15,6 +15,71 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
+const { createCanvas, loadImage } = require('canvas')
+var Frame  = require('canvas-to-buffer')
+const canvas = createCanvas(350, 350)
+const c = canvas.getContext('2d')
+var x = 30;
+var y = 30;
+const editCanvas = (title,data,author) => {
+
+c.strokeStyle="black"
+c.rect(0, 0, 350, 350);
+c.stroke();
+c.font = "40px Times New Roman";
+
+	c.fillStyle = "black";
+	c.fillText(title,10,40);
+	c.beginPath();
+	c.moveTo(10, 60);
+	c.lineTo(300, 60);
+	c.stroke();
+
+	c.font = "18px Times New Roman";
+
+	
+	// wrapText(c, "Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours. Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours.", 12, 110, 350, 30);
+	wrapText(c, data, 12, 110, 350, 30);
+	
+	c.font = "25px Times New Roman";
+
+	c.fillStyle = "red";
+	c.fillText(author,240,300);
+	
+	c.font = "15px Times New Roman";
+	c.fillStyle = "Gray";
+	c.fillText("Conceptionary.com",22,330);
+
+ console.log('<img src="' + canvas.toDataURL() + '" />')
+
+
+}
+
+function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
+            
+	var words = text.split(' ');
+	var line = '';
+	var lineHeight = 20;
+
+	context.font = fontSize + " " + fontFace;
+	console.log("This Paragraphs height is "+words.length);
+	for (var n = 0; n < words.length; n++) {
+		
+		var testLine = line + words[n] + ' ';
+		var metrics = context.measureText(testLine);
+		var testWidth = metrics.width;
+		if (testWidth > maxWidth) {
+			context.fillText(line, x, y);
+			line = words[n] + ' ';
+			y += lineHeight;
+		} else {
+			line = testLine;
+		}
+	}
+	context.fillText(line, x, y);
+	}
+
+
 /**
  * upload file
  */
@@ -296,18 +361,33 @@ module.exports.createLike = async function (req, res) {
     //     });
 }
 
-module.exports.getPerspectiveDetail = function (req, res) {
+module.exports.getPerspectiveDetail =function (req, res) {
     Perspective.findByPk(req.params.perspectiveId, {
         include:[
             { model: Concept },
             { model: Author }
         ]
     }).then(data => {
-        res.status(httpResponse.success.c200.code).json({
+        
+                editCanvas(data.Concept.name,data.description,data.Author.lastName);
+                var frame  = new Frame(canvas)
+                var buffer = frame.toBuffer()
+                var imageType = frame.getImageType()
+                console.log(process.cwd());
+                fs.writeFile(process.cwd()+"/public/images/"+data.id+".png", buffer, function(err) {
+                    if(err){
+                        console.log(err);
+                    }else{
+                        
+            res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
-            data
+            data,
+            img:`/images/${data.id}.png`
+
         });
+                    }
+                });
     }).catch(err=>{
         console.log(err);
     });
