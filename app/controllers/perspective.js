@@ -11,14 +11,71 @@ const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
 const { getConceptByName, getAuthorByName, createConcept, createAuthor, ceatePerspective, getPerspective, getAuthorByLastName } = require("../querie-methods");
-const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
+const { createCanvas, loadImage } = require('canvas')
+var Frame = require('canvas-to-buffer')
+var canvas = createCanvas(350, 350)
+var c = canvas.getContext('2d')
+function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
+    var words = text.split(' ');
+    var line = '';
+    var lineHeight = 20;
+
+    context.font = fontSize + " " + fontFace;
+    console.log("This Paragraphs height is " + words.length);
+    for (var n = 0; n < words.length; n++) {
+
+        var testLine = line + words[n] + ' ';
+        var metrics = context.measureText(testLine);
+        var testWidth = metrics.width;
+        if (testWidth > maxWidth) {
+            context.fillText(line, x, y);
+            line = words[n] + ' ';
+            y += lineHeight;
+        } else {
+            line = testLine;
+        }
+    }
+    context.fillText(line, x, y);
+}
+const editCanvas = (title, data, author) => {
+
+    canvas = createCanvas(350, 350)
+    c = canvas.getContext('2d')
+    c.strokeStyle = "black"
+    c.rect(0, 0, 350, 350);
+    c.stroke();
+    c.font = "40px Times New Roman";
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+    c.fillStyle = "black";
+    c.fillText(title, 10, 40);
+    c.beginPath();
+    c.moveTo(10, 60);
+    c.lineTo(300, 60);
+    c.stroke();
+
+    c.font = "18px Times New Roman";
+
+
+    // wrapText(c, "Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours. Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours.", 12, 110, 350, 30);
+    wrapText(c, title + " is " + data, 12, 110, 350, 30);
+
+    c.font = "25px Times New Roman";
+
+    c.fillStyle = "red";
+    c.fillText(author, 240, 300);
+
+    c.font = "15px Times New Roman";
+    c.fillStyle = "Gray";
+    c.fillText("Conceptionary.com", 22, 330);
+}
+
 /**
- * upload file
+ * create image from text
  */
-//function uploadFile(req,res)
+
 /**
  * send a list of records
  * @param {*} req 
@@ -265,10 +322,10 @@ module.exports.createLike = async function (req, res) {
             perspective.loves = 1;
             perspective = await perspective.save();
         } else {
-            if(req.body.like.type==="increase"){
-            perspective.loves += 1;
-            perspective = await perspective.save();
-            }else if(req.body.like.type==="decrease"){
+            if (req.body.like.type === "increase") {
+                perspective.loves += 1;
+                perspective = await perspective.save();
+            } else if (req.body.like.type === "decrease") {
                 perspective.loves -= 1;
                 perspective = await perspective.save();
             }
@@ -295,20 +352,32 @@ module.exports.createLike = async function (req, res) {
     //         console.log(err);
     //     });
 }
-
 module.exports.getPerspectiveDetail = function (req, res) {
     Perspective.findByPk(req.params.perspectiveId, {
-        include:[
+        include: [
             { model: Concept },
             { model: Author }
         ]
     }).then(data => {
-        res.status(httpResponse.success.c200.code).json({
-            responseType: httpResponse.responseTypes.success,
-            ...httpResponse.success.c200,
-            data
+        editCanvas(data.Concept.name, data.description, data.Author.lastName);
+        let frame = new Frame(canvas)
+        let buffer = frame.toBuffer()
+        //let imageType = frame.getImageType()
+        fs.writeFile(process.cwd() + "/public/images/" + data.id + ".png", buffer, function (err) {
+            if (err) {
+                console.log(err);
+            } else {
+
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data,
+                    img: `/images/${data.id}.png`
+
+                });
+            }
         });
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err);
     });
 }

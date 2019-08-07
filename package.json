@@ -8,6 +8,8 @@
   "dependencies": {
     "bcrypt": "^3.0.6",
     "body-parser": "^1.18.3",
+    "canvas": "^2.5.0",
+    "canvas-to-buffer": "^1.0.14",
     "chalk": "^2.4.2",
     "convert-excel-to-json": "^1.6.1",
     "cookie-parser": "~1.4.3",
