@@ -22,11 +22,8 @@ function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
     var words = text.split(' ');
     var line = '';
     var lineHeight = 20;
-
     context.font = fontSize + " " + fontFace;
-    console.log("This Paragraphs height is " + words.length);
     for (var n = 0; n < words.length; n++) {
-
         var testLine = line + words[n] + ' ';
         var metrics = context.measureText(testLine);
         var testWidth = metrics.width;
