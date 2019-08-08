@@ -10,7 +10,7 @@ const Author = db.Author;
 const Keyword = db.Keyword;
 const Tone = db.Tone;
 const _ = require('underscore');
-
+const pageLimit=100;
 /**
  * send a list of records
  * @param {*} req 
@@ -110,8 +110,9 @@ getAuthorsId = function (filters) {
     }).catch(err => console.log(err))
 }
 module.exports.getPerspectivesByConcept = async function (req, res) {
-    let result = await Concept.findByPk(req.params.conceptId, {
-        include: [{ model: Perspective,limit: 100 }]
+    console.log(req.body.conceptPage)
+    let result = await Concept.findByPk(req.body.conceptPage.conceptId, {
+        include: [{ model: Perspective,offset:(pageLimit*req.body.conceptPage.page_no) ,limit: 100 }]
     })
     if (result && result.Perspectives) {
         res.status(httpResponse.success.c200.code).json({
