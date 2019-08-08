@@ -44,7 +44,7 @@ const editCanvas = (title, data, author) => {
     c.strokeStyle = "black"
     c.rect(0, 0, 350, 350);
     c.stroke();
-    c.font = "40px Times New Roman";
+    // c.font = "40px Times New Roman";
     title = title.charAt(0).toUpperCase() + title.slice(1);
     c.fillStyle = "black";
     c.fillText(title, 10, 40);
@@ -53,18 +53,18 @@ const editCanvas = (title, data, author) => {
     c.lineTo(300, 60);
     c.stroke();
 
-    c.font = "18px Times New Roman";
+    // c.font = "18px Times New Roman";
 
 
     // wrapText(c, "Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours. Abandonment is a rule stating that the key to achieving world class experties in any skill is largly matter of paracticing in correct manner for roughly 10,000 hours.", 12, 110, 350, 30);
     wrapText(c, title + " is " + data, 12, 110, 350, 30);
 
-    c.font = "25px Times New Roman";
+    // c.font = "25px Times New Roman";
 
     c.fillStyle = "red";
     c.fillText(author, 240, 300);
 
-    c.font = "15px Times New Roman";
+    // c.font = "15px Times New Roman";
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.com", 22, 330);
 }
@@ -359,19 +359,22 @@ module.exports.getPerspectiveDetail = function (req, res) {
         editCanvas(data.Concept.name, data.description, data.Author.lastName);
         let frame = new Frame(canvas)
         let buffer = frame.toBuffer()
-        //let imageType = frame.getImageType()
         fs.writeFile(process.cwd() + "/public/images/" + data.id + ".png", buffer, function (err) {
             if (err) {
                 console.log(err);
             } else {
-
-                res.status(httpResponse.success.c200.code).json({
-                    responseType: httpResponse.responseTypes.success,
-                    ...httpResponse.success.c200,
-                    data,
-                    img: `/images/${data.id}.png`
-
-                });
+                try {
+                    //fs.readFile(process.cwd() + "/public/images/" + data.id + ".png", (err, file => {
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                        data,
+                        img: "/images/" + data.id + ".png"
+                    });
+                    // }))
+                } catch (err) {
+                    console.log(err);
+                }
             }
         });
     }).catch(err => {
