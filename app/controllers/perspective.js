@@ -46,11 +46,16 @@ const editCanvas = (title, data, author) => {
 
 
 }
-function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
+async function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
 
     var words = text.split(' ');
     var line = '';
     var lineHeight = 20;
+    const getSystemFonts = require('get-system-fonts');
+	// In an async function...
+	const files = await getSystemFonts();
+	console.log("I got fonts "+files)
+	
     console.log("This Paragraphs height is " + words.length);
     for (var n = 0; n < words.length; n++) {
 
