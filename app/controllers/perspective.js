@@ -15,31 +15,44 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
-const { createCanvas, loadImage } = require('canvas')
+const { createCanvas, loadImage,registerFont } = require('canvas')
+registerFont( process.cwd() + "/app/config/time.ttf", { family: 'Times New Roman' })
 var Frame = require('canvas-to-buffer')
 var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
 const editCanvas = (title, data, author) => {
+    
+    // var myFont = new Font('MyFont', process.cwd() + "/app/config/time.ttf");
+    // myFont.addFace(process.cwd() + "/app/config/time.ttf", 'bold');
+
+    // Do not call addFont when using Pango
+    //ctx.addFont(myFont);
+
+    // c.font = "30px MyFont";
+
+
+
+    
     canvas = createCanvas(350, 350)
     c = canvas.getContext('2d')
     c.strokeStyle = "black"
     c.rect(0, 0, 350, 350);
     c.stroke();
-    c.font = "40px " + process.cwd() + "/app/config/time.ttf";
-    title = title.charAt(0).toUpperCase() + title.slice(1);
+    // c.font = "40px " + process.cwd() + "/app/config/time.ttf";
+    // title = title.charAt(0).toUpperCase() + title.slice(1);
     c.fillStyle = "black";
     c.fillText(title, 10, 40);
     c.beginPath();
     c.moveTo(10, 60);
     c.lineTo(300, 60);
     c.stroke();
-    c.font = "18px " + process.cwd() + "/app/config/time.ttf";
+    c.font = "18px " + process.cwd() + "Times New Roman";
     wrapText(c, title + " is " + data, 12, 110, 350, 30);
 
-    c.font = "25px " + process.cwd() + "/app/config/time.ttf";
+    c.font = "25px " + process.cwd() + "Times New Roman";
     c.fillStyle = "red";
     c.fillText(author, 240, 300);
-    c.font = "15px " + process.cwd() + "/app/config/time.ttf";
+    c.font = "15px " + process.cwd() + "Times New Roman";
 
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.com", 22, 330);
@@ -387,7 +400,7 @@ module.exports.getPerspectiveDetail = function (req, res) {
                 console.log("Times New Roman File Exist");
             }
             else{
-                console.log("Time new Roman not exists");
+                console.log("Time new Roman not exists")
             }
             const out = fs.createWriteStream(process.cwd() + "/public/images/" + data.id + ".png")
             const stream = canvas.createPNGStream()
