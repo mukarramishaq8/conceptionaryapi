@@ -63,7 +63,7 @@ module.exports.getPerspectivesByAuthorLastName=function(req,res){
     Author.findAll(
         {
             where:{lastName:req.params.author_lastName},
-            include:{model:Perspective}
+            include:{model:Perspective,attributes:{include:[['author_id','Author']]}}
         }
     ).then(result=>{
         let perspectives=[];

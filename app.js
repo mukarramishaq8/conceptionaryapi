@@ -13,7 +13,7 @@ const namespaces = {
   api: '/api/rest/v1'
 };
 //app.use(require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER'));
-// var prerender = require('prerender-node').set('prerenderServiceUrl', 'http://localhost:3000');
+//var prerender = require('prerender-node').set('prerenderServiceUrl', 'http://localhost:3000');
 var prerender = require('prerender-node').set('prerenderToken', 'BAebQq93ihQfYdOyA5ER');
 app.use(prerender);
 app.use(logger('dev'));
@@ -34,8 +34,6 @@ app.get('/*', (req, res) => {
 app.use(function (req, res, next) {
   next(createError(404));
 });
-console.log("prerender in action");
-
 // error handler
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development

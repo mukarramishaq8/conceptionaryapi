@@ -37,8 +37,8 @@ router.route('/concepts/filter')
 
 router.route('/concepts/search/:label')
     .get(conceptController.filter)
-router.route('/concepts/perspective/:conceptId')
-    .get(conceptController.getPerspectivesByConcept)
+router.route('/concepts/perspective')
+    .post(conceptController.getPerspectivesByConcept)
 /*** ConceptClusters related routes. ***/
 router.route('/conceptClusters')
     .get(conceptClusterController.index)
