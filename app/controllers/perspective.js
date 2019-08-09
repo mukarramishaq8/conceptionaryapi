@@ -382,7 +382,13 @@ module.exports.getPerspectiveDetail = function (req, res) {
         //         });
         //     }
         // });
-
+            if(fs.existsSync(process.cwd() + "/app/config/time.ttf"))
+            {
+                console.log("Times New Roman File Exist");
+            }
+            else{
+                console.log("Time new Roman not exists");
+            }
             const out = fs.createWriteStream(process.cwd() + "/public/images/" + data.id + ".png")
             const stream = canvas.createPNGStream()
             stream.pipe(out)
