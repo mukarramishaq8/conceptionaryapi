@@ -59,15 +59,15 @@ module.exports.removeDuplicateAuthors = async function (req, res, next) {
     //     console.log(err);
     // }
 }
-module.exports.getPerspectivesByAuthorLastName=function(req,res){
+module.exports.getPerspectivesByAuthorLastName = function (req, res) {
     Author.findAll(
         {
-            where:{lastName:req.params.author_lastName},
-            include:{model:Perspective,attributes:{include:[['author_id','Author']]}}
+            where: { lastName: req.params.author_lastName },
+            include: { model: Perspective, attributes: { include: [['author_id', 'Author']] } }
         }
-    ).then(result=>{
-        let perspectives=[];
-        result.forEach(author=>{
+    ).then(result => {
+        let perspectives = [];
+        result.forEach(author => {
             perspectives.push(...author.Perspectives);
         })
         res.status(httpResponse.success.c200.code).json({
@@ -76,9 +76,9 @@ module.exports.getPerspectivesByAuthorLastName=function(req,res){
             perspectives
         })
     })
-    .catch(err=>{
-        console.log(err);
-    })
+        .catch(err => {
+            console.log(err);
+        })
 }
 module.exports.getAuthorsByLastName = async function (req, res) {
     let authors = await getAllAuthorsByLastName(req.param('lastname'));

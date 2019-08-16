@@ -13,7 +13,7 @@ const homeController = require('./../../app/controllers/home');
 const authorGroupsController = require('./../../app/controllers/authorGroups');
 const authorGroupController = require('./../../app/controllers/authorGroup');
 const userController = require('./../../app/controllers/users');
-const keywordController=require('./../../app/controllers/keyword')
+const keywordController = require('./../../app/controllers/keyword')
 const router = express.Router();
 var passport = require('passport');
 require('../../app/controllers/auth.js')(passport)
@@ -57,8 +57,10 @@ router.route('/conceptClusters/search/:label')
 router.route('/perspectives')
     .get(perspectiveController.index)
     .post(perspectiveController.create);
-    router.route('/perspectives/upload')
+router.route('/perspectives/upload')
     .post(perspectiveController.upLoadPerspective)
+router.route('/perspectives/authors')
+    .post(perspectiveController.getPerspectivesByAuthors)
 router.route('/perspectives/:perspectiveId')
     .get(perspectiveController.getOne)
     .put(perspectiveController.update)
@@ -131,5 +133,5 @@ router.route('/login')
     .post(userController.login);
 router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
 router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
-router.get('/keywords/perspective/:keywordId',keywordController.getPerspectiveByKeyword);
+router.get('/keywords/perspective/:keywordId', keywordController.getPerspectiveByKeyword);
 module.exports = router;

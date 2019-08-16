@@ -1,9 +1,7 @@
 const db = require('../bootstrap');
 const httpResponse = require('../helpers/http');
 const serializers = require('../helpers/serializers');
-const querystring = require('querystring');
-const chalk = require("chalk");
-const iconv = require('iconv-lite');
+const Sequelize = require('sequelize');
 const excelToJson = require('convert-excel-to-json');
 const Concept = db.Concept;
 const Perspective = db.Perspective;
@@ -349,7 +347,29 @@ module.exports.createLike = async function (req, res) {
     //         console.log(err);
     //     });
 }
+module.exports.getPerspectivesByAuthors = function (req, res) {
+    Perspective.findAll({
+        where: {
+            [Sequelize.Op.and]:[
+                {
+                    author_id:{[Sequelize.Op.in]: req.body.perspective.authorIds}
+                },
+                {
+                    concept_id:req.body.perspective.conceptId
+                }
+            ]
+        }
+    }).then(data => {
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            perspectives: data,
 
+        });
+    }).catch(err => {
+        console.log(err)
+    })
+}
 module.exports.getPerspectiveDetail = function (req, res) {
     Perspective.findByPk(req.params.perspectiveId, {
         include: [
