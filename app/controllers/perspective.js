@@ -13,31 +13,31 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
-const { createCanvas, loadImage } = require('canvas')
+const { createCanvas, loadImage,registerFont } = require('canvas')
+registerFont( process.cwd() + "/app/config/time.ttf", { family: 'Times New Roman' })
 var Frame = require('canvas-to-buffer')
 var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
 const editCanvas = (title, data, author) => {
+    
     canvas = createCanvas(350, 350)
     c = canvas.getContext('2d')
     c.strokeStyle = "black"
     c.rect(0, 0, 350, 350);
     c.stroke();
-    c.font = "40px " + process.cwd() + "/app/config/time.ttf";
-    title = title.charAt(0).toUpperCase() + title.slice(1);
     c.fillStyle = "black";
+    c.font = "40px Times New Roman";
     c.fillText(title, 10, 40);
     c.beginPath();
     c.moveTo(10, 60);
     c.lineTo(300, 60);
     c.stroke();
-    c.font = "18px " + process.cwd() + "/app/config/time.ttf";
-    wrapText(c, title + " is " + data, 12, 110, 350, 30);
-
-    c.font = "25px " + process.cwd() + "/app/config/time.ttf";
+    c.font = "18px Times New Roman";
+    wrapText(c, title + " is " + data, 12, 110, 340, 30);
+    c.font = "25px Times New Roman";
     c.fillStyle = "red";
     c.fillText(author, 240, 300);
-    c.font = "15px " + process.cwd() + "/app/config/time.ttf";
+    c.font = "15px Times New Roman";
 
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.com", 22, 330);
@@ -49,8 +49,9 @@ function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
     var words = text.split(' ');
     var line = '';
     var lineHeight = 20;
-    console.log("This Paragraphs height is " + words.length);
-    for (var n = 0; n < words.length; n++) {
+    console.log("I Got Data "+text)
+    c.fillStyle = "black";
+   for (var n = 0; n < words.length; n++) {
 
         var testLine = line + words[n] + ' ';
         var metrics = context.measureText(testLine);
@@ -382,12 +383,12 @@ module.exports.getPerspectiveDetail = function (req, res) {
         var frame = new Frame(canvas)
         var buffer = frame.toBuffer()
         var imageType = frame.getImageType()
-        console.log(process.cwd());
-        fs.writeFile(process.cwd() + "/public/images/" + data.id + ".png", buffer, function (err) {
-            if (err) {
-                console.log(err);
-            } else {
-
+        const out = fs.createWriteStream(process.cwd() + "/public/images/" + data.id + ".png")
+            const stream = canvas.createPNGStream()
+            stream.pipe(out)
+            out.on('finish', () => {
+                    
+                
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
@@ -395,8 +396,13 @@ module.exports.getPerspectiveDetail = function (req, res) {
                     img: `/images/${data.id}.png`
 
                 });
-            }
-        });
+            
+            })
+				
+
+
+
+
     }).catch(err => {
         console.log(err);
     });
