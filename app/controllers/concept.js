@@ -188,6 +188,9 @@ module.exports.getOne = async function (req, res, next) {
                     }).then(result => {
                         Perspectives.perspectivesRelations = data;
                         Perspectives.perspectivesDetail = result.Perspectives;
+                        // Perspectives.perspectivesDetail.sort((a,b) => {
+                        //     return a.loves>b.loves?-1:(a.loves==b.loves?(a.description.length>b.description.length?1:-1):1)
+                        // })
                         res.status(httpResponse.success.c200.code).json({
                             responseType: httpResponse.responseTypes.success,
                             ...httpResponse.success.c200,
