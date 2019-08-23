@@ -184,7 +184,7 @@ module.exports.getOne = async function (req, res, next) {
                 let Perspectives = {};
                 if (data.Perspectives) {
                     Concept.findByPk(req.body.Conceptobj.concept_id, {
-                        include: [{ model: Perspective, limit: 100 }]
+                        include: [{ model: Perspective, limit: 100}]
                     }).then(result => {
                         Perspectives.perspectivesRelations = data;
                         Perspectives.perspectivesDetail = result.Perspectives;
