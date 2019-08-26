@@ -61,6 +61,8 @@ router.route('/perspectives/upload')
     .post(perspectiveController.upLoadPerspective)
 router.route('/perspectives/authors')
     .post(perspectiveController.getPerspectivesByAuthors)
+router.route('/perspectives/likes')
+.post(perspectiveController.getPerspectivesByLikes);
 router.route('/perspectives/:perspectiveId')
     .get(perspectiveController.getOne)
     .put(perspectiveController.update)

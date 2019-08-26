@@ -27,13 +27,13 @@ const editCanvas = (title, data, author) => {
     c.stroke();
     c.fillStyle = "black";
     c.font = "40px Times New Roman";
-    c.fillText(title, 10, 40);
+    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 10, 40);
     c.beginPath();
     c.moveTo(10, 60);
     c.lineTo(300, 60);
     c.stroke();
     c.font = "18px Times New Roman";
-    wrapText(c, title + " is " + data, 12, 110, 340, 30);
+    wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110, 340, 30);
     c.font = "25px Times New Roman";
     c.fillStyle = "red";
     c.fillText(author, 240, 300);
@@ -347,6 +347,20 @@ module.exports.createLike = async function (req, res) {
     //         res.send("");
     //         console.log(err);
     //     });
+}
+module.exports.getPerspectivesByLikes=(req,res) => {
+    console.log(req.body.perspective.offset)
+    Perspective.findAll({where:{concept_id:req.body.perspective.conceptid},limit:10,order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
+    ],offset:req.body.perspective.offset*100}).then(data => {
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            perspectives: data,
+
+        });
+    }).catch(err => {
+        console.log(err)
+    })
 }
 module.exports.getPerspectivesByAuthors = function (req, res) {
     Perspective.findAll({
