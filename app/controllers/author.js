@@ -268,7 +268,7 @@ module.exports.getOne = async function (req, res, next) {
                     { association: 'AuthorInfluenceAuthors' },
                 ]
     }).then(data => {
-
+        console.log("sending data",JSON.stringify(data,null,4))
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,

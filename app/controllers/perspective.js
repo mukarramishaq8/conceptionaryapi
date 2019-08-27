@@ -349,9 +349,8 @@ module.exports.createLike = async function (req, res) {
     //     });
 }
 module.exports.getPerspectivesByLikes=(req,res) => {
-    console.log(req.body.perspective.offset)
-    Perspective.findAll({where:{concept_id:req.body.perspective.conceptid},limit:10,order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
-    ],offset:req.body.perspective.offset*100}).then(data => {
+    Perspective.findAll({where:{concept_id:req.body.perspective.conceptid},order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
+    ],offset:req.body.perspective.offset*30,limit:30}).then(data => {
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
