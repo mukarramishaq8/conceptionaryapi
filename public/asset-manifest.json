@@ -1,17 +1,17 @@
 {
   "main.css": "/static/css/main.4c4b5e40.chunk.css",
-  "main.js": "/static/js/main.b50af0c8.chunk.js",
-  "main.js.map": "/static/js/main.b50af0c8.chunk.js.map",
+  "main.js": "/static/js/main.8ee5e8a3.chunk.js",
+  "main.js.map": "/static/js/main.8ee5e8a3.chunk.js.map",
   "static/css/1.9ef06d2c.chunk.css": "/static/css/1.9ef06d2c.chunk.css",
   "static/js/1.5e35c122.chunk.js": "/static/js/1.5e35c122.chunk.js",
   "static/js/1.5e35c122.chunk.js.map": "/static/js/1.5e35c122.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.229c360f.js",
   "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
-  "static/css/1.9ef06d2c.chunk.css.map": "/static/css/1.9ef06d2c.chunk.css.map",
+  "static/css/main.4c4b5e40.chunk.css.map": "/static/css/main.4c4b5e40.chunk.css.map",
   "static/media/Spinner.svg": "/static/media/Spinner.de191b2f.svg",
   "static/media/conceptionary.svg": "/static/media/conceptionary.4e85499c.svg",
-  "static/css/main.4c4b5e40.chunk.css.map": "/static/css/main.4c4b5e40.chunk.css.map",
+  "static/css/1.9ef06d2c.chunk.css.map": "/static/css/1.9ef06d2c.chunk.css.map",
   "index.html": "/index.html",
-  "precache-manifest.1ee2e81884146b07c41f89888eed1bdd.js": "/precache-manifest.1ee2e81884146b07c41f89888eed1bdd.js",
+  "precache-manifest.a2c1c16e11cfbae3602e770f5f4883ad.js": "/precache-manifest.a2c1c16e11cfbae3602e770f5f4883ad.js",
   "service-worker.js": "/service-worker.js"
 }
