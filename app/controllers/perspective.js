@@ -20,7 +20,7 @@ var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
 const editCanvas = (title, data, author) => {
     
-    canvas = createCanvas(684, 322)
+    canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
     c.strokeStyle = "black"
     c.rect(0, 0, 350, 350);
