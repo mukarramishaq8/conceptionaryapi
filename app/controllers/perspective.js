@@ -32,6 +32,7 @@ const editCanvas = (title, data, author) => {
     c.moveTo(10, 75);
     c.lineTo(580, 75);
     c.stroke();
+    
     c.font = "18px Times New Roman";
     wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110,590, 30);
     c.font = "25px Times New Roman";
