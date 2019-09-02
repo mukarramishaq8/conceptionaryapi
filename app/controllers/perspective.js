@@ -27,20 +27,20 @@ const editCanvas = (title, data, author) => {
     c.stroke();
     c.fillStyle = "black";
     c.font = "40px Times New Roman";
-    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 10, 40);
+    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 10, 55);
     c.beginPath();
-    c.moveTo(10, 60);
-    c.lineTo(300, 60);
+    c.moveTo(10, 75);
+    c.lineTo(580, 75);
     c.stroke();
     c.font = "18px Times New Roman";
     wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110, 340, 30);
     c.font = "25px Times New Roman";
     c.fillStyle = "red";
-    c.fillText(author, 240, 300);
+    c.fillText(author, 400, 250);
     c.font = "15px Times New Roman";
 
     c.fillStyle = "Gray";
-    c.fillText("Conceptionary.com", 22, 330);
+    c.fillText("Conceptionary.com", 22, 300);
 
 
 }
