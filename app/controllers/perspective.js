@@ -23,7 +23,7 @@ const editCanvas = (title, data, author) => {
     canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
     c.strokeStyle = "black"
-    c.rect(0, 0, 600, 314);
+    c.rect(0, 10, 600, 304);
     c.stroke();
     c.fillStyle = "black";
     c.font = "40px Times New Roman";
@@ -32,7 +32,7 @@ const editCanvas = (title, data, author) => {
     c.moveTo(10, 75);
     c.lineTo(580, 75);
     c.stroke();
-    
+
     c.font = "18px Times New Roman";
     wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110,590, 30);
     c.font = "25px Times New Roman";
