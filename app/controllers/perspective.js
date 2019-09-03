@@ -33,13 +33,12 @@ const editCanvas = (title, data, author) => {
     c.lineTo(580, 75);
     c.stroke();
 
-    c.font = "18px Times New Roman";
+    c.font = "20px Times New Roman";
     wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110,590, 30);
     c.font = "25px Times New Roman";
     c.fillStyle = "red";
     c.fillText(author, 400, 250);
-    c.font = "15px Times New Roman";
-
+    c.font = "18px Times New Roman";
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.com", 22, 300);
 
