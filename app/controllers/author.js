@@ -255,7 +255,8 @@ module.exports.getOne = async function (req, res, next) {
             undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
                 [
                     {
-                        model: Perspective, limit: 100, include: [
+                        model: Perspective,order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
+                    ],offset:req.params.offset*10,limit:10, include: [
                             { model: Concept }
                         ]
                     },
@@ -268,7 +269,7 @@ module.exports.getOne = async function (req, res, next) {
                     { association: 'AuthorInfluenceAuthors' },
                 ]
     }).then(data => {
-        console.log("sending data",JSON.stringify(data,null,4))
+        // console.log("sending data",JSON.stringify(data,null,4))
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
             ...httpResponse.success.c200,
