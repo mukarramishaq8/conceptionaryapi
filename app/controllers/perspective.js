@@ -23,6 +23,7 @@ const editCanvas = (title, data, author) => {
     canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
     c.strokeStyle = "black"
+    c.fillStyle = "blue";
     c.rect(0, 10, 600, 304);
     c.stroke();
     c.fillStyle = "black";
@@ -40,7 +41,7 @@ const editCanvas = (title, data, author) => {
     c.fillText(author, 400, 250);
     c.font = "18px Times New Roman";
     c.fillStyle = "Gray";
-    c.fillText("Conceptionary.com", 22, 300);
+    c.fillText("Conceptionary.io", 22, 300);
 
 
 }
@@ -393,7 +394,7 @@ module.exports.getPerspectiveDetail = function (req, res) {
         ]
     }).then(data => {
         console.log(data)
-        editCanvas(data.Concept.name, data.description, data.Author.lastName);
+        editCanvas(data.Concept.name, data.description, data.Author.firstName+" "+data.Author.lastName);
         var frame = new Frame(canvas)
         var buffer = frame.toBuffer()
         var imageType = frame.getImageType()
