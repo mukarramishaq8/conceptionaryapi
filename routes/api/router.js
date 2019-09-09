@@ -79,7 +79,7 @@ router.route('/authors')
 router.route('/author')
     .post(authorController.getAuthor);
 
-router.route('/authors/:authorId/:offset')
+router.route('/authors/:authorId/:offset/:like')
     .get(authorController.getOne)
     .put(authorController.update)
     .delete(authorController.delete)
