@@ -13,8 +13,10 @@ const csv = require('csv-parser');
 const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
+var Jimp = require('jimp');
+ 
 const { createCanvas, loadImage,registerFont } = require('canvas')
-registerFont( process.cwd() + "/app/config/time.ttf", { family: 'Times New Roman' })
+registerFont( process.cwd() + "/app/config/arial.ttf", { family: 'Times New Roman' })
 var Frame = require('canvas-to-buffer')
 var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
@@ -22,23 +24,30 @@ const editCanvas = (title, data, author) => {
     
     canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
-    c.strokeStyle = "black"
+    c.strokeStyle = "#000"
     c.fillStyle = "blue";
-    c.rect(0, 10, 600, 304);
+    c.rect(5, 5, 590, 309);
     c.stroke();
-    c.fillStyle = "black";
+    c.fillStyle = "#000";
     c.font = "40px Times New Roman";
-    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 10, 55);
+    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 14, 55);
     c.beginPath();
     c.moveTo(10, 75);
     c.lineTo(580, 75);
     c.stroke();
 
     c.font = "20px Times New Roman";
-    wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 12, 110,590, 30);
+    wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 14, 110,588, 30);
     c.font = "25px Times New Roman";
     c.fillStyle = "red";
-    c.fillText(author, 400, 250);
+    if(author.length>15)
+    {
+        c.fillText(author,370, 250);
+    }
+    else
+    {
+       c.fillText(author, 390, 250);
+    }
     c.font = "18px Times New Roman";
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.io", 22, 300);
@@ -50,8 +59,8 @@ function wrapText(context, text, x, y, maxWidth, fontSize, fontFace) {
     var words = text.split(' ');
     var line = '';
     var lineHeight = 20;
-    console.log("I Got Data "+text)
-    c.fillStyle = "black";
+    // console.log("I Got Data "+text)
+    c.fillStyle = "#000";
    for (var n = 0; n < words.length; n++) {
 
         var testLine = line + words[n] + ' ';
@@ -393,7 +402,6 @@ module.exports.getPerspectiveDetail = function (req, res) {
             { model: Author }
         ]
     }).then(data => {
-        console.log(data)
         editCanvas(data.Concept.name, data.description, data.Author.firstName+" "+data.Author.lastName);
         var frame = new Frame(canvas)
         var buffer = frame.toBuffer()
@@ -402,8 +410,13 @@ module.exports.getPerspectiveDetail = function (req, res) {
             const stream = canvas.createPNGStream()
             stream.pipe(out)
             out.on('finish', () => {
-                    
-                
+                Jimp.read(process.cwd() + "/public/images/" + data.id + ".png", (err, lenna) => {
+                    if (err) throw err;
+                    lenna
+                      .quality(100) // set JPEG quality
+                      .write(process.cwd() + "/public/images/converted.png"); // save
+                  }); 
+
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
