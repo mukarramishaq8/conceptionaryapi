@@ -16,12 +16,12 @@ var path = require('path');
 var Jimp = require('jimp');
  
 const { createCanvas, loadImage,registerFont } = require('canvas')
-registerFont( process.cwd() + "/app/config/arial.ttf", { family: 'Times New Roman' })
+registerFont( process.cwd() + "/app/config/arial.ttf", { family: 'TArial' })
 var Frame = require('canvas-to-buffer')
 var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
-const editCanvas = (title, data, author) => {
-    
+const editCanvas = (pronoun,title, data, author) => {
+    console.log("Found author",author);
     canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
     c.strokeStyle = "#000"
@@ -29,26 +29,55 @@ const editCanvas = (title, data, author) => {
     c.rect(5, 5, 590, 309);
     c.stroke();
     c.fillStyle = "#000";
-    c.font = "40px Times New Roman";
-    c.fillText(title.charAt(0).toUpperCase() + title.slice(1), 14, 55);
+    c.font = "40px Arial";
+
+    let tile= " ";
+
+    if(title!=null)
+    {
+        if(title.length>0)
+        {
+            tile=pronoun.charAt(0).toUpperCase() + pronoun.slice(1)+" "+title.charAt(0).toUpperCase() + title.slice(1)
+        }
+        else
+        tile=title.charAt(0).toUpperCase() + title.slice(1)
+    }
+
+    c.fillText(tile, 14, 55);
     c.beginPath();
     c.moveTo(10, 75);
     c.lineTo(580, 75);
     c.stroke();
 
-    c.font = "20px Times New Roman";
-    wrapText(c, title.charAt(0).toUpperCase() + title.slice(1) + " is " + data, 14, 110,588, 30);
-    c.font = "25px Times New Roman";
+    c.font = "20px Arial";
+   
+    console.log("Title built is ",tile);
+    
+    wrapText(c,tile + " is " + data, 14, 110,580, 30);
+    c.font = "25px Arial";
     c.fillStyle = "red";
-    if(author.length>15)
+    if(author.length>15 && author.length<20)
     {
         c.fillText(author,370, 250);
     }
     else
     {
-       c.fillText(author, 390, 250);
+
+        if(author.length>20)
+        {
+
+
+            c.fillText(author,320, 250);    
+        }
     }
-    c.font = "18px Times New Roman";
+    if(author.length<15)
+    {
+        
+        c.fillText(author,385, 250);
+        
+    }
+
+    c.font = "18px Arial";
     c.fillStyle = "Gray";
     c.fillText("Conceptionary.io", 22, 300);
 
@@ -402,7 +431,8 @@ module.exports.getPerspectiveDetail = function (req, res) {
             { model: Author }
         ]
     }).then(data => {
-        editCanvas(data.Concept.name, data.description, data.Author.firstName+" "+data.Author.lastName);
+        console.log("Data got is",data.Author.firstName+" "+data.Author.lastName);
+        editCanvas(data.pronoun, data.Concept.name, data.description, data.Author.firstName+" "+data.Author.lastName);
         var frame = new Frame(canvas)
         var buffer = frame.toBuffer()
         var imageType = frame.getImageType()
