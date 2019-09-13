@@ -25,7 +25,7 @@ const editCanvas = (pronoun,title, data, author) => {
     canvas = createCanvas(600, 314)
     c = canvas.getContext('2d')
     c.strokeStyle = "#000"
-    c.fillStyle = "blue";
+    c.fillStyle = "red";
     c.rect(5, 5, 590, 309);
     c.stroke();
     c.fillStyle = "#000";
