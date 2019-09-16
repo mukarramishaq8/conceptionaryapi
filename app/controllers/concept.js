@@ -149,6 +149,13 @@ module.exports.getOne = async function (req, res, next) {
             ]
         })
             .then(data => {
+                console.log("sending back data",data);
+                console.log("hello")
+                console.log("hello")
+                console.log("hello")
+                console.log("hello")
+                console.log("hello")
+                console.log("hello")
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
