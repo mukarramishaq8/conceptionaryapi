@@ -36,8 +36,9 @@ const editCanvas = (pronoun,title, data, author) => {
     if(title!=null)
     {
         console.log("s"+pronoun+"s")
-        if(title.length>0)
+        if(pronoun !== undefined && pronoun !==null)
         {
+            console.log("first")
             tile=pronoun.charAt(0).toUpperCase() + pronoun.slice(1)+" "+title.charAt(0).toUpperCase() + title.slice(1)
         }
         else
