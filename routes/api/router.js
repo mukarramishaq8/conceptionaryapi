@@ -28,6 +28,8 @@ router.use((req, res, next) => {
 router.route('/concepts')
     .get(conceptController.getConceptId)
     .post(conceptController.create);
+router.route('/contact').post(perspectiveController.email);
+
 router.route('/concepts/:conceptId')
     .get(conceptController.getOne)
     .put(conceptController.update)

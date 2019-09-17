@@ -14,6 +14,7 @@ const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
 var Jimp = require('jimp');
+const sendmail = require('sendmail')();
  
 const { createCanvas, loadImage,registerFont } = require('canvas')
 registerFont( process.cwd() + "/app/config/arial.ttf", { family: 'TArial' })
@@ -143,6 +144,31 @@ function parseExcelToJson(path) {
         resolve(result);
     })
 }
+
+module.exports.email = (req,res) => {
+    console.log("Hello")
+    let {name,subject,email,body}=req.body
+    console.log(name);
+    console.log(subject);
+    console.log(email);
+    console.log(body);
+ 
+sendmail({
+    from: 'no-reply@yourdomain.com',
+    to: email,
+    subject: subject,
+    html: body,
+  }, function(err, reply) {
+    console.log(err && err.stack);
+    console.dir(reply);
+});
+
+
+
+
+
+}
+
 module.exports.upLoadPerspective = function (req, res) {
     upload(req, res, function (err) {
         if (!err) {
@@ -391,7 +417,7 @@ module.exports.createLike = async function (req, res) {
 }
 module.exports.getPerspectivesByLikes=(req,res) => {
     Perspective.findAll({where:{concept_id:req.body.perspective.conceptid},order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
-    ],offset:req.body.perspective.offset*30,limit:30}).then(data => {
+    ],offset:req.body.perspective.offset*100,limit:100}).then(data => {
         
         res.status(httpResponse.success.c200.code).json({
             responseType: httpResponse.responseTypes.success,
