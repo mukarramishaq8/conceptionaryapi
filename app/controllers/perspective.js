@@ -14,8 +14,7 @@ const fs = require('fs');
 const upload = require('../config/upload')();
 var path = require('path');
 var Jimp = require('jimp');
-const sendmail = require('sendmail')();
- 
+var nodemailer = require('nodemailer');
 const { createCanvas, loadImage,registerFont } = require('canvas')
 registerFont( process.cwd() + "/app/config/arial.ttf", { family: 'TArial' })
 var Frame = require('canvas-to-buffer')
@@ -152,17 +151,31 @@ module.exports.email = (req,res) => {
     console.log(subject);
     console.log(email);
     console.log(body);
- 
-sendmail({
-    from: 'no-reply@yourdomain.com',
-    to: email,
-    subject: subject,
-    html: body,
-  }, function(err, reply) {
-    console.log(err && err.stack);
-    console.dir(reply);
-});
 
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: {
+            user: 'qasim.ali3460@gmail.com',
+            pass: 'Pakistan$1234567890'
+        }
+    });
+    
+    let mailOptions = {
+        from: email,
+        to: 'ryanjosephsayre@gmail.com',
+        subject: subject,
+        text: body
+    };
+    
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error.message);
+        }
+        console.log('success');
+    });
 
 
 
