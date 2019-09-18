@@ -144,9 +144,62 @@ function parseExcelToJson(path) {
     })
 }
 
+module.exports.newPerspective = (req,res) => {
+    console.log("Hello")
+    let {term,defination,original,author,citation}=req.body
+    console.log(req.body);
+    console.log(term);
+    console.log(defination);
+    console.log(original);
+    console.log(author);
+    console.log(citation);
+
+    let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: {
+            user: 'muhammad.alimund@gmail.com',
+            pass: 'Pakistan$1234567890'
+        }
+    });
+    
+    let mailOptions = {
+        from: "muhammad.alimund@gmail.com",
+        to: 'ryanjosephsayre@gmail.com',
+        subject: "New Perspective",
+        text: "A user Submited this New Perspective \n Term  :  "+term+"\n Defination : "+defination+"\n Original :"+original+ "\n Citation : "+citation+"\n Author : "+author
+    };
+    
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log(error.message);
+        }
+        console.log('success');
+
+
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+           
+        })
+
+
+
+
+
+
+    });
+
+
+
+}
+
 module.exports.email = (req,res) => {
     console.log("Hello")
     let {name,subject,email,body}=req.body
+    console.log(req.body);
     console.log(name);
     console.log(subject);
     console.log(email);
@@ -158,7 +211,7 @@ module.exports.email = (req,res) => {
         secure: false,
         requireTLS: true,
         auth: {
-            user: 'qasim.ali3460@gmail.com',
+            user: 'muhammad.alimund@gmail.com',
             pass: 'Pakistan$1234567890'
         }
     });
@@ -167,7 +220,7 @@ module.exports.email = (req,res) => {
         from: email,
         to: 'ryanjosephsayre@gmail.com',
         subject: subject,
-        text: body
+        text: "Name : "+name+' \n Email : '+email+" \n \n"+body
     };
     
     transporter.sendMail(mailOptions, (error, info) => {
@@ -175,6 +228,19 @@ module.exports.email = (req,res) => {
             return console.log(error.message);
         }
         console.log('success');
+
+
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+           
+        })
+
+
+
+
+
+
     });
 
 
