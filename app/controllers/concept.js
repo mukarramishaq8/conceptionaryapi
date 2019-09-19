@@ -198,6 +198,12 @@ module.exports.getOne = async function (req, res, next) {
                         // Perspectives.perspectivesDetail.sort((a,b) => {
                         //     return a.loves>b.loves?-1:(a.loves==b.loves?(a.description.length>b.description.length?1:-1):1)
                         // })
+                        console.log("bye",)
+                        console.log("bye")
+                        console.log("bye")
+                        console.log("bye")
+                        console.log("bye")
+                        console.log("bye")
                         res.status(httpResponse.success.c200.code).json({
                             responseType: httpResponse.responseTypes.success,
                             ...httpResponse.success.c200,
@@ -205,6 +211,12 @@ module.exports.getOne = async function (req, res, next) {
                         });
                     })
                 } else {
+                    console.log("wah wah what",data)
+                    console.log("wah wah what")
+                    console.log("wah wah what")
+                    console.log("wah wah what")
+                    console.log("wah wah what")
+                    console.log("wah wah what")
                     res.status(httpResponse.success.c200.code).json({
                         responseType: httpResponse.responseTypes.success,
                         ...httpResponse.success.c200,
