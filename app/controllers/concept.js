@@ -124,16 +124,7 @@ module.exports.getPerspectivesByConcept = async function (req, res) {
 module.exports.getOne = async function (req, res, next) {
     console.log("Fond everything there",req.body);
     // console.log("Getting Key words",concept);
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
-    console.log("getting")
+    
     let authorIds = [];
     if (req.body.Conceptobj.filters.length > 0) {
         authorIds = await getAuthorsId(req.body.Conceptobj.filters)
