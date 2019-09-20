@@ -122,6 +122,18 @@ module.exports.getPerspectivesByConcept = async function (req, res) {
     }
 }
 module.exports.getOne = async function (req, res, next) {
+    console.log("Fond everything there",req.body);
+    // console.log("Getting Key words",concept);
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
+    console.log("getting")
     let authorIds = [];
     if (req.body.Conceptobj.filters.length > 0) {
         authorIds = await getAuthorsId(req.body.Conceptobj.filters)
@@ -149,7 +161,36 @@ module.exports.getOne = async function (req, res, next) {
             ]
         })
             .then(data => {
-                console.log("sending back data",data);
+                let Perspectives = {};
+                Concept.findByPk(req.body.Conceptobj.concept_id, {
+                    attributes: serializers.getQueryFields(req.query),
+                    include: serializers.isRelationshipIncluded(req.query) !== true
+                        ? undefined
+                        : serializers.withListAndRelatedOnly(req.query) !== true
+                            ? [
+                                {
+                                    model: Perspective, attributes: ['id'], include: [
+                                        { model: Author , where: {
+                                            id: {
+                                                [Sequelize.Op.in]: authorIds
+                                            }
+                                        }},
+                                        { model: Keyword },
+                                        { model: Tone }
+                                    ]
+                                }
+                            ]
+                            : [
+                                {
+                                    model: ConceptCluster, include: [
+                                        { model: Concept }
+                                    ]
+                                }
+                            ]
+                }).then(result => {
+                    Perspectives.perspectivesRelations = result;
+                    Perspectives.perspectivesDetail = data.Perspectives;
+                    console.log("sending back data",data);
                 console.log("hello")
                 console.log("hello")
                 console.log("hello")
@@ -159,8 +200,21 @@ module.exports.getOne = async function (req, res, next) {
                 res.status(httpResponse.success.c200.code).json({
                     responseType: httpResponse.responseTypes.success,
                     ...httpResponse.success.c200,
-                    data
+                    Perspectives
                 });
+                })
+                // console.log("sending back data",data);
+                // console.log("hello")
+                // console.log("hello")
+                // console.log("hello")
+                // console.log("hello")
+                // console.log("hello")
+                // console.log("hello")
+                // res.status(httpResponse.success.c200.code).json({
+                //     responseType: httpResponse.responseTypes.success,
+                //     ...httpResponse.success.c200,
+                //     Perspectives
+                // });
             }).catch(err => {
                 console.log(err);
             });
