@@ -167,9 +167,9 @@ module.exports.newPerspective = (req,res) => {
     
     let mailOptions = {
         from: "muhammad.alimund@gmail.com",
-        to: 'admin@conceptionary.io',
+        to: 'muhammad.alimund@gmail.com',
         subject: "New Perspective",
-        text: "A user Submited this New Perspective \n Term  :  "+term+"\n Defination : "+defination+"\n Original :"+original+ "\n Citation : "+citation+"\n Author : "+author
+        text: term+"     "+defination+"     "+original+"     "+citation+"     "+author
     };
     
     transporter.sendMail(mailOptions, (error, info) => {
@@ -218,7 +218,7 @@ module.exports.email = (req,res) => {
     
     let mailOptions = {
         from: email,
-        to: 'admin@conceptionary.io',
+        to: 'muhammad.alimund@gmail.com',
         subject: subject,
         text: "Name : "+name+' \n Email : '+email+" \n \n"+body
     };

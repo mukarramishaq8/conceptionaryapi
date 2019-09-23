@@ -82,11 +82,17 @@ router.route('/authors')
 router.route('/author')
     .post(authorController.getAuthor);
 
-router.route('/authors/:authorId/:offset/:like')
-    .get(authorController.getOne)
+    router.route('/authors/concepts/:authorId/:conceptId')
+    .get(authorController.concept)
+
+
+
+
+    router.route('/authors/:authorId/:offset/:like')
+        .get(authorController.getOne)
     .put(authorController.update)
     .delete(authorController.delete)
-
+router.route('/authors/concept/:authorId/:conceptId').get(authorController.concept)
 router.route('/authors/search/:label')
     .get(authorController.filter);
 router.route('/authors/perspective/:author_lastName')

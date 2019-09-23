@@ -248,6 +248,23 @@ module.exports.index = function (req, res, next) {
 //     }*/
 //     return data;
 //  }
+module.exports.concept= function(req,res){
+    Author.findByPk(req.params.authorId,{
+        include:[{model:Perspective,include : {model:Concept},where:{concept_id:req.params.conceptId}},
+        
+                        { model: AuthorGroup, include: { model: AuthorBioHeading } },
+                        { model: Book, include: { model: BookDescription } }]
+    }).then(data => {
+        console.log(JSON.stringify(data,null,4));
+        res.status(httpResponse.success.c200.code).json({
+            responseType: httpResponse.responseTypes.success,
+            ...httpResponse.success.c200,
+            data
+        });                            
+        
+    })
+
+}
 module.exports.getOne = async function (req, res, next) {
     
     if(req.params.like=='true')
@@ -259,7 +276,7 @@ module.exports.getOne = async function (req, res, next) {
                     [
                         {
                             model: Perspective,order:[['loves','DESC'], [Sequelize.fn('length', Sequelize.col('description')), 'ASC']
-                        ],offset:req.params.offset*100,limit:100, include: [
+                        ],offset:req.params.offset*200,limit:200, include: [
                                 { model: Concept }
                             ]
                         },
@@ -271,26 +288,101 @@ module.exports.getOne = async function (req, res, next) {
                         { association: 'AuthorConvoAuthors' },
                         { association: 'AuthorInfluenceAuthors' },
                     ]
-        }).then(data => {
-            // console.log("sending data",JSON.stringify(data,null,4))
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                data
-            });
+        }).then(data1 => {
+
+            if(req.params.offset==0)
+            {
+                
+            Author.findByPk(req.params.authorId, {
+                attributes: serializers.getQueryFields(req.query),
+                include: serializers.isRelationshipIncluded(req.query) !== true ?
+                    undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
+                    [
+                        {
+                            model: Perspective, include: [
+                                { model: Concept}
+                            ]
+                        }
+                    ]:[]
+                        
+                    }).then(result => {
+                        let conceptArray=[]
+                        let temp=[]
+                        if(result.Perspectives)
+                        {
+                            result.Perspectives.map(concept => {
+                            
+                                if(temp.includes(concept.Concept.name,0))
+                                {
+                                    let index=temp.indexOf(concept.Concept.name);
+                                    conceptArray[index].count+=1;
+                                }
+                                else
+                                {
+                                    conceptArray.push({id:concept.Concept.id,name:concept.Concept.name,count:1});
+                                    temp.push(concept.Concept.name)
+                                }
+                            })
+                        }
+
+                        
+                        let data={};
+                        data['AuthorGroups']=data1['AuthorGroups']
+                        data['sortedKeywords']=conceptArray;
+                        data['Books']=data1['Books'];
+                        data['Perspective']=data1['Perspective']
+                        data['dod']=data1['dod']
+                        data['dob']=data1['dob']
+                        data['firstName']=data1['firstName']
+                        data['gender']=data1['gender'];
+                        data['id']=data1['id']
+                        data['lastName']=data1['lastName']
+                        data['pictureLink']=data1['pictureLink']
+                        data['Perspectives']=data1['Perspectives']
+                      
+                        
+                        
+                        res.status(httpResponse.success.c200.code).json({
+                            responseType: httpResponse.responseTypes.success,
+                            ...httpResponse.success.c200,
+                            data
+                        });                            
+                        
+                  
+                    })
+            }
+            
+            else
+            {
+                let data=data1;
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    data
+                });   
+
+            }
+
+
+
+
+
+
+
         }).catch(err => {
             console.log(err);
         })
     }
     else
     {
+      
     Author.findByPk(req.params.authorId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ?
             undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
                 [
                     {
-                        model: Perspective,order:[[Concept,'name','ASC']],offset:req.params.offset*100,limit:100, include: [
+                        model: Perspective,order:[[Concept,'name','ASC']],offset:req.params.offset*200,limit:200, include: [
                             { model: Concept }
                         ]
                     },
@@ -302,13 +394,87 @@ module.exports.getOne = async function (req, res, next) {
                     { association: 'AuthorConvoAuthors' },
                     { association: 'AuthorInfluenceAuthors' },
                 ]
-            }).then(data => {
-                // console.log("sending data",JSON.stringify(data,null,4))
-                res.status(httpResponse.success.c200.code).json({
-                    responseType: httpResponse.responseTypes.success,
-                    ...httpResponse.success.c200,
-                    data
-                });
+            }).then(data1 => {
+              
+                if(req.params.offset<=0)
+                {
+                    if(serializers.withSelfAssociationsOnly(req.query)!==true)
+                    {
+                        Author.findByPk(req.params.authorId, {
+                            attributes: serializers.getQueryFields(req.query),
+                            include: serializers.isRelationshipIncluded(req.query) !== true ?
+                                undefined : serializers.withSelfAssociationsOnly(req.query) !== true ?
+                                [
+                                    {
+                                        model: Perspective, include: [
+                                            { model: Concept }
+                                        ]
+                                    }
+                                ]:[]
+                                    
+                                }).then(result => {
+                                    let conceptArray=[]
+                                    let temp=[]
+                                    result.Perspectives.map(concept => {
+                                        
+                                        if(temp.includes(concept.Concept.name,0))
+                                        {
+                                            let index=temp.indexOf(concept.Concept.name);
+                                            conceptArray[index].count+=1;
+                                        }
+                                        else
+                                        {
+                                            conceptArray.push({id:concept.Concept.id,name:concept.Concept.name,count:1});
+                                            temp.push(concept.Concept.name)
+                                        }
+                                    })
+                                
+                                    let data={};
+                                    data['AuthorGroups']=data1['AuthorGroups']
+                                    data['sortedKeywords']=conceptArray;
+                                    data['Books']=data1['Books'];
+                                    data['Perspective']=data1['Perspective']
+                                    data['dod']=data1['dod']
+                                    data['dob']=data1['dob']
+                                    data['firstName']=data1['firstName']
+                                    data['gender']=data1['gender'];
+                                    data['id']=data1['id']
+                                    data['lastName']=data1['lastName']
+                                    data['pictureLink']=data1['pictureLink']
+                                    data['Perspectives']=data1['Perspectives']
+                                  
+                                    
+                                    res.status(httpResponse.success.c200.code).json({
+                                        responseType: httpResponse.responseTypes.success,
+                                        ...httpResponse.success.c200,
+                                        data
+                                    });                            
+                                    
+                              
+                                })
+                    }
+                    
+                    else
+                    {
+                        console.log("sending",data1)
+                        let data=data1;
+                        res.status(httpResponse.success.c200.code).json({
+                            responseType: httpResponse.responseTypes.success,
+                            ...httpResponse.success.c200,
+                            data
+                        });  
+                    }
+                }
+                else
+                {
+                    let data=data1;
+                    res.status(httpResponse.success.c200.code).json({
+                        responseType: httpResponse.responseTypes.success,
+                        ...httpResponse.success.c200,
+                        data
+                    });  
+                }
+
             }).catch(err => {
                 console.log(err);
             })

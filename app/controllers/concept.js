@@ -122,8 +122,6 @@ module.exports.getPerspectivesByConcept = async function (req, res) {
     }
 }
 module.exports.getOne = async function (req, res, next) {
-    console.log("Fond everything there",req.body);
-    // console.log("Getting Key words",concept);
     
     let authorIds = [];
     if (req.body.Conceptobj.filters.length > 0) {
