@@ -22,7 +22,7 @@ var canvas = createCanvas(350, 350)
 var c = canvas.getContext('2d')
 const editCanvas = (pronoun,title, data, author) => {
     console.log("Found author",author);
-    canvas = createCanvas(600, 314)
+    canvas = createCanvas(200, 200)
     c = canvas.getContext('2d')
     c.strokeStyle = "#000"
     c.fillStyle = "red";
