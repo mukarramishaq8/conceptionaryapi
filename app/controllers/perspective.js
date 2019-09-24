@@ -167,7 +167,7 @@ module.exports.newPerspective = (req,res) => {
     
     let mailOptions = {
         from: "muhammad.alimund@gmail.com",
-        to: 'muhammad.alimund@gmail.com',
+        to: 'admin@conceptionary.io',
         subject: "New Perspective",
         text: term+"     "+defination+"     "+original+"     "+citation+"     "+author
     };
@@ -218,7 +218,7 @@ module.exports.email = (req,res) => {
     
     let mailOptions = {
         from: email,
-        to: 'muhammad.alimund@gmail.com',
+        to: 'admin@conceptionary.io',
         subject: subject,
         text: "Name : "+name+' \n Email : '+email+" \n \n"+body
     };
