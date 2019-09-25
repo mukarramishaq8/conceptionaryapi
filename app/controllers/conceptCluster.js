@@ -144,6 +144,8 @@ module.exports.index = function (req, res, next) {
  * @param {*} next 
  */
 module.exports.getOne = function (req, res, next) {
+
+    console.log("Got Author Ids",req.body);
     ConceptCluster.findByPk(req.params.conceptClusterId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
@@ -151,7 +153,7 @@ module.exports.getOne = function (req, res, next) {
                 model: Concept, include: [
                     {
                         model: Perspective, include: [
-                            { model: Author },
+                            { model: Author,where : {id : req.body}},
                             { model: Keyword },
                             { model: Tone },
                         ]
@@ -165,6 +167,53 @@ module.exports.getOne = function (req, res, next) {
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
                 data
+            });
+        }).catch(next);
+}
+module.exports.getSortedAuthor = function (req, res, next) {
+    console.log("hello")
+    console.log("hello")
+    console.log("hello")
+    console.log("hello")
+    ConceptCluster.findByPk(req.params.conceptClusterId, {
+        attributes: serializers.getQueryFields(req.query),
+        include: [
+            {
+                model: Concept, include: [
+                    {
+                        model: Perspective, include: [
+                            { model: Author,order:[['firstName','ASC']] },
+                        ]
+                    }
+                ]
+            }
+        ]
+    })
+
+        .then(data => {
+            // console.log("data sending is ",JSON.stringify(data,null,4));
+            let sortedAuthor=[]
+            let count=0;
+            let temp=[]
+            data.Concepts.map(concept => {
+                concept.Perspectives.map(perspective => {
+                    if(!temp.includes(perspective.Author.id))
+                    {
+                        count++;
+                        sortedAuthor.push({id:perspective.Author.id,firstName:perspective.Author.firstName,lastName:perspective.Author.lastName})
+                        temp.push(perspective.Author.id);
+                    }
+                })
+            })
+            sortedAuthor.sort((a,b) => (a.lastName > b.lastName) ? 1 : ((b.lastName > a.lastName) ? -1 : 0)); 
+            // console.log("Total Count is ",count),
+            console.log("Sending Arrays",sortedAuthor);
+
+
+            res.status(httpResponse.success.c200.code).json({
+                responseType: httpResponse.responseTypes.success,
+                ...httpResponse.success.c200,
+                sortedAuthor
             });
         }).catch(next);
 }

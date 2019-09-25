@@ -51,8 +51,9 @@ router.route('/conceptCluster')
 router.route('/conceptClusters/:conceptClusterId')
     .get(conceptClusterController.getOne)
     .put(conceptClusterController.update)
-    .delete(conceptClusterController.delete);
-
+    .delete(conceptClusterController.delete)
+    .post(conceptClusterController.getOne)
+router.route('/conceptClusters/sortedAuthors/:conceptClusterId').get(conceptClusterController.getSortedAuthor)
 router.route('/conceptClusters/search/:label')
     .get(conceptClusterController.filter);
 
