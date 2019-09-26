@@ -145,58 +145,76 @@ module.exports.index = function (req, res, next) {
  */
 module.exports.getOne = function (req, res, next) {
 
-    console.log("Got Author Ids",req.body);
+
+    
     ConceptCluster.findByPk(req.params.conceptClusterId, {
         attributes: serializers.getQueryFields(req.query),
         include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
             {
-                model: Concept, include: [
-                    {
-                        model: Perspective, include: [
-                            { model: Author,where : {id : req.body}},
-                            { model: Keyword },
-                            { model: Tone },
-                        ]
-                    }
-                ]
+                model: Concept
             }
         ]
-    })
-        .then(data => {
+    }).then(data => {
+        let ids=[];
+        data.Concepts.map(concept => {
+            ids.push(concept.concepts_concept_clusters.concept_id)
+        })
+        Perspective.findAll({where:{concept_id:ids},include:[{model:Author,where:{id:req.body}},{model:Concept}]}).then(d => {
+            d.sort((a,b) => {return(a.Author.lastName > b.Author.lastName) ? 1 : ((b.Author.lastName > a.Author.lastName) ? -1 : 0)}); 
+
+            
+            
             res.status(httpResponse.success.c200.code).json({
                 responseType: httpResponse.responseTypes.success,
                 ...httpResponse.success.c200,
-                data
+                d
             });
-        }).catch(next);
+
+        })
+    })
+    // ConceptCluster.findByPk(req.params.conceptClusterId, {
+    //     attributes: serializers.getQueryFields(req.query),
+    //     include: serializers.isRelationshipIncluded(req.query) !== true ? undefined : [
+    //         {
+    //             model: Concept, include: [
+    //                 {
+    //                     model: Perspective, include: [
+    //                         { model: Author,where : {id : req.body}},
+    //                         { model: Keyword },
+    //                         { model: Tone },
+    //                     ]
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // })
+    //     .then(data => {
+    //         res.status(httpResponse.success.c200.code).json({
+    //             responseType: httpResponse.responseTypes.success,
+    //             ...httpResponse.success.c200,
+    //             data
+    //         });
+    //     }).catch(next);
 }
 module.exports.getSortedAuthor = function (req, res, next) {
-    console.log("hello")
-    console.log("hello")
-    console.log("hello")
-    console.log("hello")
+    
     ConceptCluster.findByPk(req.params.conceptClusterId, {
         attributes: serializers.getQueryFields(req.query),
         include: [
             {
-                model: Concept, include: [
-                    {
-                        model: Perspective, include: [
-                            { model: Author,order:[['firstName','ASC']] },
-                        ]
-                    }
-                ]
+                model: Concept
             }
-        ]
-    })
+        ] }).then(data => {
 
-        .then(data => {
-            // console.log("data sending is ",JSON.stringify(data,null,4));
-            let sortedAuthor=[]
-            let count=0;
-            let temp=[]
+            let ids=[];
             data.Concepts.map(concept => {
-                concept.Perspectives.map(perspective => {
+                ids.push(concept.concepts_concept_clusters.concept_id)
+            })
+            Perspective.findAll({where:{concept_id:ids},include:[{model:Author,order:[["firstName",'ASC']]},{model:Concept}]}).then(d => {
+                let sortedAuthor=[]
+                let count=0;
+                let temp=[]
+                d.map(perspective => {
                     if(!temp.includes(perspective.Author.id))
                     {
                         count++;
@@ -204,18 +222,66 @@ module.exports.getSortedAuthor = function (req, res, next) {
                         temp.push(perspective.Author.id);
                     }
                 })
+                sortedAuthor.sort((a,b) => (a.lastName > b.lastName) ? 1 : ((b.lastName > a.lastName) ? -1 : 0)); 
+                
+                let results={};
+                let sortedConcepts=[];
+                data.Concepts.map(concept => {
+                    sortedConcepts.push({id:concept.id,name:concept.name});
+                })
+                results['sortedAuthors']=sortedAuthor;
+                results['sortedConcepts']=sortedConcepts;
+                
+                
+                res.status(httpResponse.success.c200.code).json({
+                    responseType: httpResponse.responseTypes.success,
+                    ...httpResponse.success.c200,
+                    results
+                });
             })
-            sortedAuthor.sort((a,b) => (a.lastName > b.lastName) ? 1 : ((b.lastName > a.lastName) ? -1 : 0)); 
-            // console.log("Total Count is ",count),
-            console.log("Sending Arrays",sortedAuthor);
+        })
+    
+    // ConceptCluster.findByPk(req.params.conceptClusterId, {
+    //     attributes: serializers.getQueryFields(req.query),
+    //     include: [
+    //         {
+    //             model: Concept, include: [
+    //                 {
+    //                     model: Perspective, include: [
+    //                         { model: Author,order:[['lastName','ASC']] },
+    //                     ]
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // })
+
+    //     .then(data => {
+    //         // console.log("data sending is ",JSON.stringify(data,null,4));
+    //         let sortedAuthor=[]
+    //         let count=0;
+    //         let temp=[]
+    //         data.Concepts.map(concept => {
+    //             concept.Perspectives.map(perspective => {
+    //                 if(!temp.includes(perspective.Author.id))
+    //                 {
+    //                     count++;
+    //                     sortedAuthor.push({id:perspective.Author.id,firstName:perspective.Author.firstName,lastName:perspective.Author.lastName})
+    //                     temp.push(perspective.Author.id);
+    //                 }
+    //             })
+    //         })
+    //         sortedAuthor.sort((a,b) => (a.lastName > b.lastName) ? 1 : ((b.lastName > a.lastName) ? -1 : 0)); 
+    //         // console.log("Total Count is ",count),
+    //         // console.log("Sending Arrays",sortedAuthor);
 
 
-            res.status(httpResponse.success.c200.code).json({
-                responseType: httpResponse.responseTypes.success,
-                ...httpResponse.success.c200,
-                sortedAuthor
-            });
-        }).catch(next);
+    //         res.status(httpResponse.success.c200.code).json({
+    //             responseType: httpResponse.responseTypes.success,
+    //             ...httpResponse.success.c200,
+    //             sortedAuthor
+    //         });
+    //     }).catch(next);
 }
 
 /**
