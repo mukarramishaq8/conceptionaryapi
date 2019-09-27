@@ -83,8 +83,8 @@ router.route('/authors')
 router.route('/author')
     .post(authorController.getAuthor);
 
-    router.route('/authors/concepts/:authorId/:conceptId')
-    .get(authorController.concept)
+    router.route('/authors/concepts/:authorId')
+    .post(authorController.concept)
 
 
 

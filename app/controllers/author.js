@@ -249,8 +249,9 @@ module.exports.index = function (req, res, next) {
 //     return data;
 //  }
 module.exports.concept= function(req,res){
+    console.log("dinding",req.body.conceptIds);
     Author.findByPk(req.params.authorId,{
-        include:[{model:Perspective,include : {model:Concept},where:{concept_id:req.params.conceptId}},
+        include:[{model:Perspective,include : {model:Concept},where:{concept_id:req.body.conceptIds}},
         
                         { model: AuthorGroup, include: { model: AuthorBioHeading } },
                         { model: Book, include: { model: BookDescription } }]
