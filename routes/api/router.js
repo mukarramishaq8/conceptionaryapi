@@ -145,5 +145,5 @@ router.route('/login')
     .post(userController.login);
 router.get('/authorClusters/:authorClusterId/perspectives', authorClusterController.getPerspectivesThroughAuthorCluster);
 router.get('/authorGroups/:authorGroupId/perspectives', authorGroupController.getPerspectivesThroughAuthorGroups);
-router.get('/keywords/perspective/:keywordId', keywordController.getPerspectiveByKeyword);
+router.post('/keywords/perspective', keywordController.getPerspectiveByKeyword);
 module.exports = router;
