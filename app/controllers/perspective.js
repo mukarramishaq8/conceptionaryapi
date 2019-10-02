@@ -348,7 +348,7 @@ module.exports.upLoadPerspective = function (req, res) {
                 }
             })();
         } else {
-            res.json({ msg: "file not uploaded", skip });
+            res.json({ msg: "file not uploaded"});
         }
     })
 }
