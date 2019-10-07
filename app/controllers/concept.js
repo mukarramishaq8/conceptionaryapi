@@ -151,6 +151,7 @@ module.exports.getOne = async function (req, res, next) {
         })
             .then(data => {
                 let Perspectives = {};
+
                 Concept.findByPk(req.body.Conceptobj.concept_id, {
                     attributes: serializers.getQueryFields(req.query),
                     include: serializers.isRelationshipIncluded(req.query) !== true
@@ -254,6 +255,22 @@ module.exports.getOne = async function (req, res, next) {
                         });
                     })
                 } else {
+
+
+                    Author.findAll().then(data => {
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ")
+                        console.log("I found  data ",data.length)
+                    })
+    
+    
+
+
                     console.log("wah wah what",data)
                     console.log("wah wah what")
                     console.log("wah wah what")
