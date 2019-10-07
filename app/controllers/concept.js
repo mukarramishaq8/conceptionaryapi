@@ -257,7 +257,7 @@ module.exports.getOne = async function (req, res, next) {
                 } else {
 
 
-                    Author.findAll({where:{id:22872}}).then(data => {
+                    Author.findAll({where:{id:28835}}).then(data => {
                         console.log("I found  data ")
                         console.log("I found  data ")
                         console.log("I found  data ")
