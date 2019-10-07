@@ -263,14 +263,14 @@ module.exports.upLoadPerspective = function (req, res) {
                     for (let i = 0; i < perspectives.length; i++) {
                         if (perspectives[i].CONCEPT) {
                             concept = await getConceptByName(perspectives[i].CONCEPT);
-                            if (!concept) {
+                            if (!concept || concept.length==0) {
                                 newCreated = true;
                                 concept = await createConcept({ name: perspectives[i].CONCEPT })
                             }
                             if (perspectives[i].AUTHOR_LAST) {
                                 if (perspectives[i].AUTHOR_LAST && perspectives[i].AUTHOR_FIRST) {
                                     author = await getAuthorByName(perspectives[i].AUTHOR_FIRST + " " + perspectives[i].AUTHOR_LAST);
-                                    if (!author) {
+                                    if (!author || author.length==0) {
                                         newCreated = true;
                                         author = await createAuthor(
                                             {
@@ -286,7 +286,7 @@ module.exports.upLoadPerspective = function (req, res) {
                                 } else {
                                     author = await getAuthorByLastName(perspectives[i].AUTHOR_LAST);
                                     console.log(author);
-                                    if (!author) {
+                                    if (!author || author.length==0) {
                                         newCreated = true;
                                         author = await createAuthor(
                                             {
@@ -302,7 +302,7 @@ module.exports.upLoadPerspective = function (req, res) {
                                 }
                             } else {
                                 author = await getAuthorByLastName("anonymous");
-                                if (!author) {
+                                if (!author || author.length==0) {
                                     newCreated = true;
                                     author = await createAuthor(
                                         {
