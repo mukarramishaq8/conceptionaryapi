@@ -132,6 +132,8 @@ router.route('/authorClusters/:authorClusterId')
 /*** Home related routes. ***/
 router.route('/home/all/:label')
     .get(homeController.index);
+router.route('/updateRouteFile')
+        .get(homeController.updateRouteFile)
 /*** Users related routes. ***/
 router.route('/users')
     .get(userController.index)
