@@ -16,7 +16,7 @@ var domain="http://conceptionary.io"
 async function generateConceptSitemap() {
   let conceptMap = [];
   await Concept.findAll({ attributes: ['name'] }).then(response => {
-    response.map(data => conceptMap.push({ name: data.name }));
+    response.map(data => conceptMap.push({ name:encodeURIComponent( data.name) }));
   })
   const paramsConfig = {
     "/Concepts/:name": conceptMap,
@@ -31,7 +31,7 @@ async function generateConceptSitemap() {
 async function generateAuthorSiteMap() {
   let authorMap = [];
   await Author.findAll({ attributes: ['firstName', 'lastName'] }).then(response => {
-    response.map(data => authorMap.push({ name: data.firstName + "%20" + data.lastName }));
+    response.map(data => authorMap.push({ name: encodeURIComponent( data.firstName + " " + data.lastName) }));
 
   })
 const paramsConfig = {
@@ -47,7 +47,7 @@ const paramsConfig = {
 async function generateConceptClusterSiteMap() {
   let conceptClusterMap = []
   await ConceptCluster.findAll({ attributes: ['name'] }).then(response => {
-    response.map(data => conceptClusterMap.push({ name: data.name }));
+    response.map(data => conceptClusterMap.push({ name: encodeURIComponent( data.name) }));
   })
   const paramsConfig = {
     "/Concept-Clusters/:name": conceptClusterMap,
@@ -62,7 +62,7 @@ async function generateConceptClusterSiteMap() {
 async function generateAuthorGroupSiteMap() {
   let authorGroupMap = []
   await AuthorGroups.findAll({}).then(response => {
-    response.map(data => authorGroupMap.push({ name: data.name }));
+    response.map(data => authorGroupMap.push({ name:encodeURIComponent( data.name) }));
   })
   const paramsConfig = {
     "/Author-Groups/:name": authorGroupMap,
