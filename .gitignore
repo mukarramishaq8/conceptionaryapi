@@ -4,4 +4,3 @@ package-lock.json
 uploads/
 app/uploads/
 public/images/
-*.xml
