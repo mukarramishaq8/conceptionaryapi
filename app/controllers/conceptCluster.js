@@ -373,7 +373,7 @@ module.exports.filter = function(req, res, next) {
             
             data.forEach(cluster => {
                 objectMapping = {};
-                objectMapping.label = cluster.name + " | "+cluster.type;
+                objectMapping.label = cluster.name ;
                 objectMapping.value = cluster.name;
                 objectMapping.id = cluster.id;
                 objectMapping.category = "Concept-Clusters";

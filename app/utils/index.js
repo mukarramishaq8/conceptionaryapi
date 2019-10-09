@@ -41,7 +41,7 @@ switch(category){
         return new Promise(resolve=>{
             data.forEach(concept => {
                 objectMapping = {};
-                objectMapping.label = concept.name +" | "+concept.type;
+                objectMapping.label = concept.name ;
                 objectMapping.value = concept.name;
                 objectMapping.id = concept.id;
                 objectMapping.category = "Concept-Clusters";
