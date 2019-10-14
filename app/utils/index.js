@@ -1,9 +1,11 @@
 
 let authorColor = "#A52A2A";
 let conceptColor = "#000000";
-let conceptClusterColor = "#FF0000";
+// let conceptClusterColor = "#FF0000";
+let conceptClusterColor = "#800080";
 let authorClusterColor = "#0000FF";
 let authorGroupColor = '#33FF57';
+
 module.exports.mapObject=(category,data)=>{
 let mappedData=[];
 switch(category){
