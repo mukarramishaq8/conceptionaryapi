@@ -9,5 +9,8 @@ export default (
         <Route path='/Concept-Clusters/:name' />
         <Route path='/perspective/:id' />
         <Route path='/Author-Groups/:name' />
+        <Route path='/contact' />
+        <Route path='/TermsOfUse' />
+        <Route path='/about' />
     </Route>
 );
