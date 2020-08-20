@@ -7,7 +7,7 @@
     "sitemap": "babel-node ./sitemap-generator.js"
   },
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.18.3",
     "canvas": "^2.5.0",
     "canvas-to-buffer": "^1.0.14",
