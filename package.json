@@ -41,7 +41,7 @@
     "react-router-sitemap": "^1.2.0",
     "sendmail": "^1.6.1",
     "sequelize": "^5.2.8",
-    "underscore": "^1.9.1",
+    "underscore": "^1.12.1",
     "unescape-unicode": "^0.2.0",
     "utf8": "^3.0.0"
   },
